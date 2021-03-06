@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="chat_bubble_friend">#0B0B0B</color>
+
+    <color name="tetris_block">#454545</color>
+</resources>

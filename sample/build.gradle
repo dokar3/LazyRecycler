@@ -1,0 +1,57 @@
+plugins {
+    id 'com.android.application'
+    id 'kotlin-android'
+}
+
+android {
+    compileSdkVersion 30
+    buildToolsVersion "30.0.2"
+
+    defaultConfig {
+        applicationId "com.dokar.lazyrecyclersample"
+        minSdkVersion 16
+        targetSdkVersion 30
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildFeatures {
+        viewBinding true
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+}
+
+dependencies {
+    implementation project(':lazyrecycler')
+    implementation project(':flow')
+    implementation project(':livedata')
+    implementation project(':rxjava3')
+
+    implementation libs.kotlin_stdlib
+    implementation libs.androidx_core
+    implementation libs.appcompat
+    implementation libs.lifecycle_runtime
+    implementation libs.material
+    implementation libs.constraint_layout
+    implementation libs.coil
+    implementation libs.rxjava
+
+    testImplementation libs.test_junit
+    androidTestImplementation libs.test_ext_junit
+    androidTestImplementation libs.test_espresso
+}
