@@ -1,5 +1,7 @@
 # RecyclerView，Compose like
 
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.github.dokar3/lazyrecycler/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.github.dokar3/lazyrecycler)
+
 ![](arts/lazyrecycler.png)
 
 **LazyRecycler** is a library that provides LazyColumn (from Jetpack Compose) like apis to build lists with RecyclerView. 
@@ -7,7 +9,7 @@
 ### Usage
 
 ```groovy
-implementation 'io.github.dokar3:lazyrecycler:0.1.1'
+implementation 'io.github.dokar3:lazyrecycler:0.1.2'
 ```
 
 With LazyRecycler, a few dozen lines of code can do almost all things for RecyclerView. Adapter, LayoutManager, DiffUtil, OnItemClickListener and more, these are **all in one** block:
@@ -210,13 +212,13 @@ To support `Flow`, `LiveData` or `RxJava`, add the dependencies first:
 
 ```groovy
 // Flow
-implementation 'io.github.dokar3:lazyrecycler-flow:0.1.1'
+implementation 'io.github.dokar3:lazyrecycler-flow:0.1.2'
 
 // LiveData
-implementation 'io.github.dokar3:lazyrecycler-livedata:0.1.1'
+implementation 'io.github.dokar3:lazyrecycler-livedata:0.1.2'
 
 // RxJava3
-implementation 'io.github.dokar3:lazyrecycler-rxjava3:0.1.1'
+implementation 'io.github.dokar3:lazyrecycler-rxjava3:0.1.2'
 ```
 
 ### Flow
