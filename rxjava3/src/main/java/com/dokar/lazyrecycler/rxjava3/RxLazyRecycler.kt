@@ -4,12 +4,10 @@ import com.dokar.lazyrecycler.LazyRecycler
 import com.dokar.lazyrecycler.LazyRecyclerMarker
 import com.dokar.lazyrecycler.Section
 
-@LazyRecyclerMarker
 fun LazyRecycler.observeChanges() {
     withRxJava(true)
 }
 
-@LazyRecyclerMarker
 fun LazyRecycler.stopObserving() {
     withRxJava(false)
 }

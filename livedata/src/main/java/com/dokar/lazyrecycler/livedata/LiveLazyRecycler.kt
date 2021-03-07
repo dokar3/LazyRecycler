@@ -6,12 +6,10 @@ import com.dokar.lazyrecycler.LazyRecycler
 import com.dokar.lazyrecycler.LazyRecyclerMarker
 import com.dokar.lazyrecycler.Section
 
-@LazyRecyclerMarker
 fun LazyRecycler.observeChanges(lifecycleOwner: LifecycleOwner) {
     withLiveData(lifecycleOwner, true)
 }
 
-@LazyRecyclerMarker
 fun LazyRecycler.stopObserving(lifecycleOwner: LifecycleOwner) {
     withLiveData(lifecycleOwner, false)
 }

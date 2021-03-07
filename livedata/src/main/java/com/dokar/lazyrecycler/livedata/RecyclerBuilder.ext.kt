@@ -24,7 +24,7 @@ fun <I> RecyclerBuilder.item(
         emptyList()
     }
     return items(layoutId, currItems, sectionId, bindScope).also {
-        it.section().computeExtra { extra -> extra.liveItems = item }
+        it.section().applyExtra { liveItems = item }
     }
 }
 
@@ -37,7 +37,7 @@ fun <I> RecyclerBuilder.items(
 ): SectionConfigurator<I> {
     val currList = items.value ?: emptyList()
     return items(layoutId, currList, sectionId, bindScope).also {
-        it.section().computeExtra { extra -> extra.liveItems = items }
+        it.section().applyExtra { liveItems = items }
     }
 }
 
@@ -56,7 +56,7 @@ inline fun <reified V : ViewBinding, I> RecyclerBuilder.item(
         emptyList()
     }
     return items(currItems, sectionId, bind).also {
-        it.section().computeExtra { extra -> extra.liveItems = item }
+        it.section().applyExtra { liveItems = item }
     }
 }
 
@@ -71,7 +71,7 @@ inline fun <reified V : ViewBinding, I> RecyclerBuilder.items(
 ): SectionConfigurator<I> {
     val currList = items.value ?: emptyList()
     return items(currList, sectionId, bind).also {
-        it.section().computeExtra { extra -> extra.liveItems = items }
+        it.section().applyExtra { liveItems = items }
     }
 }
 
@@ -83,7 +83,7 @@ inline fun <reified V : ViewBinding, I> RecyclerBuilder.itemsIndexed(
 ): SectionConfigurator<I> {
     val currList = items.value ?: emptyList()
     return itemsIndexed(currList, sectionId, bind).also {
-        it.section().computeExtra { extra -> extra.liveItems = items }
+        it.section().applyExtra { liveItems = items }
     }
 }
 
@@ -97,7 +97,7 @@ fun <I> RecyclerBuilder.item(
     bindScope: ViewRequiredBindScope<I>
 ): SectionConfigurator<I> {
     return items(emptyList(), sectionId, bindScope).also {
-        it.section().computeExtra { extra -> extra.liveItems = item }
+        it.section().applyExtra { liveItems = item }
     }
 }
 
@@ -111,7 +111,7 @@ fun <I> RecyclerBuilder.items(
     bindScope: ViewRequiredBindScope<I>
 ): SectionConfigurator<I> {
     return items(emptyList(), sectionId, bindScope).also {
-        it.section().computeExtra { extra -> extra.liveItems = items }
+        it.section().applyExtra { liveItems = items }
     }
 }
 
@@ -127,7 +127,7 @@ fun <I> RecyclerBuilder.item(
         emptyList()
     }
     return items(template, currItems, sectionId).also {
-        it.section().computeExtra { extra -> extra.liveItems = item }
+        it.section().applyExtra { liveItems = item }
     }
 }
 
@@ -139,6 +139,6 @@ fun <I> RecyclerBuilder.items(
 ): SectionConfigurator<I> {
     val currList = items.value ?: emptyList()
     return items(template, currList, sectionId).also {
-        it.section().computeExtra { extra -> extra.liveItems = items }
+        it.section().applyExtra { liveItems = items }
     }
 }

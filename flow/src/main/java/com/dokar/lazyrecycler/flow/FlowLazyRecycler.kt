@@ -7,12 +7,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
-@LazyRecyclerMarker
 fun LazyRecycler.observeChanges(scope: CoroutineScope) {
     withFlow(scope, true)
 }
 
-@LazyRecyclerMarker
 fun LazyRecycler.stopObserving(scope: CoroutineScope) {
     withFlow(scope, false)
 }

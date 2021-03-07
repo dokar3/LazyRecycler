@@ -19,7 +19,7 @@ fun <I> RecyclerBuilder.item(
     bindScope: BindScope<I>
 ): SectionConfigurator<I> {
     return items(layoutId, emptyList(), sectionId, bindScope).also {
-        it.section().computeExtra { extra ->  extra.liveItems = item }
+        it.section().applyExtra{ liveItems = item }
     }
 }
 
@@ -31,7 +31,7 @@ fun <I> RecyclerBuilder.items(
     bindScope: BindScope<I>
 ): SectionConfigurator<I> {
     return items(layoutId, emptyList(), sectionId, bindScope).also {
-        it.section().computeExtra { extra ->  extra.liveItems = items }
+        it.section().applyExtra{ liveItems = items }
     }
 }
 
@@ -46,7 +46,7 @@ inline fun <reified V : ViewBinding, I> RecyclerBuilder.item(
     noinline bind: ViewBindingBind<V, I>
 ): SectionConfigurator<I> {
     return items(emptyList(), sectionId, bind).also {
-        it.section().computeExtra { extra ->  extra.liveItems = item }
+        it.section().applyExtra{ liveItems = item }
     }
 }
 
@@ -60,7 +60,7 @@ inline fun <reified V : ViewBinding, I> RecyclerBuilder.items(
     noinline bind: ViewBindingBind<V, I>
 ): SectionConfigurator<I> {
     return items(emptyList(), sectionId, bind).also {
-        it.section().computeExtra { extra ->  extra.liveItems = items }
+        it.section().applyExtra{ liveItems = items }
     }
 }
 
@@ -71,7 +71,7 @@ inline fun <reified V : ViewBinding, I> RecyclerBuilder.itemsIndexed(
     noinline bind: IndexedViewBindingBind<V, I>
 ): SectionConfigurator<I> {
     return itemsIndexed(emptyList(), sectionId, bind).also {
-        it.section().computeExtra { extra ->  extra.liveItems = items }
+        it.section().applyExtra{ liveItems = items }
     }
 }
 
@@ -85,7 +85,7 @@ fun <I> RecyclerBuilder.item(
     bindScope: ViewRequiredBindScope<I>
 ): SectionConfigurator<I> {
     return items(emptyList(), sectionId, bindScope).also {
-        it.section().computeExtra { extra ->  extra.liveItems = item }
+        it.section().applyExtra{ liveItems = item }
     }
 }
 
@@ -99,7 +99,7 @@ fun <I> RecyclerBuilder.items(
     bindScope: ViewRequiredBindScope<I>
 ): SectionConfigurator<I> {
     return items(emptyList(), sectionId, bindScope).also {
-        it.section().computeExtra { extra ->  extra.liveItems = items }
+        it.section().applyExtra{ liveItems = items }
     }
 }
 
@@ -110,7 +110,7 @@ fun <I> RecyclerBuilder.item(
     sectionId: Int = -1
 ): SectionConfigurator<I> {
     return items(template, emptyList(), sectionId).also {
-        it.section().computeExtra { extra ->  extra.liveItems = item }
+        it.section().applyExtra{ liveItems = item }
     }
 }
 
@@ -121,6 +121,6 @@ fun <I> RecyclerBuilder.items(
     sectionId: Int = -1
 ): SectionConfigurator<I> {
     return items(template, emptyList(), sectionId).also {
-        it.section().computeExtra { extra ->  extra.liveItems = items }
+        it.section().applyExtra{ liveItems = items }
     }
 }

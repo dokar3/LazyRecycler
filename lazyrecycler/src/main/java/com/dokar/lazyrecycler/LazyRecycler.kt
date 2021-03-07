@@ -110,7 +110,11 @@ class LazyRecycler(
         }
     }
 
-    fun getSelectionCount(): Int {
+    fun getSectionItems(id: Int): List<Any>? {
+        return sections.find { it.id == id }?.items
+    }
+
+    fun getSectionCount(): Int {
         return sections.size
     }
 
@@ -174,6 +178,7 @@ class LazyRecycler(
             .setBackgroundThreadExecutor(sExecutor)
             .build()
         differs[section] = AsyncListDiffer(updateCallback, diffConfig).also {
+            it.submitList(section.items)
             it.addListListener { _, currentList ->
                 section.items = currentList
             }

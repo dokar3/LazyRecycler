@@ -210,6 +210,8 @@ fun <I> RecyclerBuilder.item(
     val section = Section(sectionId, creator, binder, listOf(item)).apply {
         onItemClick = template.onItemClick
         onItemLongClick = template.onItemLongClick
+        differ = template.differ
+        spanCountLookup = template.spanCountLookup
     }
     section.viewType = template.viewType
     addSection(section)
@@ -230,6 +232,8 @@ fun <I> RecyclerBuilder.items(
     val section = Section(sectionId, creator, binder, items).apply {
         onItemClick = template.onItemClick
         onItemLongClick = template.onItemLongClick
+        differ = template.differ
+        spanCountLookup = template.spanCountLookup
     }
     section.viewType = template.viewType
     addSection(section)

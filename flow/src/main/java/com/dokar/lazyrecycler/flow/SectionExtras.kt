@@ -6,9 +6,9 @@ import kotlinx.coroutines.flow.Flow
 
 typealias ShowWhile = () -> Flow<Boolean>
 
-inline fun Section<*, *>.computeExtra(compute: (extra: SectionExtra) -> Unit) {
+inline fun Section<*, *>.applyExtra(block: SectionExtra.() -> Unit) {
     val extra = findExtra(SectionExtra::class.java) ?: SectionExtra().also(::putExtra)
-    compute(extra)
+    block(extra)
 }
 
 class SectionExtra {

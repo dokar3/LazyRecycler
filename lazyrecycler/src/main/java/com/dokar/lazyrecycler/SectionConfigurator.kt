@@ -1,5 +1,9 @@
 package com.dokar.lazyrecycler
 
+fun <I> Template<I>.config(): SectionConfigurator<I> {
+    return SectionConfigurator(this)
+}
+
 class SectionConfigurator<I>(private val section: Section<out Any?, I>) {
 
     fun clicks(onItemClick: OnItemClick<I>): SectionConfigurator<I> {

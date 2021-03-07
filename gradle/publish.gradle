@@ -24,6 +24,12 @@ def isReleaseBuild() {
     return VERSION_NAME.contains("SNAPSHOT") == false
 }
 
+def getLocalMavenUrl() {
+    def userHome = System.properties["user.home"]
+    return userHome != null ? "file://" + userHome + "/.m2/repository"
+            : "file://${rootProject.buildDir}/localMaven"
+}
+
 def getReleaseRepositoryUrl() {
     return hasProperty('RELEASE_REPOSITORY_URL') ? RELEASE_REPOSITORY_URL
             : "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
@@ -99,7 +105,7 @@ afterEvaluate { project ->
 
         repositories {
             mavenDeployer {
-                repository(url: "file://${rootProject.buildDir}/localMaven")
+                repository(url: getLocalMavenUrl())
 
                 configurePom(pom)
             }
