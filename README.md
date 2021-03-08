@@ -9,7 +9,7 @@
 ### Usage
 
 ```groovy
-implementation 'io.github.dokar3:lazyrecycler:0.1.2'
+implementation 'io.github.dokar3:lazyrecycler:0.1.3'
 ```
 
 With LazyRecycler, a few dozen lines of code can do almost all things for RecyclerView. Adapter, LayoutManager, DiffUtil, OnItemClickListener and more, these are **all in one** block:
@@ -35,9 +35,7 @@ LazyRecycler(recyclerView, spanCount = 3) {
             oldItem.title == newItem.title && ...
         }
     }
-    
     ...
-    
     item(R.layout.footer, Unit) {}
 }
 ```
@@ -78,7 +76,7 @@ items(R.layout.item_news, news) { ... }
 items<ItemNewsBinding, News>(news) { ... }
 ```
 
-Providing a item view in the bind scope is also supported:
+Providing an item view in the bind scope is also supported:
 
 ```kotlin
 items<String>(...) {
@@ -212,13 +210,13 @@ To support `Flow`, `LiveData` or `RxJava`, add the dependencies first:
 
 ```groovy
 // Flow
-implementation 'io.github.dokar3:lazyrecycler-flow:0.1.2'
+implementation 'io.github.dokar3:lazyrecycler-flow:0.1.3'
 
 // LiveData
-implementation 'io.github.dokar3:lazyrecycler-livedata:0.1.2'
+implementation 'io.github.dokar3:lazyrecycler-livedata:0.1.3'
 
 // RxJava3
-implementation 'io.github.dokar3:lazyrecycler-rxjava3:0.1.2'
+implementation 'io.github.dokar3:lazyrecycler-rxjava3:0.1.3'
 ```
 
 ### Flow

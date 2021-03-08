@@ -43,7 +43,7 @@ class LazyAdapter(
         if (onItemClick != null) {
             holder.itemView.setOnClickListener {
                 val pos = holder.adapterPosition
-                val item = getItem(pos)
+                val item = getItem(pos) ?: return@setOnClickListener
                 onItemClick(it, item)
             }
         }
@@ -52,7 +52,7 @@ class LazyAdapter(
         if (onItemLongClick != null) {
             holder.itemView.setOnLongClickListener {
                 val pos = holder.adapterPosition
-                val item = getItem(pos)
+                val item = getItem(pos) ?: return@setOnLongClickListener false
                 return@setOnLongClickListener onItemLongClick(it, item)
             }
         }
@@ -148,6 +148,23 @@ class LazyAdapter(
         }
     }
 
+    fun setSectionVisible(section: Section<Any, Any>, visible: Boolean) {
+        val visibleCurrently = section.visible
+        if (!visibleCurrently && visible) {
+            val offset = getSectionPositionOffset(section)
+            section.visible = visible
+            if (offset != -1) {
+                notifyItemRangeInserted(offset, section.items.size)
+            }
+        } else if (visibleCurrently && !visible) {
+            val offset = getSectionPositionOffset(section)
+            section.visible = visible
+            if (offset != -1) {
+                notifyItemRangeRemoved(offset, section.items.size)
+            }
+        }
+    }
+
     fun updateSectionItems(section: Section<Any, Any>, newItems: List<Any>) {
         val offset = getSectionPositionOffset(section)
         if (offset == -1) {
@@ -176,16 +193,18 @@ class LazyAdapter(
     fun getSectionPositionOffset(section: Section<Any, Any>): Int {
         var offset = 0
         var index = 0
+        var found = false
         while (index < sections.size) {
             val s = sections[index]
             if (s == section) {
+                found = true
                 break
             }
             val size = if (s.visible) s.items.size else 0
             offset += size
             index++
         }
-        return offset
+        return if (found) offset else -1
     }
 
     private fun findSectionByViewType(viewType: Int): Section<Any, Any>? {
@@ -197,11 +216,11 @@ class LazyAdapter(
         return null
     }
 
-    private fun getItem(position: Int): Any {
+    private fun getItem(position: Int): Any? {
         return getItemAndOffset(position).first
     }
 
-    private fun getItemAndOffset(position: Int): Pair<Any, Int> {
+    private fun getItemAndOffset(position: Int): Pair<Any?, Int> {
         var offset = 0
         var index = 0
         while (index < sections.size) {

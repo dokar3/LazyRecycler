@@ -84,6 +84,10 @@ class LazyRecycler(
         return adapter.removeSection(section)
     }
 
+    fun containsSection(id: Int): Boolean {
+        return sections.find { it.id == id } != null
+    }
+
     fun setSectionVisible(id: Int, visible: Boolean) {
         sections.find { it.id == id }?.let {
             setSectionVisible(it, visible)
@@ -91,8 +95,14 @@ class LazyRecycler(
     }
 
     fun setSectionVisible(section: Section<Any, Any>, visible: Boolean) {
-        section.visible = visible
-        adapter.notifyDataSetChanged()
+        if (section.visible == visible) {
+            return
+        }
+        adapter.setSectionVisible(section, visible)
+    }
+
+    fun isSectionVisible(id: Int): Boolean {
+        return sections.find { it.id == id }?.visible ?: false
     }
 
     fun updateSection(id: Int, items: List<Any>) {

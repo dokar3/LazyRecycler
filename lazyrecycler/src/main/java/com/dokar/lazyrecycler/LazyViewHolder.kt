@@ -10,7 +10,8 @@ open class LazyViewHolder<V>(
     private val viewBinder: ItemBinder<V, Any>
 ) : RecyclerView.ViewHolder(root) {
 
-    open fun bind(item: Any, position: Int) {
+    open fun bind(item: Any?, position: Int) {
+        if (item == null) return
         viewBinder.bind(view, item, position)
     }
 }
