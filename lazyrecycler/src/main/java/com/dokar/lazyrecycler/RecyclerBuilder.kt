@@ -96,6 +96,18 @@ fun <I> template(
 }
 
 @TemplateMarker
+fun <I> template(
+    bindScope: ViewRequiredBindScope<I>
+): Template<I> {
+    val itemViewCreator = ViewRequiredCreator(bindScope)
+    val itemBinder = ItemViewBinder<I>()
+    return Template(
+        itemViewCreator,
+        itemBinder
+    )
+}
+
+@TemplateMarker
 inline fun <reified V : ViewBinding, I> template(
     noinline bind: ViewBindingBind<V, I>
 ): Template<I> {
