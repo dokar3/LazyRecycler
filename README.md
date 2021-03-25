@@ -80,9 +80,9 @@ Providing an item view in the bind scope is also supported:
 
 ```kotlin
 items<String>(...) {
-	val tv = TextView(context)
+    val tv = TextView(context)
     bind { text ->
-    	tv.text = text
+        tv.text = text
     }
     return@item tv
 }
@@ -94,7 +94,7 @@ For ViewBinding item/items:
 
 ```kotlin
 items<ItemNewsBinding, News>(...) { binding, news -> 
-	binding.title.text = news.title
+    binding.title.text = news.title
     binding.image.load(news.cover)
     ...
 }
@@ -106,8 +106,8 @@ For other item/items:
 items(...) { ...
     ...
     val tv: TextView = view.findViewById(R.id.title)
-	bind { item ->
-    	tv.text = item.title
+    bind { item ->
+        tv.text = item.title
     }
     ...
 }
@@ -148,7 +148,7 @@ LazyRecycler create a LinearLayoutManager by default, if `spanCount`  is defined
 ```kotlin
 LazyRecycler(
     recyclerView,
-	setupLayoutManager = false,
+    setupLayoutManager = false,
     isHorizontal = false, // ignored
     spanCount = 3, // ignored
     reverseLayout = false, // ignored
@@ -163,13 +163,13 @@ recyclerView.layoutManager = ...
 ```kotlin
 item(...) {
 }.spanSize {
-	3
+    3
 }
 
 items<V, I>(...) {
-	...
+    ...
 }.spanSize { position ->
-	if (position == 0) 3 else 1
+    if (position == 0) 3 else 1
 }
 ```
 
@@ -179,13 +179,13 @@ Use `differ` function, then LazyRecycler will do the all works after section ite
 
 ``` 
 items<V, I>(...) {
-	...
+    ...
 }.differ {
     areItemsTheSame { oldItem, newItem ->
         ...
     }
     areContentsTheSame { oldItem, newItem ->
-    	...
+        ...
     }
 }
 ```
@@ -196,9 +196,9 @@ items<V, I>(...) {
 
 ```kotlin
 items(...) {
-	...
+    ...
 }.clicks { view, item -> 
-	...
+    ...
 }.longClicks { view, item -> 
     ...
 }
@@ -211,7 +211,6 @@ To support some mutable(observable) data sources like `Flow`, `LiveData`, or `Rx
 ```groovy
 // Flow
 implementation 'io.github.dokar3:lazyrecycler-flow:0.1.5'
-
 // LiveData
 implementation 'io.github.dokar3:lazyrecycler-livedata:0.1.5'
 // RxJava3
@@ -299,13 +298,13 @@ implementation 'io.github.dokar3:lazyrecycler-rxjava3:0.1.5'
 
 ```kotlin
 LazyRecycler {
-	// layout id definition
+    // layout id definition
     val sectionHeader = template<String>(R.layout.section_header) {
-    	// bind
+        // bind
     }
     // ViewBinding definition
     val normalItem = template<ItemViewBinding, Item> { binding, item ->
-    	// bind
+        // bind
     }
     
     item(sectionHeader, "section 1")
@@ -323,14 +322,14 @@ LazyRecycler {
 
 ```kotlin
 LazyRecycler {
-	val bubbleFromMe = template<ItemMsgFromMeBinding, Message> { binding, msg ->
-    	// bind
+    val bubbleFromMe = template<ItemMsgFromMeBinding, Message> { binding, msg ->
+        // bind
     }
     
     items<ItemMsgBinding, Message>(messages) { binding, msg ->
-    	// bind
+        // bind
     }.subSection(bubbleFromMe) { msg, position ->
-    	// condition
+        // condition
         msg.isFromMe == true
     }
     ...
@@ -359,11 +358,11 @@ lazyRecycler.observeChanges(...)
 
 ```kotlin
 backgroundThread {
-	val recycler = LazyRecycler {
-    	...
+    val recycler = LazyRecycler {
+        ...
     }
     uiThread {
-		lazyRecycler.attchTo(recyclerView)
+        lazyRecycler.attchTo(recyclerView)
     }
 }
 ```
