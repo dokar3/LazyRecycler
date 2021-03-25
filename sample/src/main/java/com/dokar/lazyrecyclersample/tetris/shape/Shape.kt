@@ -60,5 +60,4 @@ abstract class Shape {
     }
 
     abstract fun getTransforms(): Array<Array<BooleanArray>>
-
 }

@@ -5,18 +5,25 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import com.dokar.lazyrecycler.LazyRecycler
+import com.dokar.lazyrecycler.flow.asMutSource
+import com.dokar.lazyrecycler.items
 import com.dokar.lazyrecycler.template
-import com.dokar.lazyrecycler.flow.items
-import com.dokar.lazyrecycler.flow.observeChanges
-import com.dokar.lazyrecyclersample.*
+import com.dokar.lazyrecyclersample.ChatItem
 import com.dokar.lazyrecyclersample.Constants.CHAT_MESSAGES
-import com.dokar.lazyrecyclersample.databinding.*
+import com.dokar.lazyrecyclersample.Message
+import com.dokar.lazyrecyclersample.SentDate
+import com.dokar.lazyrecyclersample.databinding.ActivityChatBinding
+import com.dokar.lazyrecyclersample.databinding.ItemMsgDateBinding
+import com.dokar.lazyrecyclersample.databinding.ItemMsgFriendBinding
+import com.dokar.lazyrecyclersample.databinding.ItemMsgMeBinding
+import com.dokar.lazyrecyclersample.isSameMinute
+import com.dokar.lazyrecyclersample.isToday
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Locale
 import kotlin.random.Random
 
 class ChatActivity : AppCompatActivity() {
@@ -67,7 +74,10 @@ class ChatActivity : AppCompatActivity() {
                 binding.ivAvatar.setImageResource(msg.senderAvatar)
             }
 
-            items(fromFriend, messages).subSection(fromMe) { item, _ ->
+            items(
+                fromFriend,
+                messages.asMutSource(lifecycleScope)
+            ).subSection(fromMe) { item, _ ->
                 item is Message && item.senderId == 0
             }.subSection(sentDate) { item, _ ->
                 item is SentDate
@@ -89,8 +99,6 @@ class ChatActivity : AppCompatActivity() {
                     }
                 }
             }
-        }.run {
-            observeChanges(lifecycleScope)
         }
     }
 
@@ -183,5 +191,4 @@ class ChatActivity : AppCompatActivity() {
         msgs.add(reply)
         messages.value = msgs
     }
-
 }

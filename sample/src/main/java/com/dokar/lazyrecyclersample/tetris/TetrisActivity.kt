@@ -9,9 +9,8 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.SimpleItemAnimator
 import com.dokar.lazyrecycler.LazyRecycler
-import com.dokar.lazyrecycler.flow.item
-import com.dokar.lazyrecycler.flow.items
-import com.dokar.lazyrecycler.flow.observeChanges
+import com.dokar.lazyrecycler.flow.asMutSource
+import com.dokar.lazyrecycler.items
 import com.dokar.lazyrecyclersample.R
 import com.dokar.lazyrecyclersample.databinding.ActivityTetrisBinding
 import com.dokar.lazyrecyclersample.databinding.ItemTetrisBlockBinding
@@ -21,7 +20,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.util.*
 import kotlin.math.max
 
 class TetrisActivity : AppCompatActivity() {
@@ -48,7 +46,6 @@ class TetrisActivity : AppCompatActivity() {
         blockColor = ContextCompat.getColor(this, R.color.tetris_block)
         fillColor = ContextCompat.getColor(this, R.color.tetris_block_active)
 
-
         lifecycleScope.launch(Dispatchers.Default) {
             createCanvas()
 
@@ -72,14 +69,18 @@ class TetrisActivity : AppCompatActivity() {
 
     private suspend fun createCanvas() = withContext(Dispatchers.Default) {
         LazyRecycler(spanCount = cols) {
-            item(score) { binding: ItemTetrisScoreBinding, score ->
+            items(
+                score.asMutSource(lifecycleScope)
+            ) { binding: ItemTetrisScoreBinding, score ->
                 binding.tvScore.text = String.format("%03d", score[0])
                 binding.tvHighestScore.text = score[1].toString()
             }.spanSize {
                 cols
             }
 
-            items(matrix) { binding: ItemTetrisBlockBinding, fillBlock ->
+            items(
+                matrix.asMutSource(lifecycleScope)
+            ) { binding: ItemTetrisBlockBinding, fillBlock ->
                 val color = if (fillBlock) fillColor else blockColor
                 binding.block.setBackgroundColor(color)
             }.spanSize {
@@ -89,8 +90,6 @@ class TetrisActivity : AppCompatActivity() {
                 areContentsTheSame { oldItem, newItem -> oldItem == newItem }
             }
         }.let { recycler ->
-            recycler.observeChanges(lifecycleScope)
-
             withContext(Dispatchers.Main.immediate) {
                 val rv = binding.rvTetris
                 recycler.attachTo(rv)
@@ -156,7 +155,6 @@ class TetrisActivity : AppCompatActivity() {
                 onDone()
             }
         }
-
     }
 
     private fun updateScore(value: Int) {
@@ -175,5 +173,4 @@ class TetrisActivity : AppCompatActivity() {
             tetrisGame.finish()
         }
     }
-
 }

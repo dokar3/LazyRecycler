@@ -26,7 +26,5 @@ class ItemViewBinder<I> : ItemBinder<ItemViewBinder.BindWrapper<I>, I> {
         fun bindIndexed(bind: IndexedBind<I>) {
             this.indexedBind = bind
         }
-
     }
-
 }

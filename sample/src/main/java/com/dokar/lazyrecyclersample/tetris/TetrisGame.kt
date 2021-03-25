@@ -1,15 +1,26 @@
 package com.dokar.lazyrecyclersample.tetris
 
+import com.dokar.lazyrecyclersample.tetris.control.ControlEventHandler
 import com.dokar.lazyrecyclersample.tetris.control.GameController.Companion.DOWN_KEY_DOWN
 import com.dokar.lazyrecyclersample.tetris.control.GameController.Companion.DOWN_KEY_UP
 import com.dokar.lazyrecyclersample.tetris.control.GameController.Companion.LEFT_KEY_UP
 import com.dokar.lazyrecyclersample.tetris.control.GameController.Companion.RIGHT_KEY_UP
 import com.dokar.lazyrecyclersample.tetris.control.GameController.Companion.SINGLE_TAP_UP
-import com.dokar.lazyrecyclersample.tetris.control.ControlEventHandler
-import com.dokar.lazyrecyclersample.tetris.shape.*
-import kotlinx.coroutines.*
+import com.dokar.lazyrecyclersample.tetris.shape.LShape
+import com.dokar.lazyrecyclersample.tetris.shape.Shape
+import com.dokar.lazyrecyclersample.tetris.shape.SkewShape
+import com.dokar.lazyrecyclersample.tetris.shape.SquareShape
+import com.dokar.lazyrecyclersample.tetris.shape.StraightShape
+import com.dokar.lazyrecyclersample.tetris.shape.TShape
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
-import java.util.*
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.util.Arrays
 import kotlin.math.max
 import kotlin.math.min
 
@@ -417,5 +428,4 @@ class TetrisGame(
             SkewShape()
         )
     }
-
 }

@@ -5,7 +5,10 @@ import android.content.Context
 import android.os.Handler
 import android.os.Looper
 import android.os.Message
-import android.view.*
+import android.view.MotionEvent
+import android.view.VelocityTracker
+import android.view.View
+import android.view.ViewConfiguration
 import java.lang.ref.WeakReference
 import kotlin.math.abs
 import kotlin.math.max
@@ -52,8 +55,8 @@ class SwipeGameController(context: Context) : GameController(), View.OnTouchList
                 val vx = velocityTracker.xVelocity
                 val vy = velocityTracker.yVelocity
                 if (abs(dx) > abs(dy)) {
-                    if (abs(dx) > distanceThreshold
-                        && abs(vx) > velocityThreshold
+                    if (abs(dx) > distanceThreshold &&
+                        abs(vx) > velocityThreshold
                     ) {
                         currDownEvent = if (dx > 0) {
                             RIGHT_KEY_DOWN
@@ -62,8 +65,8 @@ class SwipeGameController(context: Context) : GameController(), View.OnTouchList
                         }
                     }
                 } else {
-                    if (abs(dy) > distanceThreshold
-                        && abs(vy) > velocityThreshold
+                    if (abs(dy) > distanceThreshold &&
+                        abs(vy) > velocityThreshold
                     ) {
                         currDownEvent = if (dy > 0) {
                             DOWN_KEY_DOWN
@@ -123,6 +126,5 @@ class SwipeGameController(context: Context) : GameController(), View.OnTouchList
             controller.currDownEvent = event
             controller.dispatchEvent(event)
         }
-
     }
 }

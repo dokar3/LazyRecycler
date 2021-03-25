@@ -77,7 +77,6 @@ object Constants {
         )
     )
 
-
     private const val thirtyMinutes = 30 * 60 * 1000L
 
     private const val MSG_PLACEHOLDER =

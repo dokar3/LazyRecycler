@@ -1,10 +1,20 @@
 package com.dokar.lazyrecycler
 
-class Differ<D> {
+import androidx.recyclerview.widget.DiffUtil
 
-    internal var areItemsTheSame: AreItemsTheSame<D>? = null
+open class Differ<D> : DiffUtil.ItemCallback<D>() {
 
-    internal var areContentsTheSame: AreContentsTheSame<D>? = null
+    private var areItemsTheSame: AreItemsTheSame<D>? = null
+
+    private var areContentsTheSame: AreContentsTheSame<D>? = null
+
+    override fun areItemsTheSame(oldItem: D, newItem: D): Boolean {
+        return areItemsTheSame?.invoke(oldItem, newItem) ?: false
+    }
+
+    override fun areContentsTheSame(oldItem: D, newItem: D): Boolean {
+        return areContentsTheSame?.invoke(oldItem, newItem) ?: false
+    }
 
     fun areItemsTheSame(expression: AreItemsTheSame<D>) {
         areItemsTheSame = expression
@@ -13,5 +23,4 @@ class Differ<D> {
     fun areContentsTheSame(expression: AreContentsTheSame<D>) {
         areContentsTheSame = expression
     }
-
 }

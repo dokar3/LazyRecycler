@@ -1,10 +1,10 @@
 package com.dokar.lazyrecyclersample
 
 import java.util.Calendar
-import java.util.Calendar.YEAR
 import java.util.Calendar.DAY_OF_YEAR
 import java.util.Calendar.HOUR_OF_DAY
 import java.util.Calendar.MINUTE
+import java.util.Calendar.YEAR
 
 fun Long.isToday(): Boolean {
     val now = Calendar.getInstance()
@@ -21,6 +21,6 @@ fun Long.isSameMinute(target: Long): Boolean {
     c1.timeInMillis = this
     val c2 = Calendar.getInstance()
     c2.timeInMillis = target
-    return c1.get(YEAR) == c2.get(YEAR) && c1.get(DAY_OF_YEAR) == c2.get(DAY_OF_YEAR)
-            && c1.get(HOUR_OF_DAY) == c2.get(HOUR_OF_DAY) && c1.get(MINUTE) == c2.get(MINUTE)
+    return c1.get(YEAR) == c2.get(YEAR) && c1.get(DAY_OF_YEAR) == c2.get(DAY_OF_YEAR) &&
+        c1.get(HOUR_OF_DAY) == c2.get(HOUR_OF_DAY) && c1.get(MINUTE) == c2.get(MINUTE)
 }

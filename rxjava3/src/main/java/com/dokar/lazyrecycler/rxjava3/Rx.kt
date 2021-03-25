@@ -26,5 +26,4 @@ class SectionObserver<T>(
 
     override fun onComplete() {
     }
-
 }

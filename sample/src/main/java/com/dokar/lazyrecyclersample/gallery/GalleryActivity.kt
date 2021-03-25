@@ -4,19 +4,23 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
-import com.dokar.lazyrecycler.*
-import com.dokar.lazyrecycler.flow.items
-import com.dokar.lazyrecycler.flow.observeChanges
-import com.dokar.lazyrecycler.flow.showWhile
-import com.dokar.lazyrecyclersample.*
+import com.dokar.lazyrecycler.LazyRecycler
+import com.dokar.lazyrecycler.Template
+import com.dokar.lazyrecycler.flow.asMutProperty
+import com.dokar.lazyrecycler.flow.asMutSource
+import com.dokar.lazyrecycler.item
+import com.dokar.lazyrecycler.items
+import com.dokar.lazyrecycler.template
+import com.dokar.lazyrecyclersample.Constants
 import com.dokar.lazyrecyclersample.Constants.ID_PAINTINGS
 import com.dokar.lazyrecyclersample.Constants.OPTIONS
 import com.dokar.lazyrecyclersample.Constants.VINCENT_PAINTINGS
+import com.dokar.lazyrecyclersample.Option
+import com.dokar.lazyrecyclersample.Painting
 import com.dokar.lazyrecyclersample.databinding.ItemGalleryHeaderBinding
 import com.dokar.lazyrecyclersample.databinding.ItemOptionBinding
 import com.dokar.lazyrecyclersample.databinding.ItemPaintingBinding
@@ -49,6 +53,7 @@ class GalleryActivity : AppCompatActivity() {
         titleTemplate = template { binding: ItemSectionTitleBinding, title ->
             binding.tvSectionTitle.text = title
         }
+
         paintingTemplate = template { binding: ItemPaintingBinding, item ->
             binding.title.text = item.title
             binding.summary.text = item.year.toString()
@@ -70,7 +75,11 @@ class GalleryActivity : AppCompatActivity() {
                 onOptionItemClicked(item)
             }
 
-            items(paintingTemplate, paintings, ID_PAINTINGS).clicks { _, item ->
+            items(
+                paintingTemplate,
+                paintings.asMutSource(lifecycleScope),
+                ID_PAINTINGS
+            ).clicks { _, item ->
                 openUrl(item.url)
             }.spanSize { position ->
                 if (position % 3 == 0) 6 else 3
@@ -82,11 +91,10 @@ class GalleryActivity : AppCompatActivity() {
                     oldItem.title == newItem.title
                 }
             }.showWhile {
-                paintingsVisible
+                paintingsVisible.asMutProperty(lifecycleScope)
             }
         }.let {
             lazyRecycler = it
-            lazyRecycler.observeChanges(lifecycleScope)
         }
     }
 

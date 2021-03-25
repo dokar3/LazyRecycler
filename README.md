@@ -9,7 +9,7 @@
 ### Usage
 
 ```groovy
-implementation 'io.github.dokar3:lazyrecycler:0.1.4'
+implementation 'io.github.dokar3:lazyrecycler:0.1.5'
 ```
 
 With LazyRecycler, a few dozen lines of code can do almost all things for RecyclerView. Adapter, LayoutManager, DiffUtil, OnItemClickListener and more, these are **all in one** block:
@@ -52,7 +52,7 @@ item(...) { ... }
 items(...) { ... }
 ```
 
-Sections should only be used in `LazyRecycler` / `newSections` block, so it's necessary to pass a unique id when creating a dynamic section (Require doing some operations after list is created, like update, remove, hide and show). Or use observable data sources (see the section below). 
+Sections should only be used in `LazyRecycler` / `newSections` block, so it's necessary to pass a unique id when creating a dynamic section (Require doing some operations after list is created, like update, remove, hide and show). Or use mutable data sources (see the section below). 
 
 ```kotlin
 val lazyRecycler = LazyRecycler {
@@ -131,14 +131,14 @@ There are a lots of `item`/`items` functions to support various layouts, for hel
 // item
 item(R.layout.item, Any()) {}
 item(Any()) { binding: ItemBinding, item -> }
-// Require -> to distinguish from view binding one
-item(Any()) { -> TextView(context) }
+// Require an argument to distinguish from view binding one
+item(Any()) { _ -> TextView(context) }
 
 // items
 items(R.layout.item, listOf(Any()) {}
 items(listOf(Any()) { binding: ItemBinding, item -> }
-// Require -> to distinguish from view binding one
-items(listOf(Any()) { -> TextView(context) }
+// Require an argument to distinguish from view binding one
+items(listOf(Any()) { _ -> TextView(context) }
 ```
 
 ### LayoutManager
@@ -204,109 +204,90 @@ items(...) {
 }
 ```
 
-# Observable data sources
+# Mutable data sources
 
-To support `Flow`, `LiveData` or `RxJava`, add the dependencies first:
+To support some mutable(observable) data sources like `Flow`, `LiveData`, or `RxJava`, add the dependencies:
 
 ```groovy
 // Flow
-implementation 'io.github.dokar3:lazyrecycler-flow:0.1.4'
+implementation 'io.github.dokar3:lazyrecycler-flow:0.1.5'
 
 // LiveData
-implementation 'io.github.dokar3:lazyrecycler-livedata:0.1.4'
-
+implementation 'io.github.dokar3:lazyrecycler-livedata:0.1.5'
 // RxJava3
-implementation 'io.github.dokar3:lazyrecycler-rxjava3:0.1.4'
+implementation 'io.github.dokar3:lazyrecycler-rxjava3:0.1.5'
 ```
 
 ### Flow
 
-1. import:
+1. Use extension function `Flow.asMutSource(CoroutineScope)`:
 
    ```kotlin
-   import com.dokar.lazyrecycler.flow.item
-   import com.dokar.lazyrecycler.flow.items
-   ```
-
-2. Replace the data sources:
-
-   ```kotlin
+   import com.dokar.lazyrecycler.flow.asMutSource
+   
    val entry: Flow<I> = ...
-   item<V, I>(entry) { ... }
+   // Use items() instead of item()
+   items<V, I>(entry.asMutSource(coroutineScope)) { ... }
    
    val source: Flow<List<I>> = ...
-   items<V, I>(source) { ... }
+   items<V, I>(source.asMutSource(coroutineScope)) { ... }
    ```
 
-3. Register/unregister observers:
+3. Observe/stop observing: 
 
    ```kotlin
    val lazyRecycler = LazyRecycler { ... }
    ...
-   // Observe data changes
-   lazyRecycler.observeChanges(coroutineScope)
-   // Stop observing, if the register scope is lifecycleScope 
-   // then there is no need to unregister it manually
-   lazyRecycler.stopObserving(coroutineScope)
+   // Not needed, Observe data changes, will be called automatically
+   lazyRecycler.observeChanges()
+   // Stop observing, Not needed if mutable data sources are created from 
+   // a lifecycleScope
+   lazyRecycler.stopObserving()
    ```
 
 ### LiveData
 
-1. import:
+1. Use extension function `LiveData.asMutSource(LifecycleOwner)`:
 
    ```kotlin
-   import com.dokar.lazyrecycler.livedata.item
-   import com.dokar.lazyrecycler.livedata.items
-   ```
-
-2. Replace the data sources:
-
-   ```kotlin
+   import com.dokar.lazyrecycler.livedata.asMutSource
+   
    val entry: LiveData<I> = ...
-   item<V, I>(entry) { ... }
+   // Use items() instead of item()
+   items<V, I>(entry.asMutSource(lifecycleOwner)) { ... }
    
    val source: LiveData<List<I>> = ...
-   items<V, I>(source) { ... }
+   items<V, I>(source.asMutSource(lifecycleOwner)) { ... }
    ```
 
-3. Register/unregister observers:
+3. Observe/stop observing: 
 
    ```kotlin
-   val lazyRecycler = LazyRecycler { ... }
-   ...
-   // Observe data changes
-   lazyRecycler.observeChanges(lifecycleOwner)
-   // Stop observing, no need to unregister it manually
-   lazyRecycler.stopObserving(lifecycleOwner)
+   // Not needed, lifecycle will remove observers when components are destroyed
    ```
 
 ### RxJava
 
-1. import:
+1. Use extension function `Observable.asMutSource()`:
 
    ```kotlin
-   import com.dokar.lazyrecycler.rxjava3.item
-   import com.dokar.lazyrecycler.rxjava3.items
-   ```
-
-2. Replace the data sources:
-
-   ```kotlin
+   import com.dokar.lazyrecycler.rxjava3.asMutSource
+   
    val entry: Observable<I> = ...
-   item<V, I>(entry) { ... }
+   item<V, I>(entry.asMutSource()) { ... }
    
    val source: Observable<List<I>> = ...
-   items<V, I>(source) { ... }
+   items<V, I>(source.asMutSource()) { ... }
    ```
 
-3. Register/unregister observers:
+3. Observe/stop observing:
 
    ```kotlin
    val lazyRecycler = LazyRecycler { ... }
    ...
-   // Observe data changes
+   // Not needed, Observe data changes, will be called automatically
    lazyRecycler.observeChanges()
-   // Required: Stop observing
+   // Call it when Activitiy/Fragment is destroyed
    lazyRecycler.stopObserving()
    ```
 
@@ -369,7 +350,7 @@ lazyRecycler.newSections {
     ...
 }
 // If new sections contain any observable data source
-lazyRecycler.registerObservers(...)
+lazyRecycler.observeChanges(...)
 ```
 
 ### Build list in background

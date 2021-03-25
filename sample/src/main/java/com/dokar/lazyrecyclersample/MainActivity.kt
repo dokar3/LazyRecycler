@@ -1,8 +1,8 @@
 package com.dokar.lazyrecyclersample
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
 import com.dokar.lazyrecyclersample.chat.ChatActivity
 import com.dokar.lazyrecyclersample.databinding.ActivityMainBinding
 import com.dokar.lazyrecyclersample.gallery.GalleryActivity
@@ -33,6 +33,4 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
-
-
 }

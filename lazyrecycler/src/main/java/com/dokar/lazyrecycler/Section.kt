@@ -42,8 +42,15 @@ open class Section<V, I>(
     }
 
     fun <E> findExtra(clz: Class<E>): E? {
-        val ext = extras?.find { it::class.java == clz }
+        val ext = extras?.find { clz.isAssignableFrom(it::class.java) }
         return if (ext != null) clz.cast(ext)!! else null
     }
 
+    fun <E> findExtras(clz: Class<E>): List<E>? {
+        return extras?.filter {
+            clz.isAssignableFrom(it::class.java)
+        }?.map {
+            clz.cast(it)!!
+        }
+    }
 }

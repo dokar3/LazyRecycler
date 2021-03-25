@@ -234,5 +234,4 @@ class LazyAdapter(
         }
         return sections[index].items[position - offset] to offset
     }
-
 }

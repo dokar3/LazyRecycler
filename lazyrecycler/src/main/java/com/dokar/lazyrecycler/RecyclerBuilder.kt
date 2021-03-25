@@ -4,15 +4,22 @@ package com.dokar.lazyrecycler
 
 import androidx.annotation.LayoutRes
 import androidx.viewbinding.ViewBinding
-import com.dokar.lazyrecycler.viewbinder.*
-import com.dokar.lazyrecycler.viewcreator.*
+import com.dokar.lazyrecycler.data.MutableValue
+import com.dokar.lazyrecycler.viewbinder.IndexedViewBindingBind
+import com.dokar.lazyrecycler.viewbinder.ItemViewBinder
+import com.dokar.lazyrecycler.viewbinder.ViewBindingBind
+import com.dokar.lazyrecycler.viewbinder.ViewBindingBinder
+import com.dokar.lazyrecycler.viewcreator.BindScope
+import com.dokar.lazyrecycler.viewcreator.LayoutIdCreator
+import com.dokar.lazyrecycler.viewcreator.ViewBindingCreator
+import com.dokar.lazyrecycler.viewcreator.ViewRequiredBindScope
+import com.dokar.lazyrecycler.viewcreator.ViewRequiredCreator
 import kotlin.experimental.ExperimentalTypeInference
 
 open class RecyclerBuilder {
 
     private val sections: MutableList<Section<Any, Any>> = mutableListOf()
 
-    @JvmSynthetic
     fun sections(): List<Section<Any, Any>> {
         return sections
     }
@@ -82,7 +89,6 @@ open class RecyclerBuilder {
     }
 }
 
-@TemplateMarker
 fun <I> template(
     @LayoutRes layoutId: Int,
     bindScope: BindScope<I>
@@ -95,7 +101,7 @@ fun <I> template(
     )
 }
 
-@TemplateMarker
+@JvmName("viewRequiredTemplate")
 fun <I> template(
     bindScope: ViewRequiredBindScope<I>
 ): Template<I> {
@@ -107,7 +113,7 @@ fun <I> template(
     )
 }
 
-@TemplateMarker
+@JvmName("viewBindingTemplate")
 inline fun <reified V : ViewBinding, I> template(
     noinline bind: ViewBindingBind<V, I>
 ): Template<I> {
@@ -119,7 +125,6 @@ inline fun <reified V : ViewBinding, I> template(
     )
 }
 
-@TemplateMarker
 inline fun <reified V : ViewBinding, I> template(
     noinline bind: IndexedViewBindingBind<V, I>
 ): Template<I> {
@@ -131,7 +136,6 @@ inline fun <reified V : ViewBinding, I> template(
     )
 }
 
-@LazyRecyclerMarker
 fun <I> RecyclerBuilder.item(
     @LayoutRes layoutId: Int,
     item: I,
@@ -141,7 +145,6 @@ fun <I> RecyclerBuilder.item(
     return items(layoutId, listOf(item), sectionId, bindScope)
 }
 
-@LazyRecyclerMarker
 fun <I> RecyclerBuilder.items(
     @LayoutRes layoutId: Int,
     items: List<I>,
@@ -151,7 +154,19 @@ fun <I> RecyclerBuilder.items(
     return newLayoutIdItems(layoutId, items, sectionId, bindScope)
 }
 
-@LazyRecyclerMarker
+fun <I> RecyclerBuilder.items(
+    @LayoutRes layoutId: Int,
+    source: MutableValue<List<I>>,
+    sectionId: Int = -1,
+    bindScope: BindScope<I>
+): SectionConfigurator<I> {
+    return items(
+        layoutId, source.current ?: emptyList(), sectionId, bindScope
+    ).also {
+        it.section().putExtra(source)
+    }
+}
+
 @JvmName("viewBindingItem")
 @OverloadResolutionByLambdaReturnType
 @OptIn(ExperimentalTypeInference::class)
@@ -163,7 +178,6 @@ inline fun <reified V : ViewBinding, I> RecyclerBuilder.item(
     return items(listOf(item), sectionId, bind)
 }
 
-@LazyRecyclerMarker
 @JvmName("viewBindingItems")
 @OverloadResolutionByLambdaReturnType
 @OptIn(ExperimentalTypeInference::class)
@@ -175,7 +189,19 @@ inline fun <reified V : ViewBinding, I> RecyclerBuilder.items(
     return newBindingItems(items, sectionId, bind, null)
 }
 
-@LazyRecyclerMarker
+@JvmName("viewBindingMutableItems")
+@OverloadResolutionByLambdaReturnType
+@OptIn(ExperimentalTypeInference::class)
+inline fun <reified V : ViewBinding, I> RecyclerBuilder.items(
+    source: MutableValue<List<I>>,
+    sectionId: Int = -1,
+    noinline bind: ViewBindingBind<V, I>
+): SectionConfigurator<I> {
+    return items(source.current ?: emptyList(), sectionId, bind).also {
+        it.section().putExtra(source)
+    }
+}
+
 inline fun <reified V : ViewBinding, I> RecyclerBuilder.itemsIndexed(
     items: List<I>,
     sectionId: Int = -1,
@@ -184,7 +210,16 @@ inline fun <reified V : ViewBinding, I> RecyclerBuilder.itemsIndexed(
     return newBindingItems(items, sectionId, null, bind)
 }
 
-@LazyRecyclerMarker
+inline fun <reified V : ViewBinding, I> RecyclerBuilder.itemsIndexed(
+    source: MutableValue<List<I>>,
+    sectionId: Int = -1,
+    noinline bind: IndexedViewBindingBind<V, I>
+): SectionConfigurator<I> {
+    return itemsIndexed(source.current ?: emptyList(), sectionId, bind).also {
+        it.section().putExtra(source)
+    }
+}
+
 @JvmName("viewRequiredItem")
 @OverloadResolutionByLambdaReturnType
 @OptIn(ExperimentalTypeInference::class)
@@ -196,7 +231,6 @@ fun <I> RecyclerBuilder.item(
     return newViewRequiredItems(listOf(item), sectionId, bindScope)
 }
 
-@LazyRecyclerMarker
 @JvmName("viewRequiredItems")
 @OverloadResolutionByLambdaReturnType
 @OptIn(ExperimentalTypeInference::class)
@@ -208,10 +242,26 @@ fun <I> RecyclerBuilder.items(
     return newViewRequiredItems(items, sectionId, bindScope)
 }
 
+@JvmName("viewRequiredMutableItems")
+@OverloadResolutionByLambdaReturnType
+@OptIn(ExperimentalTypeInference::class)
+fun <I> RecyclerBuilder.items(
+    source: MutableValue<List<I>>,
+    sectionId: Int = -1,
+    bindScope: ViewRequiredBindScope<I>
+): SectionConfigurator<I> {
+    return items(
+        source.current ?: emptyList(),
+        sectionId,
+        bindScope
+    ).also {
+        it.section().putExtra(source)
+    }
+}
+
 /**
  * item from a template
  * */
-@LazyRecyclerMarker
 fun <I> RecyclerBuilder.item(
     template: Template<I>,
     item: I,
@@ -233,7 +283,6 @@ fun <I> RecyclerBuilder.item(
 /**
  * items from a template
  * */
-@LazyRecyclerMarker
 fun <I> RecyclerBuilder.items(
     template: Template<I>,
     items: List<I>,
@@ -250,4 +299,18 @@ fun <I> RecyclerBuilder.items(
     section.viewType = template.viewType
     addSection(section)
     return SectionConfigurator(section)
+}
+
+fun <I> RecyclerBuilder.items(
+    template: Template<I>,
+    source: MutableValue<List<I>>,
+    sectionId: Int = -1
+): SectionConfigurator<I> {
+    return items(
+        template,
+        source.current ?: emptyList(),
+        sectionId
+    ).also {
+        it.section().putExtra(source)
+    }
 }
