@@ -63,8 +63,6 @@ class LazyRecycler(
     private val spanCount: Int,
 ) {
 
-    private lateinit var layoutManager: RecyclerView.LayoutManager
-
     private val adapter: LazyAdapter = LazyAdapter(sections)
 
     private val differs: MutableMap<Section<Any, Any>, AsyncListDiffer<Any>> = mutableMapOf()
@@ -95,7 +93,6 @@ class LazyRecycler(
 
         if (setupLayoutManager) {
             setupLayoutManager(rv)
-            rv.layoutManager = layoutManager
         }
         rv.adapter = adapter
     }
@@ -163,7 +160,7 @@ class LazyRecycler(
         }
     }
 
-    fun setSectionVisible(section: Section<Any, Any>, visible: Boolean) {
+    private fun setSectionVisible(section: Section<Any, Any>, visible: Boolean) {
         if (section.visible == visible) {
             return
         }
@@ -186,7 +183,7 @@ class LazyRecycler(
         }
     }
 
-    fun updateSection(section: Section<Any, Any>, items: List<Any>) {
+    private fun updateSection(section: Section<Any, Any>, items: List<Any>) {
         val differ = differs[section]
         if (differ != null) {
             differ.submitList(items)
@@ -263,20 +260,16 @@ class LazyRecycler(
     }
 
     @Suppress("UNCHECKED_CAST")
-    private fun observeChanges(sections: List<Section<Any, Any>>) {
-        sections.forEach {
-            it.findExtras(MutableValue::class.java)?.let { values ->
-                values.forEach { mutVal ->
-                    if (mutVal.type == MutableValue.DATA_SOURCE &&
-                        mutVal.valueObserver != dataSourceObserver
-                    ) {
-                        (mutVal as MutableValue<Any>).observe(dataSourceObserver)
-                    } else if (mutVal.type == MutableValue.PROPERTY &&
-                        mutVal.valueObserver != propertiesObserver
-                    ) {
-                        (mutVal as MutableValue<Any>).observe(propertiesObserver)
-                    }
-                }
+    private fun observeChanges(sectionList: List<Section<Any, Any>>) {
+        sectionList.forEachMutableValues { mutVal ->
+            if (mutVal.type == MutableValue.DATA_SOURCE &&
+                mutVal.valueObserver != dataSourceObserver
+            ) {
+                (mutVal as MutableValue<Any>).observe(dataSourceObserver)
+            } else if (mutVal.type == MutableValue.PROPERTY &&
+                mutVal.valueObserver != propertiesObserver
+            ) {
+                (mutVal as MutableValue<Any>).observe(propertiesObserver)
             }
         }
     }
@@ -286,18 +279,22 @@ class LazyRecycler(
      * */
     @Suppress("UNCHECKED_CAST")
     fun stopObserving() {
-        sections.forEach {
-            it.findExtras(MutableValue::class.java)?.let { values ->
-                values.forEach { value ->
-                    value.unobserve()
-                }
-            }
+        sections.forEachMutableValues { mutVal ->
+            mutVal.unobserve()
         }
+    }
+
+    private inline fun List<Section<Any, Any>>.forEachMutableValues(
+        block: (mutVal: MutableValue<*>) -> Unit
+    ) {
+        mapNotNull { it.findExtras(MutableValue::class.java) }
+            .flatten()
+            .forEach(block)
     }
 
     private fun setupLayoutManager(rv: RecyclerView) {
         val orientation = if (isHorizontal) RecyclerView.HORIZONTAL else RecyclerView.VERTICAL
-        layoutManager = if (spanCount > 1) {
+        if (spanCount > 1) {
             val glm = GridLayoutManager(rv.context, spanCount, orientation, reverseLayout)
             glm.stackFromEnd = stackFromEnd
             glm.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
@@ -305,19 +302,15 @@ class LazyRecycler(
                     val sectionIdx = adapter.getSectionIndex(position)
                     val section = sections[sectionIdx]
                     val spanSizeLookup = section.spanCountLookup ?: return 1
-                    var offset = 0
-                    for (i in 0 until sectionIdx) {
-                        val sect = sections[i]
-                        offset += if (sect.visible) sect.items.size else 0
-                    }
+                    val offset = adapter.getSectionPositionOffset(section)
                     return spanSizeLookup(position - offset)
                 }
             }
-            glm
+            rv.layoutManager = glm
         } else {
-            LinearLayoutManager(rv.context, orientation, reverseLayout).also {
-                it.stackFromEnd = stackFromEnd
-            }
+            val llm = LinearLayoutManager(rv.context, orientation, reverseLayout)
+            llm.stackFromEnd = stackFromEnd
+            rv.layoutManager = llm
         }
     }
 
@@ -349,6 +342,7 @@ class LazyRecycler(
 
     companion object {
 
+        // DiffUtil executor
         private val sExecutor: ExecutorService = Executors.newFixedThreadPool(2)
     }
 }

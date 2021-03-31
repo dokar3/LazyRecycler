@@ -72,21 +72,22 @@ class LazyAdapter(
     }
 
     override fun getItemViewType(position: Int): Int {
-        var posOffset = 0
+        var offset = 0
         var sectionIdx = 0
         while (sectionIdx < sections.size) {
             val s = sections[sectionIdx]
             val size = if (s.visible) s.items.size else 0
-            if (position < posOffset + size) {
+            if (position < offset + size) {
                 break
             }
-            posOffset += size
+            offset += size
             sectionIdx++
         }
+
         val section = sections[sectionIdx]
         val subSections = section.subSections
         if (!subSections.isNullOrEmpty()) {
-            val pos = position - posOffset
+            val pos = position - offset
             val item = section.items[pos]
             for (sub in subSections) {
                 val s = sub.first
@@ -97,6 +98,7 @@ class LazyAdapter(
                 }
             }
         }
+
         return viewTypes[section]
             ?: throw IllegalStateException("Cannot solve viewType for item: $position")
     }
@@ -118,7 +120,9 @@ class LazyAdapter(
             }
             acc + if (s.visible) s.items.size else 0
         }
+
         this.sections.addAll(index, newSections)
+
         notifyItemRangeInserted(posOffset, newSize)
     }
 
@@ -136,7 +140,9 @@ class LazyAdapter(
             }
         }
         viewTypes.remove(section)
+
         notifyItemRangeRemoved(posOffset, size)
+
         return true
     }
 
