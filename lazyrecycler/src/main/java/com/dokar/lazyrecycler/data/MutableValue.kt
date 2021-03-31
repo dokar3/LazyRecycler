@@ -2,7 +2,7 @@ package com.dokar.lazyrecycler.data
 
 abstract class MutableValue<I>(val type: Int) {
 
-    private var valueObserver: ValueObserver<I>? = null
+    var valueObserver: ValueObserver<I>? = null
 
     var name: String? = null
 

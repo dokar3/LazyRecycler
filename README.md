@@ -19,7 +19,7 @@ LazyRecycler(recyclerView, spanCount = 3) {
     item(R.layout.header, Unit) {}
 
     items(listOfNews) { binding: ItemNewsBinding, news ->
-        // bind
+        // bind item
     }.clicks { view, item ->
         // handle item clicks
     }.spanSize { position ->
@@ -56,7 +56,7 @@ Sections should only be used in `LazyRecycler` / `newSections` block, so it's ne
 
 ```kotlin
 val lazyRecycler = LazyRecycler {
-    items<News>(..., sectionId = SOME_ID) { ... } 
+    items(..., sectionId = SOME_ID) { ... } 
 }
 
 // update
@@ -69,22 +69,21 @@ lazyRecycler.setSectionVisible(SOME_ID, false)
 
 ### Layout
 
-layout id and ViewBinding are supported:
+layout id and ViewBinding/DataBinding are supported:
 
 ```kotlin
 items(R.layout.item_news, news) { ... }
-items<ItemNewsBinding, News>(news) { ... }
+
+items(news) { binding: ItemNewsBinding, item -> ... }
 ```
 
 Providing an item view in the bind scope is also supported:
 
 ```kotlin
-items<String>(...) {
-    val tv = TextView(context)
-    bind { text ->
-        tv.text = text
-    }
-    return@item tv
+items(news) { parent ->
+    val itemView = CustomNewsItemView(context)
+    ...
+    return@item itemView
 }
 ```
 
@@ -93,35 +92,58 @@ items<String>(...) {
 For ViewBinding item/items:
 
 ```kotlin
-items<ItemNewsBinding, News>(...) { binding, news -> 
-    binding.title.text = news.title
-    binding.image.load(news.cover)
+items(news) { binding: ItemNewsBinding, item -> 
+    binding.title.text = item.title
+    binding.image.load(item.cover)
     ...
 }
 ```
 
-For other item/items:
+For DataBinding item/items:
 
 ```kotlin
-items(...) { ...
+items(news) { binding: ItemNewsDataBinding, item -> 
+    binding.news = item
+}
+```
+
+For layoutId item/items:
+
+```kotlin
+items(R.layout.item_news, news) { view ->
     ...
     val tv: TextView = view.findViewById(R.id.title)
     bind { item ->
         tv.text = item.title
     }
-    ...
+}
+```
+
+For view required item/items:
+
+```kotlin
+items(news) { parent -> 
+    val itemView = CustomNewsItemView(context)
+    bind { item ->
+        itemView.title(item.title)
+        ...
+    }
+    return@item itemView
 }
 ```
 
 ### Generics
 
-* `I` for item type
-* `V` for the View Binding
+All the `item`, `items`, and `template` are generic functions:
 
 ```kotlin
 items<I>(layoutId, I) { ... }
 items<V, I>(items) { ... }
+items<I>(items) { ... }
 ```
+
+* `I` for item type
+* `V` for the View Binding
 
 ### Overloads
 
@@ -129,16 +151,28 @@ There are a lots of `item`/`items` functions to support various layouts, for hel
 
 ```kotlin
 // item
-item(R.layout.item, Any()) {}
-item(Any()) { binding: ItemBinding, item -> }
-// Require an argument to distinguish from view binding one
-item(Any()) { _ -> TextView(context) }
+item(R.layout.item, Any()) {
+	// Parameter 'view' can be ommited
+}
+item(Any()) { binding: ItemBinding, item -> 
+}
+item(Any()) { parent -> 
+    // Parameter 'parent' is required to distinguish from view binding one
+    // Replace with '_' if it's unused
+    return@item TextView(context) 
+}
 
 // items
-items(R.layout.item, listOf(Any()) {}
-items(listOf(Any()) { binding: ItemBinding, item -> }
-// Require an argument to distinguish from view binding one
-items(listOf(Any()) { _ -> TextView(context) }
+items(R.layout.item, listOf(Any()) {
+    // Parameter 'view' can be ommited
+}
+items(listOf(Any()) { binding: ItemBinding, item -> 
+}
+items(listOf(Any()) { parent -> 
+    // Parameter 'parent' is required to distinguish from view binding one
+    // Replace with '_' if it's unused
+    return@items TextView(context) 
+}
 ```
 
 ### LayoutManager
@@ -166,7 +200,7 @@ item(...) {
     3
 }
 
-items<V, I>(...) {
+items(...) {
     ...
 }.spanSize { position ->
     if (position == 0) 3 else 1
@@ -177,8 +211,8 @@ items<V, I>(...) {
 
 Use `differ` function, then LazyRecycler will do the all works after section items changed. 
 
-``` 
-items<V, I>(...) {
+``` kotlin
+items(...) {
     ...
 }.differ {
     areItemsTheSame { oldItem, newItem ->
@@ -226,10 +260,10 @@ implementation 'io.github.dokar3:lazyrecycler-rxjava3:0.1.5'
    
    val entry: Flow<I> = ...
    // Use items() instead of item()
-   items<V, I>(entry.asMutSource(coroutineScope)) { ... }
+   items(entry.asMutSource(coroutineScope)) { ... }
    
    val source: Flow<List<I>> = ...
-   items<V, I>(source.asMutSource(coroutineScope)) { ... }
+   items(source.asMutSource(coroutineScope)) { ... }
    ```
 
 3. Observe/stop observing: 
@@ -253,10 +287,10 @@ implementation 'io.github.dokar3:lazyrecycler-rxjava3:0.1.5'
    
    val entry: LiveData<I> = ...
    // Use items() instead of item()
-   items<V, I>(entry.asMutSource(lifecycleOwner)) { ... }
+   items(entry.asMutSource(lifecycleOwner)) { ... }
    
    val source: LiveData<List<I>> = ...
-   items<V, I>(source.asMutSource(lifecycleOwner)) { ... }
+   items(source.asMutSource(lifecycleOwner)) { ... }
    ```
 
 3. Observe/stop observing: 
@@ -273,10 +307,11 @@ implementation 'io.github.dokar3:lazyrecycler-rxjava3:0.1.5'
    import com.dokar.lazyrecycler.rxjava3.asMutSource
    
    val entry: Observable<I> = ...
-   item<V, I>(entry.asMutSource()) { ... }
+   // Use items() instead of item()
+   items(entry.asMutSource()) { ... }
    
    val source: Observable<List<I>> = ...
-   items<V, I>(source.asMutSource()) { ... }
+   items(source.asMutSource()) { ... }
    ```
 
 3. Observe/stop observing:
@@ -300,18 +335,18 @@ implementation 'io.github.dokar3:lazyrecycler-rxjava3:0.1.5'
 LazyRecycler {
     // layout id definition
     val sectionHeader = template<String>(R.layout.section_header) {
-        // bind
+        // bind item
     }
     // ViewBinding definition
     val normalItem = template<ItemViewBinding, Item> { binding, item ->
-        // bind
+        // bind item
     }
     
     item(sectionHeader, "section 1")
-    items(normalItem, someItems)
+    items(normalItem, source)
     
     item(sectionHeader, "section 2")
-    items(normalItem, otherItems)
+    items(normalItem, source)
     ...
 }
 ```
@@ -323,14 +358,14 @@ LazyRecycler {
 ```kotlin
 LazyRecycler {
     val bubbleFromMe = template<ItemMsgFromMeBinding, Message> { binding, msg ->
-        // bind
+        // bind item
     }
     
-    items<ItemMsgBinding, Message>(messages) { binding, msg ->
-        // bind
+    items(messages) { binding: ItemMsgBinding, msg ->
+        // bind item
     }.subSection(bubbleFromMe) { msg, position ->
         // condition
-        msg.isFromMe == true
+        msg.isFromMe
     }
     ...
 }
@@ -349,7 +384,7 @@ lazyRecycler.newSections {
     ...
 }
 // If new sections contain any observable data source
-lazyRecycler.observeChanges(...)
+lazyRecycler.observeChanges()
 ```
 
 ### Build list in background

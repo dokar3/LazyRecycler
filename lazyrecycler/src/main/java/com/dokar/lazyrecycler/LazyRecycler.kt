@@ -17,17 +17,17 @@ import java.util.concurrent.Executors
  *
  * ```
  * Sample:
- *  LazyRecycler(recyclerView) {
- *      item(R.layout.item_header, user) {
- *          bind { user ->
- *              // bindings
- *          }
- *      }
+ * LazyRecycler(recyclerView) {
+ *     item(R.layout.item_header, user) {
+ *         bind { user ->
+ *             // bind item
+ *         }
+ *     }
  *
- *      items(photos) { binding: ItemPhotoBinding, photo ->
- *          // bindings
- *      }
- *  }
+ *     items(photos) { binding: ItemPhotoBinding, photo ->
+ *         // bind item
+ *     }
+ * }
  * ```
  * */
 fun LazyRecycler(
@@ -81,8 +81,17 @@ class LazyRecycler(
         setupDiffers(sections)
     }
 
-    fun attachTo(rv: RecyclerView) {
-        observeChanges()
+    /**
+     * Setup with RecyclerView
+     *
+     * @param rv Target RecyclerView
+     * @param observeChanges Observe section changes, set to false if LazyRecycler does not
+     * contain any MutableSource/MutableValue to prevent additional check
+     * */
+    fun attachTo(rv: RecyclerView, observeChanges: Boolean = true) {
+        if (observeChanges) {
+            observeChanges()
+        }
 
         if (setupLayoutManager) {
             setupLayoutManager(rv)
@@ -97,23 +106,34 @@ class LazyRecycler(
      * @param body DSL body
      * */
     fun newSections(body: RecyclerBuilder.() -> Unit) {
-        newSections(sections.size, body)
+        newSections(sections.size, true, body)
     }
 
     /**
      * Insert new sections at specific position
+     *
      * @param index Insert position
+     * @param observeChanges Observe section changes, set to false if new sections do not
+     * contain any MutableSource/MutableValue to prevent additional check
      * @param body DSL body
      * */
-    fun newSections(index: Int, body: RecyclerBuilder.() -> Unit) {
+    fun newSections(
+        index: Int,
+        observeChanges: Boolean = true,
+        body: RecyclerBuilder.() -> Unit
+    ) {
         val builder = RecyclerBuilder().also(body)
         val newSections = builder.sections()
         setupDiffers(newSections)
+        if (observeChanges) {
+            observeChanges(newSections)
+        }
         adapter.addSections(index, newSections)
     }
 
     /**
      * Remove section
+     *
      * @param id Section id
      * @return Returns true if successfully removed, false if target
      * section does not existing or failed to remove
@@ -238,15 +258,23 @@ class LazyRecycler(
     /**
      * Observe the mutable data sources, will be called when attach to [RecyclerView]
      * */
-    @Suppress("UNCHECKED_CAST")
     fun observeChanges() {
+        observeChanges(sections)
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    private fun observeChanges(sections: List<Section<Any, Any>>) {
         sections.forEach {
             it.findExtras(MutableValue::class.java)?.let { values ->
-                values.forEach { value ->
-                    if (value.type == MutableValue.DATA_SOURCE) {
-                        (value as MutableValue<Any>).observe(dataSourceObserver)
-                    } else if (value.type == MutableValue.PROPERTY) {
-                        (value as MutableValue<Any>).observe(propertiesObserver)
+                values.forEach { mutVal ->
+                    if (mutVal.type == MutableValue.DATA_SOURCE &&
+                        mutVal.valueObserver != dataSourceObserver
+                    ) {
+                        (mutVal as MutableValue<Any>).observe(dataSourceObserver)
+                    } else if (mutVal.type == MutableValue.PROPERTY &&
+                        mutVal.valueObserver != propertiesObserver
+                    ) {
+                        (mutVal as MutableValue<Any>).observe(propertiesObserver)
                     }
                 }
             }

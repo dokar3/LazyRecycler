@@ -7,7 +7,6 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
-import coil.load
 import com.dokar.lazyrecycler.LazyRecycler
 import com.dokar.lazyrecycler.Template
 import com.dokar.lazyrecycler.flow.asMutProperty
@@ -23,7 +22,7 @@ import com.dokar.lazyrecyclersample.Option
 import com.dokar.lazyrecyclersample.Painting
 import com.dokar.lazyrecyclersample.databinding.ItemGalleryHeaderBinding
 import com.dokar.lazyrecyclersample.databinding.ItemOptionBinding
-import com.dokar.lazyrecyclersample.databinding.ItemPaintingBinding
+import com.dokar.lazyrecyclersample.databinding.ItemPaintingDataBinding
 import com.dokar.lazyrecyclersample.databinding.ItemSectionTitleBinding
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlin.random.Random
@@ -54,10 +53,8 @@ class GalleryActivity : AppCompatActivity() {
             binding.tvSectionTitle.text = title
         }
 
-        paintingTemplate = template { binding: ItemPaintingBinding, item ->
-            binding.title.text = item.title
-            binding.summary.text = item.year.toString()
-            binding.image.load(item.thumbnail)
+        paintingTemplate = template { binding: ItemPaintingDataBinding, item ->
+            binding.painting = item
         }
 
         LazyRecycler(rv, spanCount = 6) {
