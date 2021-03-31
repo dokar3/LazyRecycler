@@ -4,7 +4,7 @@
 
 ![](arts/lazyrecycler.png)
 
-**LazyRecycler** is a library that provides LazyColumn (from Jetpack Compose) like apis to build lists with RecyclerView. 
+**LazyRecycler** is a library that provides LazyColumn (from Jetpack Compose) like APIs to build lists with RecyclerView. 
 
 ### Usage
 

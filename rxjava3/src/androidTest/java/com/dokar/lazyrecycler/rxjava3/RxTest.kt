@@ -3,10 +3,13 @@ package com.dokar.lazyrecycler.rxjava3
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.dokar.lazyrecycler.LazyRecycler
 import com.dokar.lazyrecycler.items
+import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.subjects.BehaviorSubject
 import io.reactivex.rxjava3.subjects.PublishSubject
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
+import org.junit.Assert.assertThat
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -100,5 +103,21 @@ class RxTest {
         val list3 = listOf(7, 8, 9)
         source.onNext(list3)
         assertNotEquals(list3, recycler.getSectionItems(id))
+    }
+
+    @Test
+    fun withError() {
+        val id = 0
+        val source = Observable.create<Int> {
+            val x = 3 / 0
+            it.onNext(x)
+        }
+
+        val recycler = LazyRecycler {
+            items(fakeLayoutId, source.asMutSource(), id) {}
+        }
+        recycler.observeChanges()
+
+        assertTrue(recycler.getSectionItems(id)?.isEmpty() ?: true)
     }
 }
