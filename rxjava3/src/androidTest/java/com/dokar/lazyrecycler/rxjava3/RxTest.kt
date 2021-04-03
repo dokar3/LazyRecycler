@@ -8,7 +8,6 @@ import io.reactivex.rxjava3.subjects.BehaviorSubject
 import io.reactivex.rxjava3.subjects.PublishSubject
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
-import org.junit.Assert.assertThat
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith

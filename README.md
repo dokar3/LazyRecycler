@@ -9,7 +9,7 @@
 ### Usage
 
 ```groovy
-implementation 'io.github.dokar3:lazyrecycler:0.1.6'
+implementation 'io.github.dokar3:lazyrecycler:0.1.7'
 ```
 
 With LazyRecycler, a few dozen lines of code can do almost all things for RecyclerView. Adapter, LayoutManager, DiffUtil, OnItemClickListener and more, these are **all in one** block:
@@ -244,11 +244,11 @@ To support some mutable(observable) data sources like `Flow`, `LiveData`, or `Rx
 
 ```groovy
 // Flow
-implementation 'io.github.dokar3:lazyrecycler-flow:0.1.6'
+implementation 'io.github.dokar3:lazyrecycler-flow:0.1.7'
 // LiveData
-implementation 'io.github.dokar3:lazyrecycler-livedata:0.1.6'
+implementation 'io.github.dokar3:lazyrecycler-livedata:0.1.7'
 // RxJava3
-implementation 'io.github.dokar3:lazyrecycler-rxjava3:0.1.6'
+implementation 'io.github.dokar3:lazyrecycler-rxjava3:0.1.7'
 ```
 
 ### Flow

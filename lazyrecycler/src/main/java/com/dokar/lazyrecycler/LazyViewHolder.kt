@@ -5,10 +5,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.dokar.lazyrecycler.viewbinder.ItemBinder
 
 open class LazyViewHolder<V>(
-    root: View,
+    itemView: View,
     private val view: V,
     private val viewBinder: ItemBinder<V, Any>
-) : RecyclerView.ViewHolder(root) {
+) : RecyclerView.ViewHolder(itemView) {
 
     open fun bind(item: Any?, position: Int) {
         if (item == null) return

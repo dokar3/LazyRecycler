@@ -2,10 +2,11 @@ package com.dokar.lazyrecycler
 
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.dokar.lazyrecycler.viewbinder.ItemProvider
 
 class LazyAdapter(
     private val sections: MutableList<Section<Any, Any>>
-) : RecyclerView.Adapter<LazyViewHolder<Any>>() {
+) : RecyclerView.Adapter<LazyViewHolder<Any>>(), ItemProvider {
 
     private val viewTypes: MutableMap<Section<Any, Any>, Int> = hashMapOf()
 
@@ -30,30 +31,24 @@ class LazyAdapter(
         val section = findSectionByViewType(viewType)
             ?: throw IllegalStateException("Cannot find section for viewType: $viewType")
         val itemViewCreator = section.viewCreator
-        // create view
-        val view = itemViewCreator.create(parent)
         // create ViewHolder
-        val holder = LazyViewHolder(
-            view.first,
-            view.second,
-            section.itemBinder
-        )
+        val holder = itemViewCreator.createViewHolder(parent, section.itemBinder, this)
         // clicks
         val onItemClick = section.onItemClick
         if (onItemClick != null) {
-            holder.itemView.setOnClickListener {
+            holder.itemView.setOnClickListener click@{
                 val pos = holder.adapterPosition
-                val item = getItem(pos) ?: return@setOnClickListener
+                val item = getItem(pos) ?: return@click
                 onItemClick(it, item)
             }
         }
         // long clicks
         val onItemLongClick = section.onItemLongClick
         if (onItemLongClick != null) {
-            holder.itemView.setOnLongClickListener {
+            holder.itemView.setOnLongClickListener longClick@{
                 val pos = holder.adapterPosition
-                val item = getItem(pos) ?: return@setOnLongClickListener false
-                return@setOnLongClickListener onItemLongClick(it, item)
+                val item = getItem(pos) ?: return@longClick false
+                return@longClick onItemLongClick(it, item)
             }
         }
 
@@ -61,8 +56,8 @@ class LazyAdapter(
     }
 
     override fun onBindViewHolder(holder: LazyViewHolder<Any>, position: Int) {
-        val itemWithOffset = getItemAndOffset(position)
-        holder.bind(itemWithOffset.first, position - itemWithOffset.second)
+        val itemAndOffset = getItemAndOffset(position)
+        holder.bind(itemAndOffset.first, position - itemAndOffset.second)
     }
 
     override fun getItemCount(): Int {
@@ -101,6 +96,16 @@ class LazyAdapter(
 
         return viewTypes[section]
             ?: throw IllegalStateException("Cannot solve viewType for item: $position")
+    }
+
+    override fun getItem(adapterPosition: Int): Any? {
+        if (adapterPosition < 0) return null
+        return getItemAndOffset(adapterPosition).first
+    }
+
+    override fun getPositionInSection(adapterPosition: Int): Int {
+        if (adapterPosition == -1) return adapterPosition
+        return adapterPosition - getItemAndOffset(adapterPosition).second
     }
 
     fun addSections(index: Int, newSections: List<Section<Any, Any>>) {
@@ -220,10 +225,6 @@ class LazyAdapter(
             }
         }
         return null
-    }
-
-    private fun getItem(position: Int): Any? {
-        return getItemAndOffset(position).first
     }
 
     private fun getItemAndOffset(position: Int): Pair<Any?, Int> {

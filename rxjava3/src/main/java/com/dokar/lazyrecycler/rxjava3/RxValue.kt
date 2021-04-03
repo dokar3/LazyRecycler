@@ -39,11 +39,14 @@ class RxValue<T>(
 
     override fun observe(listener: ValueObserver<T>) {
         super.observe(listener)
-        disposable = value.subscribe({
-            current = it
-        }, {
-            // Do nothing when error occurred
-        })
+        disposable = value.subscribe(
+            {
+                current = it
+            },
+            {
+                // Do nothing when error occurred
+            }
+        )
     }
 
     override fun unobserve() {
