@@ -4,7 +4,7 @@
 
 ![](arts/lazyrecycler.png)
 
-**LazyRecycler** is a library that provides LazyColumn (from Jetpack Compose) like APIs to build lists with RecyclerView. 
+**LazyRecycler** is a library that provides [LazyColumn](https://developer.android.com/reference/kotlin/androidx/compose/foundation/lazy/package-summary) (from [Jetpack Compose](https://developer.android.com/jetpack/compose)) like APIs to build lists with RecyclerView. 
 
 ### Usage
 
@@ -83,7 +83,7 @@ Providing an item view in the bind scope is also supported:
 items(news) { parent ->
     val itemView = CustomNewsItemView(context)
     ...
-    return@item itemView
+    return@items itemView
 }
 ```
 
@@ -128,7 +128,7 @@ items(news) { parent ->
         itemView.title(item.title)
         ...
     }
-    return@item itemView
+    return@items itemView
 }
 ```
 
@@ -266,17 +266,6 @@ implementation 'io.github.dokar3:lazyrecycler-rxjava3:0.1.7'
    items(source.asMutSource(coroutineScope)) { ... }
    ```
 
-3. Observe/stop observing: 
-
-   ```kotlin
-   val lazyRecycler = LazyRecycler { ... }
-   ...
-   // Not needed, Observe data changes, will be called automatically
-   lazyRecycler.observeChanges()
-   // Stop observing, Not needed if mutable data sources are created from 
-   // a lifecycleScope
-   lazyRecycler.stopObserving()
-   ```
 
 ### LiveData
 
@@ -293,11 +282,6 @@ implementation 'io.github.dokar3:lazyrecycler-rxjava3:0.1.7'
    items(source.asMutSource(lifecycleOwner)) { ... }
    ```
 
-3. Observe/stop observing: 
-
-   ```kotlin
-   // Not needed, lifecycle will remove observers when components are destroyed
-   ```
 
 ### RxJava
 
@@ -314,16 +298,22 @@ implementation 'io.github.dokar3:lazyrecycler-rxjava3:0.1.7'
    items(source.asMutSource()) { ... }
    ```
 
-3. Observe/stop observing:
 
-   ```kotlin
-   val lazyRecycler = LazyRecycler { ... }
-   ...
-   // Not needed, Observe data changes, will be called automatically
-   lazyRecycler.observeChanges()
-   // Call it when Activitiy/Fragment is destroyed
-   lazyRecycler.stopObserving()
-   ```
+### Observe/stop observing data sources:
+
+LazyRecycler will observe the data changes automatically, so it's no necessary to call it manually. But there is a call if really needed:
+
+```kotlin
+// After stopObserving() have been called
+lazyRecycler.observeChanges()
+```
+
+Manually stop the observing is required when using a RxJava data source, or not using lifecycleScope to create a Flow data source:
+
+```kotlin
+// onDestroy(), etc.
+lazyRecycler.stopObserving()
+```
 
 # Advanced
 
