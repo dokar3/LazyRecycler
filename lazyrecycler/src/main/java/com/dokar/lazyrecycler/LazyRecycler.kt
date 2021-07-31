@@ -17,7 +17,7 @@ import java.util.concurrent.Executors
  *
  * ```
  * Sample:
- * LazyRecycler(recyclerView) {
+ * lazyRecycler(recyclerView) {
  *     item(R.layout.item_header, user) {
  *         bind { user ->
  *             // bind item
@@ -30,7 +30,7 @@ import java.util.concurrent.Executors
  * }
  * ```
  * */
-fun LazyRecycler(
+fun lazyRecycler(
     recyclerView: RecyclerView? = null,
     setupLayoutManager: Boolean = true,
     isHorizontal: Boolean = false,

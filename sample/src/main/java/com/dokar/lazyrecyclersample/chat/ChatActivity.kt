@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.dokar.lazyrecycler.LazyRecycler
 import com.dokar.lazyrecycler.flow.asMutSource
 import com.dokar.lazyrecycler.items
+import com.dokar.lazyrecycler.lazyRecycler
 import com.dokar.lazyrecycler.template
 import com.dokar.lazyrecyclersample.ChatItem
 import com.dokar.lazyrecyclersample.Constants.CHAT_MESSAGES
@@ -56,18 +57,18 @@ class ChatActivity : AppCompatActivity() {
     }
 
     private fun createList(rv: RecyclerView) {
-        LazyRecycler(rv) {
-            val sentDate = template { binding: ItemMsgDateBinding, item: ChatItem ->
+        lazyRecycler(rv) {
+            val sentDate = template(ItemMsgDateBinding::inflate) { binding, item: ChatItem ->
                 val sentDate = item as SentDate
                 binding.tvSentDate.text = sentDate.dateText
             }
-            val fromFriend = template { binding: ItemMsgFriendBinding, item: ChatItem ->
+            val fromFriend = template(ItemMsgFriendBinding::inflate) { binding, item: ChatItem ->
                 val msg = item as Message
                 binding.tvUsername.text = msg.senderName
                 binding.tvMessage.text = msg.content
                 binding.ivAvatar.setImageResource(msg.senderAvatar)
             }
-            val fromMe = template { binding: ItemMsgMeBinding, item: ChatItem ->
+            val fromMe = template(ItemMsgMeBinding::inflate) { binding, item: ChatItem ->
                 val msg = item as Message
                 binding.tvUsername.text = msg.senderName
                 binding.tvMessage.text = msg.content
@@ -75,8 +76,8 @@ class ChatActivity : AppCompatActivity() {
             }
 
             items(
-                fromFriend,
-                messages.asMutSource(lifecycleScope)
+                messages.asMutSource(lifecycleScope),
+                fromFriend
             ).subSection(fromMe) { item, _ ->
                 item is Message && item.senderId == 0
             }.subSection(sentDate) { item, _ ->

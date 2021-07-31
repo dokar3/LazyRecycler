@@ -1,8 +1,8 @@
 package com.dokar.lazyrecycler.flow
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.dokar.lazyrecycler.LazyRecycler
 import com.dokar.lazyrecycler.items
+import com.dokar.lazyrecycler.lazyRecycler
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
@@ -27,8 +27,8 @@ class FlowTest {
 
         val scope = TestCoroutineScope(SupervisorJob())
 
-        val recycler = LazyRecycler {
-            items(fakeLayoutId, source.asMutSource(scope), id) {}
+        val recycler = lazyRecycler {
+            items(source.asMutSource(scope), fakeLayoutId, id) {}
         }
 
         recycler.observeChanges()
@@ -65,8 +65,8 @@ class FlowTest {
 
         val scope = TestCoroutineScope(SupervisorJob())
 
-        val recycler = LazyRecycler {
-            items(fakeLayoutId, source.asMutSource(scope), id) {}
+        val recycler = lazyRecycler {
+            items(source.asMutSource(scope), fakeLayoutId, id) {}
         }
         recycler.observeChanges()
 

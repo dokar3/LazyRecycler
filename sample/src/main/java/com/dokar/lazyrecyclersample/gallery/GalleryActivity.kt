@@ -13,6 +13,7 @@ import com.dokar.lazyrecycler.flow.asMutProperty
 import com.dokar.lazyrecycler.flow.asMutSource
 import com.dokar.lazyrecycler.item
 import com.dokar.lazyrecycler.items
+import com.dokar.lazyrecycler.lazyRecycler
 import com.dokar.lazyrecycler.template
 import com.dokar.lazyrecyclersample.Constants
 import com.dokar.lazyrecyclersample.Constants.ID_PAINTINGS
@@ -49,22 +50,22 @@ class GalleryActivity : AppCompatActivity() {
 
     @SuppressLint("SetTextI18n")
     private fun createList(rv: RecyclerView) {
-        titleTemplate = template { binding: ItemSectionTitleBinding, title ->
+        titleTemplate = template(ItemSectionTitleBinding::inflate) { binding, title ->
             binding.tvSectionTitle.text = title
         }
 
-        paintingTemplate = template { binding: ItemPaintingDataBinding, item ->
+        paintingTemplate = template(ItemPaintingDataBinding::inflate) { binding, item ->
             binding.painting = item
         }
 
-        LazyRecycler(rv, spanCount = 6) {
-            item(Unit) { binding: ItemGalleryHeaderBinding, _ ->
+        lazyRecycler(rv, spanCount = 6) {
+            item(Unit, ItemGalleryHeaderBinding::inflate) { binding, _ ->
                 binding.title.text = "Vincent Gallery"
             }.spanSize {
                 6
             }
 
-            items(OPTIONS) { binding: ItemOptionBinding, opt ->
+            items(OPTIONS, ItemOptionBinding::inflate) { binding, opt ->
                 binding.title.text = opt.text
             }.spanSize {
                 2
@@ -73,8 +74,8 @@ class GalleryActivity : AppCompatActivity() {
             }
 
             items(
-                paintingTemplate,
                 paintings.asMutSource(lifecycleScope),
+                paintingTemplate,
                 ID_PAINTINGS
             ).clicks { _, item ->
                 openUrl(item.url)
@@ -118,8 +119,8 @@ class GalleryActivity : AppCompatActivity() {
     private fun newSections() {
         val newItems = VINCENT_PAINTINGS.shuffled().subList(0, Random.nextInt(2, 4))
         lazyRecycler.newSections(index = 2) {
-            item(titleTemplate, "Dynamic section").spanSize { 6 }
-            items(paintingTemplate, newItems).spanSize { 6 }
+            item("Dynamic section", titleTemplate).spanSize { 6 }
+            items(newItems, paintingTemplate).spanSize { 6 }
         }
     }
 

@@ -7,29 +7,22 @@ import com.dokar.lazyrecycler.LazyViewHolder
 import com.dokar.lazyrecycler.viewbinder.ItemBinder
 import com.dokar.lazyrecycler.viewbinder.ItemProvider
 
-class ViewBindingCreator<V : ViewBinding>(
-    bindingClass: Class<V>
+typealias ViewBindingInflate<V> = (
+    inflater: LayoutInflater,
+    parent: ViewGroup,
+    attachToParent: Boolean
+) -> V
+
+class ViewBindingCreator2<V : ViewBinding>(
+    private val inflate: ViewBindingInflate<V>
 ) : ViewCreator<V> {
-
-    private val inflateFunc = bindingClass.getMethod(
-        "inflate",
-        LayoutInflater::class.java,
-        ViewGroup::class.java,
-        Boolean::class.java
-    ) ?: throw IllegalArgumentException("Cannot find inflate() in $bindingClass")
-
-    init {
-        inflateFunc.isAccessible = true
-    }
-
-    @Suppress("UNCHECKED_CAST")
     override fun createViewHolder(
         parent: ViewGroup,
         binder: ItemBinder<V, Any>,
         itemProvider: ItemProvider
     ): LazyViewHolder<V> {
         val inflater = LayoutInflater.from(parent.context)
-        val binding = inflateFunc.invoke(null, inflater, parent, false) as V
+        val binding = inflate(inflater, parent, false)
         return LazyViewHolder(binding.root, binding, binder)
     }
 }

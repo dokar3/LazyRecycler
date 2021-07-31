@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.SimpleItemAnimator
 import com.dokar.lazyrecycler.LazyRecycler
 import com.dokar.lazyrecycler.flow.asMutSource
 import com.dokar.lazyrecycler.items
+import com.dokar.lazyrecycler.lazyRecycler
 import com.dokar.lazyrecyclersample.R
 import com.dokar.lazyrecyclersample.databinding.ActivityTetrisBinding
 import com.dokar.lazyrecyclersample.databinding.ItemTetrisBlockBinding
@@ -68,10 +69,11 @@ class TetrisActivity : AppCompatActivity() {
     }
 
     private suspend fun createCanvas() = withContext(Dispatchers.Default) {
-        LazyRecycler(spanCount = cols) {
+        lazyRecycler(spanCount = cols) {
             items(
-                score.asMutSource(lifecycleScope)
-            ) { binding: ItemTetrisScoreBinding, score ->
+                score.asMutSource(lifecycleScope),
+                ItemTetrisScoreBinding::inflate
+            ) { binding, score ->
                 binding.tvScore.text = String.format("%03d", score[0])
                 binding.tvHighestScore.text = score[1].toString()
             }.spanSize {
@@ -79,8 +81,9 @@ class TetrisActivity : AppCompatActivity() {
             }
 
             items(
-                matrix.asMutSource(lifecycleScope)
-            ) { binding: ItemTetrisBlockBinding, fillBlock ->
+                matrix.asMutSource(lifecycleScope),
+                ItemTetrisBlockBinding::inflate
+            ) { binding, fillBlock ->
                 val color = if (fillBlock) fillColor else blockColor
                 binding.block.setBackgroundColor(color)
             }.spanSize {

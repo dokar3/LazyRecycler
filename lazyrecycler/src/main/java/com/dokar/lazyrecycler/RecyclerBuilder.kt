@@ -11,7 +11,8 @@ import com.dokar.lazyrecycler.viewbinder.ViewBindingBind
 import com.dokar.lazyrecycler.viewbinder.ViewBindingBinder
 import com.dokar.lazyrecycler.viewcreator.BindScope
 import com.dokar.lazyrecycler.viewcreator.LayoutIdCreator
-import com.dokar.lazyrecycler.viewcreator.ViewBindingCreator
+import com.dokar.lazyrecycler.viewcreator.ViewBindingCreator2
+import com.dokar.lazyrecycler.viewcreator.ViewBindingInflate
 import com.dokar.lazyrecycler.viewcreator.ViewRequiredBindScope
 import com.dokar.lazyrecycler.viewcreator.ViewRequiredCreator
 import kotlin.experimental.ExperimentalTypeInference
@@ -33,9 +34,9 @@ open class RecyclerBuilder {
         sections.add(section as Section<Any, Any>)
     }
 
-    fun <I> newLayoutIdItems(
-        @LayoutRes layoutId: Int,
+    internal fun <I> newLayoutIdItems(
         items: List<I>,
+        @LayoutRes layoutId: Int,
         sectionId: Int,
         bindScope: BindScope<I>
     ): SectionConfigurator<I> {
@@ -53,13 +54,14 @@ open class RecyclerBuilder {
         return SectionConfigurator(section)
     }
 
-    inline fun <reified V : ViewBinding, I> newBindingItems(
+    internal fun <V : ViewBinding, I> newBindingItems(
         items: List<I>,
+        inflate: ViewBindingInflate<V>,
         sectionId: Int,
-        noinline bind: ViewBindingBind<V, I>?,
-        noinline indexedBind: IndexedViewBindingBind<V, I>?
+        bind: ViewBindingBind<V, I>?,
+        indexedBind: IndexedViewBindingBind<V, I>?
     ): SectionConfigurator<I> {
-        val itemCreator = ViewBindingCreator(V::class.java)
+        val itemCreator = ViewBindingCreator2(inflate)
         val itemBinder = ViewBindingBinder(bind, indexedBind)
         val section = Section(
             sectionId,
@@ -71,7 +73,7 @@ open class RecyclerBuilder {
         return SectionConfigurator(section)
     }
 
-    fun <I> newViewRequiredItems(
+    internal fun <I> newViewRequiredItems(
         items: List<I>,
         sectionId: Int,
         bindScope: ViewRequiredBindScope<I>
@@ -114,10 +116,11 @@ fun <I> template(
 }
 
 @JvmName("viewBindingTemplate")
-inline fun <reified V : ViewBinding, I> template(
-    noinline bind: ViewBindingBind<V, I>
+fun <V : ViewBinding, I> template(
+    inflate: ViewBindingInflate<V>,
+    bind: ViewBindingBind<V, I>
 ): Template<I> {
-    val itemViewCreator = ViewBindingCreator(V::class.java)
+    val itemViewCreator = ViewBindingCreator2(inflate)
     val itemBinder = ViewBindingBinder(bind, null)
     return Template(
         itemViewCreator,
@@ -125,10 +128,14 @@ inline fun <reified V : ViewBinding, I> template(
     )
 }
 
-inline fun <reified V : ViewBinding, I> template(
-    noinline bind: IndexedViewBindingBind<V, I>
+@JvmName("viewBindingTemplate")
+@OverloadResolutionByLambdaReturnType
+@OptIn(ExperimentalTypeInference::class)
+fun <V : ViewBinding, I> template(
+    inflate: ViewBindingInflate<V>,
+    bind: IndexedViewBindingBind<V, I>
 ): Template<I> {
-    val itemViewCreator = ViewBindingCreator(V::class.java)
+    val itemViewCreator = ViewBindingCreator2(inflate)
     val itemBinder = ViewBindingBinder(null, bind)
     return Template(
         itemViewCreator,
@@ -137,86 +144,101 @@ inline fun <reified V : ViewBinding, I> template(
 }
 
 fun <I> RecyclerBuilder.item(
+    data: I,
     @LayoutRes layoutId: Int,
-    item: I,
     sectionId: Int = -1,
     bindScope: BindScope<I>
 ): SectionConfigurator<I> {
-    return items(layoutId, listOf(item), sectionId, bindScope)
+    return items(listOf(data), layoutId, sectionId, bindScope)
 }
 
 fun <I> RecyclerBuilder.items(
+    data: List<I>,
     @LayoutRes layoutId: Int,
-    items: List<I>,
     sectionId: Int = -1,
     bindScope: BindScope<I>
 ): SectionConfigurator<I> {
-    return newLayoutIdItems(layoutId, items, sectionId, bindScope)
+    return newLayoutIdItems(data, layoutId, sectionId, bindScope)
 }
 
 fun <I> RecyclerBuilder.items(
+    data: MutableValue<List<I>>,
     @LayoutRes layoutId: Int,
-    source: MutableValue<List<I>>,
     sectionId: Int = -1,
     bindScope: BindScope<I>
 ): SectionConfigurator<I> {
     return items(
-        layoutId, source.current ?: emptyList(), sectionId, bindScope
+        data.current ?: emptyList(), layoutId, sectionId, bindScope
     ).also {
-        it.section().putExtra(source)
+        it.section().putExtra(data)
     }
 }
 
 @JvmName("viewBindingItem")
 @OverloadResolutionByLambdaReturnType
 @OptIn(ExperimentalTypeInference::class)
-inline fun <reified V : ViewBinding, I> RecyclerBuilder.item(
-    item: I,
+fun <V : ViewBinding, I> RecyclerBuilder.item(
+    data: I,
+    inflate: ViewBindingInflate<V>,
     sectionId: Int = -1,
-    noinline bind: ViewBindingBind<V, I>
+    bind: ViewBindingBind<V, I>
 ): SectionConfigurator<I> {
-    return items(listOf(item), sectionId, bind)
+    return items(listOf(data), inflate, sectionId, bind)
 }
 
 @JvmName("viewBindingItems")
 @OverloadResolutionByLambdaReturnType
 @OptIn(ExperimentalTypeInference::class)
-inline fun <reified V : ViewBinding, I> RecyclerBuilder.items(
-    items: List<I>,
+fun <V : ViewBinding, I> RecyclerBuilder.items(
+    data: List<I>,
+    inflate: ViewBindingInflate<V>,
     sectionId: Int = -1,
-    noinline bind: ViewBindingBind<V, I>
+    bind: ViewBindingBind<V, I>
 ): SectionConfigurator<I> {
-    return newBindingItems(items, sectionId, bind, null)
+    return newBindingItems(data, inflate, sectionId, bind, null)
 }
 
 @JvmName("viewBindingMutableItems")
 @OverloadResolutionByLambdaReturnType
 @OptIn(ExperimentalTypeInference::class)
-inline fun <reified V : ViewBinding, I> RecyclerBuilder.items(
-    source: MutableValue<List<I>>,
+fun <V : ViewBinding, I> RecyclerBuilder.items(
+    data: MutableValue<List<I>>,
+    inflate: ViewBindingInflate<V>,
     sectionId: Int = -1,
-    noinline bind: ViewBindingBind<V, I>
+    bind: ViewBindingBind<V, I>
 ): SectionConfigurator<I> {
-    return items(source.current ?: emptyList(), sectionId, bind).also {
-        it.section().putExtra(source)
+    return items(
+        data.current ?: emptyList(),
+        inflate,
+        sectionId,
+        bind
+    ).also {
+        it.section().putExtra(data)
     }
 }
 
-inline fun <reified V : ViewBinding, I> RecyclerBuilder.itemsIndexed(
-    items: List<I>,
+fun <V : ViewBinding, I> RecyclerBuilder.itemsIndexed(
+    data: List<I>,
+    inflate: ViewBindingInflate<V>,
     sectionId: Int = -1,
-    noinline bind: IndexedViewBindingBind<V, I>
+    bind: IndexedViewBindingBind<V, I>
 ): SectionConfigurator<I> {
-    return newBindingItems(items, sectionId, null, bind)
+    return newBindingItems(data, inflate, sectionId, null, bind)
 }
 
-inline fun <reified V : ViewBinding, I> RecyclerBuilder.itemsIndexed(
-    source: MutableValue<List<I>>,
+fun <V : ViewBinding, I> RecyclerBuilder.itemsIndexed(
+    data: MutableValue<List<I>>,
+    inflate: ViewBindingInflate<V>,
     sectionId: Int = -1,
-    noinline bind: IndexedViewBindingBind<V, I>
+    bind: IndexedViewBindingBind<V, I>
 ): SectionConfigurator<I> {
-    return itemsIndexed(source.current ?: emptyList(), sectionId, bind).also {
-        it.section().putExtra(source)
+    return itemsIndexed(
+        data.current ?: emptyList(),
+        inflate,
+        sectionId,
+        bind
+    ).also {
+        it.section().putExtra(data)
     }
 }
 
@@ -224,38 +246,38 @@ inline fun <reified V : ViewBinding, I> RecyclerBuilder.itemsIndexed(
 @OverloadResolutionByLambdaReturnType
 @OptIn(ExperimentalTypeInference::class)
 fun <I> RecyclerBuilder.item(
-    item: I,
+    data: I,
     sectionId: Int = -1,
     bindScope: ViewRequiredBindScope<I>
 ): SectionConfigurator<I> {
-    return newViewRequiredItems(listOf(item), sectionId, bindScope)
+    return newViewRequiredItems(listOf(data), sectionId, bindScope)
 }
 
 @JvmName("viewRequiredItems")
 @OverloadResolutionByLambdaReturnType
 @OptIn(ExperimentalTypeInference::class)
 fun <I> RecyclerBuilder.items(
-    items: List<I>,
+    data: List<I>,
     sectionId: Int = -1,
     bindScope: ViewRequiredBindScope<I>
 ): SectionConfigurator<I> {
-    return newViewRequiredItems(items, sectionId, bindScope)
+    return newViewRequiredItems(data, sectionId, bindScope)
 }
 
 @JvmName("viewRequiredMutableItems")
 @OverloadResolutionByLambdaReturnType
 @OptIn(ExperimentalTypeInference::class)
 fun <I> RecyclerBuilder.items(
-    source: MutableValue<List<I>>,
+    data: MutableValue<List<I>>,
     sectionId: Int = -1,
     bindScope: ViewRequiredBindScope<I>
 ): SectionConfigurator<I> {
     return items(
-        source.current ?: emptyList(),
+        data.current ?: emptyList(),
         sectionId,
         bindScope
     ).also {
-        it.section().putExtra(source)
+        it.section().putExtra(data)
     }
 }
 
@@ -263,13 +285,13 @@ fun <I> RecyclerBuilder.items(
  * item from a template
  * */
 fun <I> RecyclerBuilder.item(
+    data: I,
     template: Template<I>,
-    item: I,
     sectionId: Int = -1
 ): SectionConfigurator<I> {
     val creator = template.viewCreator
     val binder = template.itemBinder
-    val section = Section(sectionId, creator, binder, listOf(item)).apply {
+    val section = Section(sectionId, creator, binder, listOf(data)).apply {
         onItemClick = template.onItemClick
         onItemLongClick = template.onItemLongClick
         differ = template.differ
@@ -284,13 +306,13 @@ fun <I> RecyclerBuilder.item(
  * items from a template
  * */
 fun <I> RecyclerBuilder.items(
+    data: List<I>,
     template: Template<I>,
-    items: List<I>,
     sectionId: Int = -1
 ): SectionConfigurator<I> {
     val creator = template.viewCreator
     val binder = template.itemBinder
-    val section = Section(sectionId, creator, binder, items).apply {
+    val section = Section(sectionId, creator, binder, data).apply {
         onItemClick = template.onItemClick
         onItemLongClick = template.onItemLongClick
         differ = template.differ
@@ -302,15 +324,15 @@ fun <I> RecyclerBuilder.items(
 }
 
 fun <I> RecyclerBuilder.items(
+    data: MutableValue<List<I>>,
     template: Template<I>,
-    source: MutableValue<List<I>>,
     sectionId: Int = -1
 ): SectionConfigurator<I> {
     return items(
+        data.current ?: emptyList(),
         template,
-        source.current ?: emptyList(),
         sectionId
     ).also {
-        it.section().putExtra(source)
+        it.section().putExtra(data)
     }
 }

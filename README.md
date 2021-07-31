@@ -9,16 +9,16 @@
 ### Usage
 
 ```groovy
-implementation 'io.github.dokar3:lazyrecycler:0.1.7'
+implementation 'io.github.dokar3:lazyrecycler:0.1.8'
 ```
 
 With LazyRecycler, a few dozen lines of code can do almost all things for RecyclerView. Adapter, LayoutManager, DiffUtil, OnItemClickListener and more, these are **all in one** block:
 
 ```kotlin
-LazyRecycler(recyclerView, spanCount = 3) {
-    item(R.layout.header, Unit) {}
+lazyRecycler(recyclerView, spanCount = 3) {
+    item(Unit, R.layout.header) {}
 
-    items(listOfNews) { binding: ItemNewsBinding, news ->
+    items(listOfNews, ItemNewsBinding::inflate) { binding, news ->
         // bind item
     }.clicks { view, item ->
         // handle item clicks
@@ -36,7 +36,7 @@ LazyRecycler(recyclerView, spanCount = 3) {
         }
     }
     ...
-    item(R.layout.footer, Unit) {}
+    item(Unit, R.layout.footer) {}
 }
 ```
 
@@ -52,19 +52,19 @@ item(...) { ... }
 items(...) { ... }
 ```
 
-Sections should only be used in `LazyRecycler` / `newSections` block, so it's necessary to pass a unique id when creating a dynamic section (Require doing some operations after list is created, like update, remove, hide and show). Or use mutable data sources (see the section below). 
+Sections should only be used in `lazyRecycler` / `newSections` block, so it's necessary to pass a unique id when creating a dynamic section (Require doing some operations after list is created, like update, remove, hide and show). Or use mutable data sources (see the section below).
 
 ```kotlin
-val lazyRecycler = LazyRecycler {
+val recycler = lazyRecycler {
     items(..., sectionId = SOME_ID) { ... } 
 }
 
 // update
-lazyRecycler.updateSection(SOME_ID, items)
+recycler.updateSection(SOME_ID, items)
 // remove
-lazyRecycler.removeSection(SOME_ID)
+recycler.removeSection(SOME_ID)
 // hide and show
-lazyRecycler.setSectionVisible(SOME_ID, false)
+recycler.setSectionVisible(SOME_ID, false)
 ```
 
 ### Layout
@@ -72,9 +72,9 @@ lazyRecycler.setSectionVisible(SOME_ID, false)
 layout id and ViewBinding/DataBinding are supported:
 
 ```kotlin
-items(R.layout.item_news, news) { ... }
+items(news, R.layout.item_news) { ... }
 
-items(news) { binding: ItemNewsBinding, item -> ... }
+items(news, ItemNewsBinding::inflate) { binding, item -> ... }
 ```
 
 Providing an item view in the bind scope is also supported:
@@ -92,7 +92,7 @@ items(news) { parent ->
 For ViewBinding item/items:
 
 ```kotlin
-items(news) { binding: ItemNewsBinding, item -> 
+items(news, ItemNewsBinding::inflate) { binding, item -> 
     binding.title.text = item.title
     binding.image.load(item.cover)
     ...
@@ -102,7 +102,7 @@ items(news) { binding: ItemNewsBinding, item ->
 For DataBinding item/items:
 
 ```kotlin
-items(news) { binding: ItemNewsDataBinding, item -> 
+items(news, ItemNewsDataBinding) { binding, item -> 
     binding.news = item
 }
 ```
@@ -110,7 +110,7 @@ items(news) { binding: ItemNewsDataBinding, item ->
 For layoutId item/items:
 
 ```kotlin
-items(R.layout.item_news, news) { view ->
+items(news, R.layout.item_news) { view ->
     ...
     val tv: TextView = view.findViewById(R.id.title)
     bind { item ->
@@ -137,9 +137,9 @@ items(news) { parent ->
 All the `item`, `items`, and `template` are generic functions:
 
 ```kotlin
-items<I>(layoutId, I) { ... }
-items<V, I>(items) { ... }
-items<I>(items) { ... }
+items<I>(news, layoutId) { ... }
+items<V, I>(news, ItemViewBinding::infalte) { ... }
+items<I>(news) { ... }
 ```
 
 * `I` for item type
@@ -151,24 +151,24 @@ There are a lots of `item`/`items` functions to support various layouts, for hel
 
 ```kotlin
 // item
-item(R.layout.item, Any()) {
+item(Unit, R.layout.item) {
 	// Parameter 'view' can be ommited
 }
-item(Any()) { binding: ItemBinding, item -> 
+item(Unit, ItemBinding::inflate) { binding, item -> 
 }
-item(Any()) { parent -> 
+item(Unit) { parent -> 
     // Parameter 'parent' is required to distinguish from view binding one
     // Replace with '_' if it's unused
     return@item TextView(context) 
 }
 
 // items
-items(R.layout.item, listOf(Any()) {
+items(listOf(Unit), R.layout.item) {
     // Parameter 'view' can be ommited
 }
-items(listOf(Any()) { binding: ItemBinding, item -> 
+items(listOf(Unit), ItemBinding::infalte) { binding, item -> 
 }
-items(listOf(Any()) { parent -> 
+items(listOf(Unit)) { parent -> 
     // Parameter 'parent' is required to distinguish from view binding one
     // Replace with '_' if it's unused
     return@items TextView(context) 
@@ -177,10 +177,10 @@ items(listOf(Any()) { parent ->
 
 ### LayoutManager
 
-LazyRecycler create a LinearLayoutManager by default, if `spanCount`  is defined, GridLayoutManager will be picked.  To skip the LayoutManager setup, set `setupLayoutManager` to `false`:
+LazyRecycler creates a LinearLayoutManager by default, if `spanCount`  is defined, GridLayoutManager will be picked.  To skip the LayoutManager setup, set `setupLayoutManager` to `false`:
 
 ```kotlin
-LazyRecycler(
+lazyRecycler(
     recyclerView,
     setupLayoutManager = false,
     isHorizontal = false, // ignored
@@ -244,11 +244,11 @@ To support some mutable(observable) data sources like `Flow`, `LiveData`, or `Rx
 
 ```groovy
 // Flow
-implementation 'io.github.dokar3:lazyrecycler-flow:0.1.7'
+implementation 'io.github.dokar3:lazyrecycler-flow:0.1.8'
 // LiveData
-implementation 'io.github.dokar3:lazyrecycler-livedata:0.1.7'
+implementation 'io.github.dokar3:lazyrecycler-livedata:0.1.8'
 // RxJava3
-implementation 'io.github.dokar3:lazyrecycler-rxjava3:0.1.7'
+implementation 'io.github.dokar3:lazyrecycler-rxjava3:0.1.8'
 ```
 
 ### Flow
@@ -305,14 +305,14 @@ LazyRecycler will observe the data changes automatically, so it's no necessary t
 
 ```kotlin
 // After stopObserving() have been called
-lazyRecycler.observeChanges()
+recycler.observeChanges()
 ```
 
 Manually stop the observing is required when using a RxJava data source, or not using lifecycleScope to create a Flow data source:
 
 ```kotlin
 // onDestroy(), etc.
-lazyRecycler.stopObserving()
+recycler.stopObserving()
 ```
 
 # Advanced
@@ -322,7 +322,7 @@ lazyRecycler.stopObserving()
 `template()` + `items(section, ...)`: A section can be created from a `Template`:
 
 ```kotlin
-LazyRecycler {
+lazyRecycler {
     // layout id definition
     val sectionHeader = template<String>(R.layout.section_header) {
         // bind item
@@ -333,10 +333,10 @@ LazyRecycler {
     }
     
     item(sectionHeader, "section 1")
-    items(normalItem, source)
+    items(someItems, normalItem)
     
     item(sectionHeader, "section 2")
-    items(normalItem, source)
+    items(otherItems, normalItem)
     ...
 }
 ```
@@ -346,12 +346,12 @@ LazyRecycler {
 `template()` + `subSection()`: Multiple view types for single data source is supported:
 
 ```kotlin
-LazyRecycler {
-    val bubbleFromMe = template<ItemMsgFromMeBinding, Message> { binding, msg ->
+lazyRecycler {
+    val bubbleFromMe = template<Message>(ItemMsgFromMeBinding::infalte) { binding, msg ->
         // bind item
     }
     
-    items(messages) { binding: ItemMsgBinding, msg ->
+    items(messages, ItemMsgBinding::inflate) { binding, msg ->
         // bind item
     }.subSection(bubbleFromMe) { msg, position ->
         // condition
@@ -363,45 +363,38 @@ LazyRecycler {
 
 ### Add new sections dynamically
 
-`LazyRecycler.newSections()`:
+`recycler.newSections()`:
 
 ```kotlin
-val lazyRecycler = ...
+val recycler = ...
 ...
-lazyRecycler.newSections {
+recycler.newSections {
     item(...) { ... }
     items(...) { ... }
     ...
 }
 // If new sections contain any observable data source
-lazyRecycler.observeChanges()
+recycler.observeChanges()
 ```
 
 ### Build list in background
 
-`LazyRecycler.attchTo()`:
+`recycler.attchTo()`:
 
 ```kotlin
 backgroundThread {
-    val recycler = LazyRecycler {
+    val recycler = lazyRecycler {
         ...
     }
     uiThread {
-        lazyRecycler.attchTo(recyclerView)
+        recycler.attchTo(recyclerView)
     }
 }
 ```
 
 # ProGuard
 
-If `ViewBinding` item/items are used, add this rule to proguard file:
-
-```pro
-# keep ViewBinding.inflate for LazyRecycler
--keepclassmembers class * implements androidx.viewbinding.ViewBinding {
-    inflate(android.view.LayoutInflater, android.view.ViewGroup, boolean);
-}
-```
+It's not needed anymore.
 
 # Demos
 

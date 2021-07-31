@@ -43,10 +43,10 @@ class SectionConfigurator<I>(private val section: Section<out Any?, I>) {
     }
 
     fun subSection(
-        sub: Section<Any, I>,
+        template: Template<I>,
         where: Where<I>
     ): SectionConfigurator<I> {
-        section.addSubSection(sub, where)
+        section.addSubSection(template, where)
         return this
     }
 

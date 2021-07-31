@@ -5,8 +5,8 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.MutableLiveData
 import androidx.test.platform.app.InstrumentationRegistry
-import com.dokar.lazyrecycler.LazyRecycler
 import com.dokar.lazyrecycler.items
+import com.dokar.lazyrecycler.lazyRecycler
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Test
@@ -30,8 +30,8 @@ class LiveDataTest {
         val lifecycle = LifecycleRegistry(mock(LifecycleOwner::class.java))
         lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
 
-        val recycler = LazyRecycler {
-            items(fakeLayoutId, source.asMutSource { lifecycle }, id) {}
+        val recycler = lazyRecycler {
+            items(source.asMutSource { lifecycle }, id,fakeLayoutId) {}
         }
         assertEquals(text, recycler.getSectionItems(id)?.get(0))
 
@@ -79,8 +79,8 @@ class LiveDataTest {
         val lifecycle = LifecycleRegistry(mock(LifecycleOwner::class.java))
         lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
 
-        val recycler = LazyRecycler {
-            items(fakeLayoutId, source.asMutSource { lifecycle }, 0) {}
+        val recycler = lazyRecycler {
+            items(source.asMutSource { lifecycle }, fakeLayoutId, 0) {}
         }
         // default value
         assertEquals(list, recycler.getSectionItems(id))

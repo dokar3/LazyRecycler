@@ -1,8 +1,8 @@
 package com.dokar.lazyrecycler.rxjava3
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.dokar.lazyrecycler.LazyRecycler
 import com.dokar.lazyrecycler.items
+import com.dokar.lazyrecycler.lazyRecycler
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.subjects.BehaviorSubject
 import io.reactivex.rxjava3.subjects.PublishSubject
@@ -22,8 +22,8 @@ class RxTest {
         val id = 0
         val source = PublishSubject.create<String>()
 
-        val recycler = LazyRecycler {
-            items(fakeLayoutId, source.asMutSource(), id) {}
+        val recycler = lazyRecycler {
+            items(source.asMutSource(), fakeLayoutId, id) {}
         }
         recycler.observeChanges()
 
@@ -44,8 +44,8 @@ class RxTest {
         val id = 0
         val source = BehaviorSubject.createDefault(text)
 
-        val recycler = LazyRecycler {
-            items(fakeLayoutId, source.asMutSource(), id) {}
+        val recycler = lazyRecycler {
+            items(source.asMutSource(), fakeLayoutId, id) {}
         }
         recycler.observeChanges()
 
@@ -66,8 +66,8 @@ class RxTest {
         val id = 0
         val source = PublishSubject.create<List<Int>>()
 
-        val recycler = LazyRecycler {
-            items(fakeLayoutId, source.asMutSource(), id) {}
+        val recycler = lazyRecycler {
+            items(source.asMutSource(), fakeLayoutId, id) {}
         }
         recycler.observeChanges()
 
@@ -87,8 +87,8 @@ class RxTest {
         val list = listOf(1, 2, 3)
         val source = BehaviorSubject.createDefault(list)
 
-        val recycler = LazyRecycler {
-            items(fakeLayoutId, source.asMutSource(), id) {}
+        val recycler = lazyRecycler {
+            items(source.asMutSource(), fakeLayoutId, id) {}
         }
         recycler.observeChanges()
 
@@ -112,8 +112,8 @@ class RxTest {
             it.onNext(x)
         }
 
-        val recycler = LazyRecycler {
-            items(fakeLayoutId, source.asMutSource(), id) {}
+        val recycler = lazyRecycler {
+            items(source.asMutSource(), fakeLayoutId, id) {}
         }
         recycler.observeChanges()
 
