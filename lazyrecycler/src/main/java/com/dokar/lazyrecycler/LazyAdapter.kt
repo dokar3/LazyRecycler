@@ -4,7 +4,10 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.dokar.lazyrecycler.viewbinder.ItemProvider
 
-class LazyAdapter(
+/**
+ * The adapter to display [Section]s, can be extended for advanced using.
+ */
+open class LazyAdapter(
     private val sections: MutableList<Section<Any, Any>>
 ) : RecyclerView.Adapter<LazyViewHolder<Any>>(), ItemProvider {
 

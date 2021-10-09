@@ -4,10 +4,12 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
-import com.dokar.lazyrecycler.LazyRecycler
+import com.dokar.lazyrecycler.SectionConfig
+import com.dokar.lazyrecycler.differ
 import com.dokar.lazyrecycler.flow.asMutSource
 import com.dokar.lazyrecycler.items
 import com.dokar.lazyrecycler.lazyRecycler
+import com.dokar.lazyrecycler.viewType
 import com.dokar.lazyrecycler.template
 import com.dokar.lazyrecyclersample.ChatItem
 import com.dokar.lazyrecyclersample.Constants.CHAT_MESSAGES
@@ -76,30 +78,34 @@ class ChatActivity : AppCompatActivity() {
             }
 
             items(
-                messages.asMutSource(lifecycleScope),
-                fromFriend
-            ).subSection(fromMe) { item, _ ->
-                item is Message && item.senderId == 0
-            }.subSection(sentDate) { item, _ ->
-                item is SentDate
-            }.differ {
-                areItemsTheSame { oldItem, newItem ->
-                    if (oldItem::class != newItem::class) {
-                        false
-                    } else {
-                        oldItem.id == newItem.id
+                data = messages.asMutSource(lifecycleScope),
+                template = fromFriend,
+                config = SectionConfig<ChatItem>()
+                    .viewType(fromMe) { item, _ ->
+                        item is Message && item.senderId == 0
                     }
-                }
-                areContentsTheSame { oldItem, newItem ->
-                    if (oldItem is Message && newItem is Message) {
-                        oldItem.content == newItem.content
-                    } else if (oldItem is SentDate && newItem is SentDate) {
-                        oldItem.dateText == newItem.dateText
-                    } else {
-                        false
+                    .viewType(sentDate) { item, _ ->
+                        item is SentDate
                     }
-                }
-            }
+                    .differ {
+                        areItemsTheSame { oldItem, newItem ->
+                            if (oldItem::class != newItem::class) {
+                                false
+                            } else {
+                                oldItem.id == newItem.id
+                            }
+                        }
+                        areContentsTheSame { oldItem, newItem ->
+                            if (oldItem is Message && newItem is Message) {
+                                oldItem.content == newItem.content
+                            } else if (oldItem is SentDate && newItem is SentDate) {
+                                oldItem.dateText == newItem.dateText
+                            } else {
+                                false
+                            }
+                        }
+                    }
+            )
         }
     }
 

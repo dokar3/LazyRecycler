@@ -53,6 +53,7 @@ dependencies {
     implementation libs.constraint_layout
     implementation libs.coil
     implementation libs.rxjava
+    implementation libs.sticky_layoutmanager
 
     testImplementation libs.test_junit
     androidTestImplementation libs.test_ext_junit

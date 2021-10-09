@@ -1,6 +1,8 @@
 package com.dokar.lazyrecycler.rxjava3
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.dokar.lazyrecycler.SectionConfig
+import com.dokar.lazyrecycler.id
 import com.dokar.lazyrecycler.items
 import com.dokar.lazyrecycler.lazyRecycler
 import io.reactivex.rxjava3.core.Observable
@@ -23,7 +25,11 @@ class RxTest {
         val source = PublishSubject.create<String>()
 
         val recycler = lazyRecycler {
-            items(source.asMutSource(), fakeLayoutId, id) {}
+            items(
+                data = source.asMutSource(),
+                layout = fakeLayoutId,
+                config = SectionConfig<String>().id(id)
+            ) {}
         }
         recycler.observeChanges()
 
@@ -45,7 +51,11 @@ class RxTest {
         val source = BehaviorSubject.createDefault(text)
 
         val recycler = lazyRecycler {
-            items(source.asMutSource(), fakeLayoutId, id) {}
+            items(
+                data = source.asMutSource(),
+                layout = fakeLayoutId,
+                config = SectionConfig<String>().id(id)
+            ) {}
         }
         recycler.observeChanges()
 
@@ -67,7 +77,11 @@ class RxTest {
         val source = PublishSubject.create<List<Int>>()
 
         val recycler = lazyRecycler {
-            items(source.asMutSource(), fakeLayoutId, id) {}
+            items(
+                data = source.asMutSource(),
+                layout = fakeLayoutId,
+                config = SectionConfig<Int>().id(id)
+            ) {}
         }
         recycler.observeChanges()
 
@@ -88,7 +102,11 @@ class RxTest {
         val source = BehaviorSubject.createDefault(list)
 
         val recycler = lazyRecycler {
-            items(source.asMutSource(), fakeLayoutId, id) {}
+            items(
+                data = source.asMutSource(),
+                layout = fakeLayoutId,
+                config = SectionConfig<Int>().id(id)
+            ) {}
         }
         recycler.observeChanges()
 
@@ -113,7 +131,11 @@ class RxTest {
         }
 
         val recycler = lazyRecycler {
-            items(source.asMutSource(), fakeLayoutId, id) {}
+            items(
+                data = source.asMutSource(),
+                layout = fakeLayoutId,
+                config = SectionConfig<Int>().id(id)
+            ) {}
         }
         recycler.observeChanges()
 
