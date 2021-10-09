@@ -37,302 +37,563 @@ open class RecyclerBuilder {
     internal fun <I> newLayoutIdItems(
         items: List<I>,
         @LayoutRes layoutId: Int,
-        sectionId: Int,
+        config: SectionConfig<I>,
         bindScope: BindScope<I>
-    ): SectionConfigurator<I> {
+    ) {
         val itemViewCreator = LayoutIdCreator(layoutId, bindScope)
         val itemBinder = ItemViewBinder<I>()
         val section = Section(
-            sectionId,
+            config.sectionId,
             itemViewCreator,
             itemBinder,
             items
         )
-
+        config.applyTo(section)
         addSection(section)
-
-        return SectionConfigurator(section)
     }
 
     internal fun <V : ViewBinding, I> newBindingItems(
         items: List<I>,
         inflate: ViewBindingInflate<V>,
-        sectionId: Int,
+        config: SectionConfig<I>,
         bind: ViewBindingBind<V, I>?,
         indexedBind: IndexedViewBindingBind<V, I>?
-    ): SectionConfigurator<I> {
+    ) {
         val itemCreator = ViewBindingCreator2(inflate)
         val itemBinder = ViewBindingBinder(bind, indexedBind)
         val section = Section(
-            sectionId,
+            config.sectionId,
             itemCreator,
             itemBinder,
             items
         )
+        config.applyTo(section)
         addSection(section)
-        return SectionConfigurator(section)
     }
 
     internal fun <I> newViewRequiredItems(
         items: List<I>,
-        sectionId: Int,
+        config: SectionConfig<I>,
         bindScope: ViewRequiredBindScope<I>
-    ): SectionConfigurator<I> {
+    ) {
         val itemCreator = ViewRequiredCreator(bindScope)
         val itemBinder = ItemViewBinder<I>()
         val section = Section(
-            sectionId,
+            config.sectionId,
             itemCreator,
             itemBinder,
             items
         )
+        config.applyTo(section)
         addSection(section)
-        return SectionConfigurator(section)
     }
 }
 
+/**
+ * Create a template
+ *
+ * ### Example:
+ * ```kotlin
+ * val normalItem = template(
+ *     layout = R.layout.item
+ * ) { root ->
+ *      val tvTitle: TextView = root.findViewById(R.id.tv_title)
+ *      bind {
+ *          ...
+ *      }
+ * }
+ *
+ * items(
+ *     data = listOf("A", "B", "C"),
+ *     template = normalItem
+ * )
+ * ```
+ */
 fun <I> template(
-    @LayoutRes layoutId: Int,
-    bindScope: BindScope<I>
+    @LayoutRes layout: Int,
+    config: SectionConfig<I> = SectionConfig(),
+    bind: BindScope<I>
 ): Template<I> {
-    val itemViewCreator = LayoutIdCreator(layoutId, bindScope)
+    val itemViewCreator = LayoutIdCreator(layout, bind)
     val itemBinder = ItemViewBinder<I>()
     return Template(
         itemViewCreator,
         itemBinder
-    )
+    ).also {
+        config.applyTo(it)
+    }
 }
 
+/**
+ * Create a template
+ *
+ * ### Example:
+ * ```kotlin
+ * val normalItem = template { parent ->
+ *      val root = LinearLayout(context)
+ *      // bind
+ *      ...
+ *      return@template root
+ * }
+ *
+ * items(
+ *     data = listOf("A", "B", "C"),
+ *     template = normalItem
+ * )
+ * ```
+ */
 @JvmName("viewRequiredTemplate")
 fun <I> template(
-    bindScope: ViewRequiredBindScope<I>
+    config: SectionConfig<I> = SectionConfig(),
+    bind: ViewRequiredBindScope<I>
 ): Template<I> {
-    val itemViewCreator = ViewRequiredCreator(bindScope)
+    val itemViewCreator = ViewRequiredCreator(bind)
     val itemBinder = ItemViewBinder<I>()
     return Template(
         itemViewCreator,
         itemBinder
-    )
+    ).also {
+        config.applyTo(it)
+    }
 }
 
+/**
+ * Create a template
+ *
+ * ### Example:
+ * ```kotlin
+ * val normalItem = template(ItemNormalViewBinding::inflate) { binding, item: String ->
+ *      // bind
+ *      ...
+ * }
+ *
+ * items(
+ *     data = listOf("A", "B", "C"),
+ *     template = normalItem
+ * )
+ * ```
+ */
 @JvmName("viewBindingTemplate")
 fun <V : ViewBinding, I> template(
-    inflate: ViewBindingInflate<V>,
+    layout: ViewBindingInflate<V>,
+    config: SectionConfig<I> = SectionConfig(),
     bind: ViewBindingBind<V, I>
 ): Template<I> {
-    val itemViewCreator = ViewBindingCreator2(inflate)
+    val itemViewCreator = ViewBindingCreator2(layout)
     val itemBinder = ViewBindingBinder(bind, null)
     return Template(
         itemViewCreator,
         itemBinder,
-    )
+    ).also {
+        config.applyTo(it)
+    }
 }
 
+/**
+ * Create a template
+ *
+ * ### Example:
+ * ```kotlin
+ * val normalItem = template(ItemNormalViewBinding::inflate) { index, binding, item: String ->
+ *      // bind
+ *      ...
+ * }
+ *
+ * items(
+ *     data = listOf("A", "B", "C"),
+ *     template = normalItem
+ * )
+ * ```
+ */
 @JvmName("viewBindingTemplate")
 @OverloadResolutionByLambdaReturnType
 @OptIn(ExperimentalTypeInference::class)
 fun <V : ViewBinding, I> template(
-    inflate: ViewBindingInflate<V>,
+    layout: ViewBindingInflate<V>,
+    config: SectionConfig<I> = SectionConfig(),
     bind: IndexedViewBindingBind<V, I>
 ): Template<I> {
-    val itemViewCreator = ViewBindingCreator2(inflate)
+    val itemViewCreator = ViewBindingCreator2(layout)
     val itemBinder = ViewBindingBinder(null, bind)
     return Template(
         itemViewCreator,
         itemBinder
-    )
-}
-
-fun <I> RecyclerBuilder.item(
-    data: I,
-    @LayoutRes layoutId: Int,
-    sectionId: Int = -1,
-    bindScope: BindScope<I>
-): SectionConfigurator<I> {
-    return items(listOf(data), layoutId, sectionId, bindScope)
-}
-
-fun <I> RecyclerBuilder.items(
-    data: List<I>,
-    @LayoutRes layoutId: Int,
-    sectionId: Int = -1,
-    bindScope: BindScope<I>
-): SectionConfigurator<I> {
-    return newLayoutIdItems(data, layoutId, sectionId, bindScope)
-}
-
-fun <I> RecyclerBuilder.items(
-    data: MutableValue<List<I>>,
-    @LayoutRes layoutId: Int,
-    sectionId: Int = -1,
-    bindScope: BindScope<I>
-): SectionConfigurator<I> {
-    return items(
-        data.current ?: emptyList(), layoutId, sectionId, bindScope
     ).also {
-        it.section().putExtra(data)
+        config.applyTo(it)
     }
 }
 
+/**
+ * Create item
+ *
+ * ### Example:
+ * ```kotlin
+ * item(
+ *     data = "Title",
+ *     layout = R.layout.item_title
+ * ) { root ->
+ *     val tvTitle: TextView = root.findViewById(R.id.tv_title)
+ *     bind { item ->
+ *         ...
+ *     }
+ * }
+ * ```
+ */
+fun <I> RecyclerBuilder.item(
+    data: I,
+    @LayoutRes layout: Int,
+    config: SectionConfig<I> = SectionConfig(),
+    bind: BindScope<I>
+) {
+    items(listOf(data), layout, config, bind)
+}
+
+/**
+ * Create items
+ *
+ * ### Example:
+ * ```kotlin
+ * items(
+ *     data = listOf("A", "B", "C"),
+ *     layout = R.layout.item
+ * ) { root ->
+ *     val tvTitle: TextView = root.findViewById(R.id.tv_title)
+ *     bind { item ->
+ *         ...
+ *     }
+ * }
+ * ```
+ */
+fun <I> RecyclerBuilder.items(
+    data: List<I>,
+    @LayoutRes layout: Int,
+    config: SectionConfig<I> = SectionConfig(),
+    bind: BindScope<I>
+) {
+    newLayoutIdItems(data, layout, config, bind)
+}
+
+/**
+ * Create items
+ *
+ * ### Example:
+ * ```kotlin
+ * val data: Observable<List<Item>> = ...
+ * items(
+ *     data = data.toMutSource(),
+ *     layout = R.layout.item
+ * ) { root ->
+ *     val tvTitle: TextView = root.findViewById(R.id.tv_title)
+ *     bind { item ->
+ *         ...
+ *     }
+ * }
+ * ```
+ */
+fun <I> RecyclerBuilder.items(
+    data: MutableValue<List<I>>,
+    @LayoutRes layout: Int,
+    config: SectionConfig<I> = SectionConfig(),
+    bind: BindScope<I>
+) {
+    items(
+        data.current ?: emptyList(),
+        layout,
+        config.addExtra(data),
+        bind
+    )
+}
+
+/**
+ * Create item
+ *
+ * ### Example:
+ * ```kotlin
+ * items(
+ *     data = "Title",
+ *     layout = ItemTitleViewBinding::inflate
+ * ) { binding, item ->
+ *     ...
+ * }
+ * ```
+ */
 @JvmName("viewBindingItem")
 @OverloadResolutionByLambdaReturnType
 @OptIn(ExperimentalTypeInference::class)
 fun <V : ViewBinding, I> RecyclerBuilder.item(
     data: I,
-    inflate: ViewBindingInflate<V>,
-    sectionId: Int = -1,
+    layout: ViewBindingInflate<V>,
+    config: SectionConfig<I> = SectionConfig(),
     bind: ViewBindingBind<V, I>
-): SectionConfigurator<I> {
-    return items(listOf(data), inflate, sectionId, bind)
+) {
+    items(listOf(data), layout, config, bind)
 }
 
+/**
+ * Create items
+ *
+ * ### Example:
+ * ```kotlin
+ * items(
+ *     data = listOf("A", "B", "C"),
+ *     layout = ItemViewBinding::inflate
+ * ) { binding, item ->
+ *     ...
+ * }
+ * ```
+ */
 @JvmName("viewBindingItems")
 @OverloadResolutionByLambdaReturnType
 @OptIn(ExperimentalTypeInference::class)
 fun <V : ViewBinding, I> RecyclerBuilder.items(
     data: List<I>,
-    inflate: ViewBindingInflate<V>,
-    sectionId: Int = -1,
+    layout: ViewBindingInflate<V>,
+    config: SectionConfig<I> = SectionConfig(),
     bind: ViewBindingBind<V, I>
-): SectionConfigurator<I> {
-    return newBindingItems(data, inflate, sectionId, bind, null)
+) {
+    newBindingItems(data, layout, config, bind, null)
 }
 
+/**
+ * Create items
+ *
+ * ### Example:
+ * ```kotlin
+ * val data: Observable<List<Item>> = ...
+ * items(
+ *     data = data.toMutSource(),
+ *     layout = ItemViewBinding::inflate
+ * ) { binding, item ->
+ *     ...
+ * }
+ * ```
+ */
 @JvmName("viewBindingMutableItems")
 @OverloadResolutionByLambdaReturnType
 @OptIn(ExperimentalTypeInference::class)
 fun <V : ViewBinding, I> RecyclerBuilder.items(
     data: MutableValue<List<I>>,
-    inflate: ViewBindingInflate<V>,
-    sectionId: Int = -1,
+    layout: ViewBindingInflate<V>,
+    config: SectionConfig<I> = SectionConfig(),
     bind: ViewBindingBind<V, I>
-): SectionConfigurator<I> {
-    return items(
+) {
+    items(
         data.current ?: emptyList(),
-        inflate,
-        sectionId,
+        layout,
+        config.addExtra(data),
         bind
-    ).also {
-        it.section().putExtra(data)
-    }
+    )
 }
 
+/**
+ * Create items
+ *
+ * ### Example:
+ * ```kotlin
+ * itemsIndexed(
+ *     data = listOf("A", "B", "C"),
+ *     layout = ItemViewBinding::inflate
+ * ) { index, binding, item ->
+ *     ...
+ * }
+ * ```
+ */
 fun <V : ViewBinding, I> RecyclerBuilder.itemsIndexed(
     data: List<I>,
-    inflate: ViewBindingInflate<V>,
-    sectionId: Int = -1,
+    layout: ViewBindingInflate<V>,
+    config: SectionConfig<I> = SectionConfig(),
     bind: IndexedViewBindingBind<V, I>
-): SectionConfigurator<I> {
-    return newBindingItems(data, inflate, sectionId, null, bind)
+) {
+    newBindingItems(data, layout, config, null, bind)
 }
 
+/**
+ * Create items
+ *
+ * ### Example:
+ * ```kotlin
+ * val data: Observable<List<Item>> = ...
+ * itemsIndexed(
+ *     data = data.toMutSource(),
+ *     layout = ItemViewBinding::inflate
+ * ) { index, binding, item ->
+ *     ...
+ * }
+ * ```
+ */
 fun <V : ViewBinding, I> RecyclerBuilder.itemsIndexed(
     data: MutableValue<List<I>>,
-    inflate: ViewBindingInflate<V>,
-    sectionId: Int = -1,
+    layout: ViewBindingInflate<V>,
+    config: SectionConfig<I> = SectionConfig(),
     bind: IndexedViewBindingBind<V, I>
-): SectionConfigurator<I> {
-    return itemsIndexed(
+) {
+    itemsIndexed(
         data.current ?: emptyList(),
-        inflate,
-        sectionId,
+        layout,
+        config.addExtra(data),
         bind
-    ).also {
-        it.section().putExtra(data)
-    }
+    )
 }
 
+/**
+ * Create item
+ *
+ * ### Example:
+ * ```kotlin
+ * item(
+ *  data = "Title"
+ * ) { parent ->
+ *     val root = LinearLayout(context)
+ *     ...
+ *     bind { item ->
+ *         ...
+ *     }
+ *     return@items root
+ * }
+ * ```
+ */
 @JvmName("viewRequiredItem")
 @OverloadResolutionByLambdaReturnType
 @OptIn(ExperimentalTypeInference::class)
 fun <I> RecyclerBuilder.item(
     data: I,
-    sectionId: Int = -1,
-    bindScope: ViewRequiredBindScope<I>
-): SectionConfigurator<I> {
-    return newViewRequiredItems(listOf(data), sectionId, bindScope)
+    config: SectionConfig<I> = SectionConfig(),
+    bind: ViewRequiredBindScope<I>
+) {
+    newViewRequiredItems(listOf(data), config, bind)
 }
 
+/**
+ * Create items
+ *
+ * ### Example:
+ * ```kotlin
+ * items(
+ *     data = listOf("A", "B", "C")
+ * ) { parent ->
+ *     val root = LinearLayout(context)
+ *     ...
+ *     bind { item ->
+ *         ...
+ *     }
+ *     return@items root
+ * }
+ * ```
+ */
 @JvmName("viewRequiredItems")
 @OverloadResolutionByLambdaReturnType
 @OptIn(ExperimentalTypeInference::class)
 fun <I> RecyclerBuilder.items(
     data: List<I>,
-    sectionId: Int = -1,
-    bindScope: ViewRequiredBindScope<I>
-): SectionConfigurator<I> {
-    return newViewRequiredItems(data, sectionId, bindScope)
+    config: SectionConfig<I> = SectionConfig(),
+    bind: ViewRequiredBindScope<I>
+) {
+    newViewRequiredItems(data, config, bind)
 }
 
+/**
+ * Create items
+ *
+ * ### Example:
+ * ```kotlin
+ * val data: Observable<List<Item>> = ...
+ * items(
+ *     data = data.toMutSource()
+ * ) { parent ->
+ *     val root = LinearLayout(context)
+ *     ...
+ *     bind { item ->
+ *         ...
+ *     }
+ *     return@items root
+ * }
+ * ```
+ */
 @JvmName("viewRequiredMutableItems")
 @OverloadResolutionByLambdaReturnType
 @OptIn(ExperimentalTypeInference::class)
 fun <I> RecyclerBuilder.items(
     data: MutableValue<List<I>>,
-    sectionId: Int = -1,
-    bindScope: ViewRequiredBindScope<I>
-): SectionConfigurator<I> {
-    return items(
+    config: SectionConfig<I> = SectionConfig(),
+    bind: ViewRequiredBindScope<I>
+) {
+    items(
         data.current ?: emptyList(),
-        sectionId,
-        bindScope
-    ).also {
-        it.section().putExtra(data)
-    }
+        config.addExtra(data),
+        bind
+    )
 }
 
 /**
- * item from a template
- * */
+ * Create an item from a template
+ *
+ * ### Example:
+ * ```kotlin
+ * val template = template { ... }
+ * item(data = "Title", template = template)
+ * ```
+ */
 fun <I> RecyclerBuilder.item(
     data: I,
     template: Template<I>,
-    sectionId: Int = -1
-): SectionConfigurator<I> {
+    config: SectionConfig<I> = SectionConfig(),
+) {
     val creator = template.viewCreator
     val binder = template.itemBinder
-    val section = Section(sectionId, creator, binder, listOf(data)).apply {
+    val section = Section(config.sectionId, creator, binder, listOf(data)).apply {
         onItemClick = template.onItemClick
         onItemLongClick = template.onItemLongClick
         differ = template.differ
-        spanCountLookup = template.spanCountLookup
+        spanSizeLookup = template.spanSizeLookup
     }
     section.viewType = template.viewType
     addSection(section)
-    return SectionConfigurator(section)
 }
 
 /**
- * items from a template
- * */
+ * Create items from a template
+ *
+ * ### Example:
+ * ```kotlin
+ * val template = template { ... }
+ * item(data = listOf("A", "B", "C"), template = template)
+ * ```
+ */
 fun <I> RecyclerBuilder.items(
     data: List<I>,
     template: Template<I>,
-    sectionId: Int = -1
-): SectionConfigurator<I> {
+    config: SectionConfig<I> = SectionConfig(),
+) {
     val creator = template.viewCreator
     val binder = template.itemBinder
-    val section = Section(sectionId, creator, binder, data).apply {
+    val section = Section(config.sectionId, creator, binder, data).apply {
         onItemClick = template.onItemClick
         onItemLongClick = template.onItemLongClick
         differ = template.differ
-        spanCountLookup = template.spanCountLookup
+        spanSizeLookup = template.spanSizeLookup
     }
     section.viewType = template.viewType
     addSection(section)
-    return SectionConfigurator(section)
 }
 
+/**
+ * Create items from a template
+ *
+ * ### Example:
+ * ```kotlin
+ * val template = template { ... }
+ * val data: Observable<List<Item>> = ...
+ * item(data = data.toMutSource(), template = template)
+ * ```
+ */
 fun <I> RecyclerBuilder.items(
     data: MutableValue<List<I>>,
     template: Template<I>,
-    sectionId: Int = -1
-): SectionConfigurator<I> {
-    return items(
+    config: SectionConfig<I> = SectionConfig(),
+) {
+    items(
         data.current ?: emptyList(),
         template,
-        sectionId
-    ).also {
-        it.section().putExtra(data)
-    }
+        config.addExtra(data)
+    )
 }

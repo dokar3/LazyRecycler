@@ -8,10 +8,12 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.SimpleItemAnimator
-import com.dokar.lazyrecycler.LazyRecycler
+import com.dokar.lazyrecycler.SectionConfig
+import com.dokar.lazyrecycler.differ
 import com.dokar.lazyrecycler.flow.asMutSource
 import com.dokar.lazyrecycler.items
 import com.dokar.lazyrecycler.lazyRecycler
+import com.dokar.lazyrecycler.spanSize
 import com.dokar.lazyrecyclersample.R
 import com.dokar.lazyrecyclersample.databinding.ActivityTetrisBinding
 import com.dokar.lazyrecyclersample.databinding.ItemTetrisBlockBinding
@@ -71,26 +73,26 @@ class TetrisActivity : AppCompatActivity() {
     private suspend fun createCanvas() = withContext(Dispatchers.Default) {
         lazyRecycler(spanCount = cols) {
             items(
-                score.asMutSource(lifecycleScope),
-                ItemTetrisScoreBinding::inflate
+                data = score.asMutSource(lifecycleScope),
+                layout = ItemTetrisScoreBinding::inflate,
+                config = SectionConfig<IntArray>().spanSize { cols }
             ) { binding, score ->
                 binding.tvScore.text = String.format("%03d", score[0])
                 binding.tvHighestScore.text = score[1].toString()
-            }.spanSize {
-                cols
             }
 
             items(
-                matrix.asMutSource(lifecycleScope),
-                ItemTetrisBlockBinding::inflate
+                data = matrix.asMutSource(lifecycleScope),
+                layout = ItemTetrisBlockBinding::inflate,
+                config = SectionConfig<Boolean>()
+                    .spanSize { 1 }
+                    .differ {
+                        areItemsTheSame { _, _ -> true }
+                        areContentsTheSame { oldItem, newItem -> oldItem == newItem }
+                    }
             ) { binding, fillBlock ->
                 val color = if (fillBlock) fillColor else blockColor
                 binding.block.setBackgroundColor(color)
-            }.spanSize {
-                1
-            }.differ {
-                areItemsTheSame { _, _ -> true }
-                areContentsTheSame { oldItem, newItem -> oldItem == newItem }
             }
         }.let { recycler ->
             withContext(Dispatchers.Main.immediate) {

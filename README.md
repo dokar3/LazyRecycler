@@ -16,27 +16,32 @@ With LazyRecycler, a few dozen lines of code can do almost all things for Recycl
 
 ```kotlin
 lazyRecycler(recyclerView, spanCount = 3) {
-    item(Unit, R.layout.header) {}
+    item(data = Unit, layout = R.layout.header) {}
 
-    items(listOfNews, ItemNewsBinding::inflate) { binding, news ->
+    items(
+        data = listOfNews,
+        layout = ItemNewsBinding::inflate,
+        config = SectionConfig<NewsItem>()
+            .clicks { view, item ->
+                // handle item clicks
+            }.spanSize { position ->
+                // map to SpanSizeLookup.getSpanSize()
+                if (position % 3 == 0) 3 else 1
+            }.differ {
+                areItemsTheSame { oldItem, newItem ->
+                    // map to DiffUtil.ItemCallback.areItemsTheSame()
+                    oldItem.id == newItem.id
+                }
+                areContentsTheSame { oldItem, newItem ->
+                    // map to DiffUtil.ItemCallback.areContentsTheSame()
+                    oldItem.title == newItem.title && ...
+                }
+            }
+    ) { binding, news ->
         // bind item
-    }.clicks { view, item ->
-        // handle item clicks
-    }.spanSize { position ->
-        // map to SpanSizeLookup.getSpanSize()
-        if (position % 3 == 0) 3 else 1
-    }.differ {
-        areItemsTheSame { oldItem, newItem ->
-            // map to DiffUtil.ItemCallback.areItemsTheSame()
-            oldItem.id == newItem.id
-        }
-        areContentsTheSame { oldItem, newItem ->
-            // map to DiffUtil.ItemCallback.areContentsTheSame()
-            oldItem.title == newItem.title && ...
-        }
     }
     ...
-    item(Unit, R.layout.footer) {}
+    item(data = Unit, layout = R.layout.footer) {}
 }
 ```
 
@@ -56,7 +61,11 @@ Sections should only be used in `lazyRecycler` / `newSections` block, so it's ne
 
 ```kotlin
 val recycler = lazyRecycler {
-    items(..., sectionId = SOME_ID) { ... } 
+    items(
+        data = news,
+        layout = R.layout.item_news,
+        config = SectionConfig<Item>().sectionId(SOME_ID)
+    ) { ... }
 }
 
 // update
@@ -72,15 +81,15 @@ recycler.setSectionVisible(SOME_ID, false)
 layout id and ViewBinding/DataBinding are supported:
 
 ```kotlin
-items(news, R.layout.item_news) { ... }
+items(data = news, layout = R.layout.item_news) { ... }
 
-items(news, ItemNewsBinding::inflate) { binding, item -> ... }
+items(data = news, layout = ItemNewsBinding::inflate) { binding, item -> ... }
 ```
 
 Providing an item view in the bind scope is also supported:
 
 ```kotlin
-items(news) { parent ->
+items(data = news) { parent ->
     val itemView = CustomNewsItemView(context)
     ...
     return@items itemView
@@ -92,7 +101,7 @@ items(news) { parent ->
 For ViewBinding item/items:
 
 ```kotlin
-items(news, ItemNewsBinding::inflate) { binding, item -> 
+items(data = news, layout = ItemNewsBinding::inflate) { binding, item ->
     binding.title.text = item.title
     binding.image.load(item.cover)
     ...
@@ -102,7 +111,7 @@ items(news, ItemNewsBinding::inflate) { binding, item ->
 For DataBinding item/items:
 
 ```kotlin
-items(news, ItemNewsDataBinding) { binding, item -> 
+items(data = news, layout = ItemNewsDataBinding::inflate) { binding, item ->
     binding.news = item
 }
 ```
@@ -110,7 +119,7 @@ items(news, ItemNewsDataBinding) { binding, item ->
 For layoutId item/items:
 
 ```kotlin
-items(news, R.layout.item_news) { view ->
+items(data = news, layout = R.layout.item_news) { view ->
     ...
     val tv: TextView = view.findViewById(R.id.title)
     bind { item ->
@@ -122,7 +131,7 @@ items(news, R.layout.item_news) { view ->
 For view required item/items:
 
 ```kotlin
-items(news) { parent -> 
+items(data = news) { parent ->
     val itemView = CustomNewsItemView(context)
     bind { item ->
         itemView.title(item.title)
@@ -137,9 +146,9 @@ items(news) { parent ->
 All the `item`, `items`, and `template` are generic functions:
 
 ```kotlin
-items<I>(news, layoutId) { ... }
-items<V, I>(news, ItemViewBinding::infalte) { ... }
-items<I>(news) { ... }
+items<I>(data = news, layout = layoutId) { ... }
+items<V, I>(data = news, layout = ItemViewBinding::inflate) { ... }
+items<I>(data = news) { ... }
 ```
 
 * `I` for item type
@@ -151,24 +160,24 @@ There are a lots of `item`/`items` functions to support various layouts, for hel
 
 ```kotlin
 // item
-item(Unit, R.layout.item) {
-	// Parameter 'view' can be ommited
+item(data = Item, layout = R.layout.item) {
+	// Parameter 'view' can be omitted
 }
-item(Unit, ItemBinding::inflate) { binding, item -> 
+item(data = Item, layout = ItemBinding::inflate) { binding, item ->
 }
-item(Unit) { parent -> 
+item(data = Item) { parent ->
     // Parameter 'parent' is required to distinguish from view binding one
     // Replace with '_' if it's unused
     return@item TextView(context) 
 }
 
 // items
-items(listOf(Unit), R.layout.item) {
-    // Parameter 'view' can be ommited
+items(data = listOf(Item), layout = R.layout.item) {
+    // Parameter 'view' can be omitted
 }
-items(listOf(Unit), ItemBinding::infalte) { binding, item -> 
+items(data = listOf(Item), layout = ItemBinding::inflate) { binding, item ->
 }
-items(listOf(Unit)) { parent -> 
+items(data = listOf(Item)) { parent ->
     // Parameter 'parent' is required to distinguish from view binding one
     // Replace with '_' if it's unused
     return@items TextView(context) 
@@ -195,15 +204,20 @@ recyclerView.layoutManager = ...
 `spanSize()` is used to define `SpanSizeLookup` for GridLayoutManager:
 
 ```kotlin
-item(...) {
-}.spanSize {
-    3
+item(
+    ...,
+    config = SectionConfig<Item>()
+        .spanSize { 3 }
+) {
 }
 
-items(...) {
+items(...,
+    config = SectionConfig<Item>()
+        .spanSize { position ->
+           if (position == 0) 3 else 1
+        }
+) {
     ...
-}.spanSize { position ->
-    if (position == 0) 3 else 1
 }
 ```
 
@@ -212,15 +226,19 @@ items(...) {
 Use `differ` function, then LazyRecycler will do the all works after section items changed. 
 
 ``` kotlin
-items(...) {
+items(
+    ...,
+    config = SectionConfig<Item>()
+        .differ {
+            areItemsTheSame { oldItem, newItem ->
+                ...
+            }
+            areContentsTheSame { oldItem, newItem ->
+                ...
+            }
+        }
+) {
     ...
-}.differ {
-    areItemsTheSame { oldItem, newItem ->
-        ...
-    }
-    areContentsTheSame { oldItem, newItem ->
-        ...
-    }
 }
 ```
 
@@ -229,11 +247,16 @@ items(...) {
 `clicks` for the OnItemClickListener, `longClicks` for the OnItemLongClickListener.
 
 ```kotlin
-items(...) {
-    ...
-}.clicks { view, item -> 
-    ...
-}.longClicks { view, item -> 
+items(
+    ...,
+    config = SectionConfig<Item>()
+        .clicks { view, item ->
+         ...
+        }
+        .longClicks { view, item ->
+         ...
+        }
+){
     ...
 }
 ```
@@ -260,10 +283,10 @@ implementation 'io.github.dokar3:lazyrecycler-rxjava3:0.1.8'
    
    val entry: Flow<I> = ...
    // Use items() instead of item()
-   items(entry.asMutSource(coroutineScope)) { ... }
+   items(data = entry.asMutSource(coroutineScope), ...) { ... }
    
    val source: Flow<List<I>> = ...
-   items(source.asMutSource(coroutineScope)) { ... }
+   items(data = source.asMutSource(coroutineScope), ...) { ... }
    ```
 
 
@@ -276,10 +299,10 @@ implementation 'io.github.dokar3:lazyrecycler-rxjava3:0.1.8'
    
    val entry: LiveData<I> = ...
    // Use items() instead of item()
-   items(entry.asMutSource(lifecycleOwner)) { ... }
+   items(data = entry.asMutSource(lifecycleOwner), ...) { ... }
    
    val source: LiveData<List<I>> = ...
-   items(source.asMutSource(lifecycleOwner)) { ... }
+   items(data = source.asMutSource(lifecycleOwner), ...) { ... }
    ```
 
 
@@ -292,10 +315,10 @@ implementation 'io.github.dokar3:lazyrecycler-rxjava3:0.1.8'
    
    val entry: Observable<I> = ...
    // Use items() instead of item()
-   items(entry.asMutSource()) { ... }
+   items(data = entry.asMutSource(), ...) { ... }
    
    val source: Observable<List<I>> = ...
-   items(source.asMutSource()) { ... }
+   items(data = source.asMutSource(), ...) { ... }
    ```
 
 
@@ -332,30 +355,35 @@ lazyRecycler {
         // bind item
     }
     
-    item(sectionHeader, "section 1")
-    items(someItems, normalItem)
+    item(data = "section 1", template = sectionHeader)
+    items(data = someItems, template = normalItem)
     
-    item(sectionHeader, "section 2")
-    items(otherItems, normalItem)
+    item(data = "section 2", template = sectionHeader)
+    items(data = otherItems, template = normalItem)
     ...
 }
 ```
 
 ### Single items with multiple view types
 
-`template()` + `subSection()`: Multiple view types for single data source is supported:
+`template()` + `viewType()`: Multiple view types for single data source is supported:
 
 ```kotlin
 lazyRecycler {
-    val bubbleFromMe = template<Message>(ItemMsgFromMeBinding::infalte) { binding, msg ->
+    val bubbleFromMe = template<Message>(ItemMsgFromMeBinding::inflate) { binding, msg ->
         // bind item
     }
     
-    items(messages, ItemMsgBinding::inflate) { binding, msg ->
+    items(
+        data = messages,
+        layout = ItemMsgBinding::inflate,
+        config = SectionConfig<Message>()
+            .viewType(bubbleFromMe) { msg, position ->
+                // condition
+                msg.isFromMe
+            }
+    { binding, msg ->
         // bind item
-    }.subSection(bubbleFromMe) { msg, position ->
-        // condition
-        msg.isFromMe
     }
     ...
 }
@@ -379,7 +407,7 @@ recycler.observeChanges()
 
 ### Build list in background
 
-`recycler.attchTo()`:
+`recycler.attachTo()`:
 
 ```kotlin
 backgroundThread {
@@ -387,14 +415,11 @@ backgroundThread {
         ...
     }
     uiThread {
-        recycler.attchTo(recyclerView)
+        recycler.attachTo(recyclerView)
     }
 }
 ```
 
-# ProGuard
-
-It's not needed anymore.
 
 # Demos
 
@@ -420,7 +445,7 @@ It's not needed anymore.
 
 * [Jetpack Compose](https://developer.android.com/jetpack/compose)
 * [LazyColumn](https://developer.android.com/reference/kotlin/androidx/compose/foundation/lazy/package-summary#lazycolumn)
-* [sqaure/cycler](https://github.com/square/cycler)
+* [square/cycler](https://github.com/square/cycler)
 
 # License
 

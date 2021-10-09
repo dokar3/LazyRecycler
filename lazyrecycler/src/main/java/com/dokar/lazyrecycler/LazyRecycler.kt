@@ -12,6 +12,8 @@ import com.dokar.lazyrecycler.data.ValueObserver
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
+typealias AdapterCreator = (sections: MutableList<Section<Any, Any>>) -> LazyAdapter
+
 /**
  * Create a LazyRecycler
  *
@@ -37,11 +39,14 @@ fun lazyRecycler(
     reverseLayout: Boolean = false,
     stackFromEnd: Boolean = false,
     spanCount: Int = 1,
+    adapterCreator: AdapterCreator = { LazyAdapter(it) },
     body: RecyclerBuilder.() -> Unit
 ): LazyRecycler {
     val builder = RecyclerBuilder().also(body)
+    val sections = builder.sections().toMutableList()
     return LazyRecycler(
-        builder.sections().toMutableList(),
+        adapterCreator(sections),
+        sections,
         setupLayoutManager,
         isHorizontal,
         reverseLayout,
@@ -55,6 +60,7 @@ fun lazyRecycler(
 }
 
 class LazyRecycler(
+    private val adapter: LazyAdapter,
     private val sections: MutableList<Section<Any, Any>>,
     private val setupLayoutManager: Boolean,
     private val isHorizontal: Boolean,
@@ -62,9 +68,6 @@ class LazyRecycler(
     private val stackFromEnd: Boolean,
     private val spanCount: Int,
 ) {
-
-    private val adapter: LazyAdapter = LazyAdapter(sections)
-
     private val differs: MutableMap<Section<Any, Any>, AsyncListDiffer<Any>> = mutableMapOf()
 
     private val dataSourceObserver: ValueObserver<Any> = ValueObserver {
@@ -301,7 +304,7 @@ class LazyRecycler(
                 override fun getSpanSize(position: Int): Int {
                     val sectionIdx = adapter.getSectionIndex(position)
                     val section = sections[sectionIdx]
-                    val spanSizeLookup = section.spanCountLookup ?: return 1
+                    val spanSizeLookup = section.spanSizeLookup ?: return 1
                     val offset = adapter.getSectionPositionOffset(section)
                     return spanSizeLookup(position - offset)
                 }

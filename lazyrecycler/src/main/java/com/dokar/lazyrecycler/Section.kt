@@ -18,7 +18,7 @@ open class Section<V, I>(
     var onItemClick: OnItemClick<I>? = null,
     var onItemLongClick: OnItemLongClick<I>? = null,
     var differ: Differ<I>? = null,
-    var spanCountLookup: SpanSizeLookup? = null
+    var spanSizeLookup: SpanSizeLookup? = null
 ) {
 
     internal var viewType: Int = Utils.newViewType()
@@ -39,6 +39,13 @@ open class Section<V, I>(
             extras = mutableListOf()
         }
         extras!!.add(extra)
+    }
+
+    fun putExtras(extras: List<Any>) {
+        if (this.extras == null) {
+            this.extras = mutableListOf()
+        }
+        this.extras!!.addAll(extras)
     }
 
     fun <E> findExtra(clz: Class<E>): E? {
