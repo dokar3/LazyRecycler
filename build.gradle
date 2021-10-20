@@ -39,7 +39,9 @@ buildscript {
     ]
 
     repositories {
-        google()
+        maven { url 'https://maven.aliyun.com/repository/google/' }
+        maven { url 'https://maven.aliyun.com/repository/public/' }
+        // google()
         mavenCentral()
         maven {
             url "https://plugins.gradle.org/m2/"
@@ -57,7 +59,9 @@ buildscript {
 
 allprojects {
     repositories {
-        google()
+        maven { url 'https://maven.aliyun.com/repository/google/' }
+        maven { url 'https://maven.aliyun.com/repository/public/' }
+        // google()
         mavenCentral()
         maven { url 'https://jitpack.io' }
     }
