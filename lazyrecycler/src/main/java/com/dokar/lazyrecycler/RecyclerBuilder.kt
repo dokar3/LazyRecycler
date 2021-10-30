@@ -547,6 +547,7 @@ fun <I> RecyclerBuilder.item(
         spanSizeLookup = template.spanSizeLookup
     }
     section.viewType = template.viewType
+    config.applyTo(section)
     addSection(section)
 }
 
@@ -573,6 +574,7 @@ fun <I> RecyclerBuilder.items(
         spanSizeLookup = template.spanSizeLookup
     }
     section.viewType = template.viewType
+    config.applyTo(section)
     addSection(section)
 }
 

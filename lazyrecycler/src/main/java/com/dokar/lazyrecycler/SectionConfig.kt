@@ -28,11 +28,21 @@ open class SectionConfig<I> {
     }
 
     fun applyTo(section: Section<*, I>) {
-        section.onItemClick = onItemClick
-        section.onItemLongClick = onItemLongClick
-        section.differ = differ
-        section.spanSizeLookup = spanSizeLookup
-        section.subSections = subSections
+        if (onItemClick != null) {
+            section.onItemClick = onItemClick
+        }
+        if (onItemLongClick != null) {
+            section.onItemLongClick = onItemLongClick
+        }
+        if (differ != null) {
+            section.differ = differ
+        }
+        if (spanSizeLookup != null) {
+            section.spanSizeLookup = spanSizeLookup
+        }
+        if (subSections != null) {
+            section.subSections = subSections
+        }
         section.putExtras(extras ?: emptyList())
     }
 }
