@@ -9,7 +9,7 @@
 ### Usage
 
 ```groovy
-implementation 'io.github.dokar3:lazyrecycler:0.2.0'
+implementation 'io.github.dokar3:lazyrecycler:latest_version'
 ```
 
 With LazyRecycler, a few dozen lines of code can do almost all things for RecyclerView. Adapter, LayoutManager, DiffUtil, OnItemClickListener and more, these are **all in one** block:
@@ -24,10 +24,12 @@ lazyRecycler(recyclerView, spanCount = 3) {
         config = SectionConfig<NewsItem>()
             .clicks { view, item ->
                 // handle item clicks
-            }.spanSize { position ->
+            }
+            .spanSize { position ->
                 // map to SpanSizeLookup.getSpanSize()
                 if (position % 3 == 0) 3 else 1
-            }.differ {
+            }
+            .differ {
                 areItemsTheSame { oldItem, newItem ->
                     // map to DiffUtil.ItemCallback.areItemsTheSame()
                     oldItem.id == newItem.id
@@ -267,11 +269,11 @@ To support some mutable(observable) data sources like `Flow`, `LiveData`, or `Rx
 
 ```groovy
 // Flow
-implementation 'io.github.dokar3:lazyrecycler-flow:0.2.0'
+implementation 'io.github.dokar3:lazyrecycler-flow:latest_version'
 // LiveData
-implementation 'io.github.dokar3:lazyrecycler-livedata:0.2.0'
+implementation 'io.github.dokar3:lazyrecycler-livedata:latest_version'
 // RxJava3
-implementation 'io.github.dokar3:lazyrecycler-rxjava3:0.2.0'
+implementation 'io.github.dokar3:lazyrecycler-rxjava3:latest_version'
 ```
 
 ### Flow
