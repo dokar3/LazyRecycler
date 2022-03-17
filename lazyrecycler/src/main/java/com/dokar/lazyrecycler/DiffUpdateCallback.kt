@@ -6,7 +6,6 @@ internal class DiffUpdateCallback(
     private val adapter: LazyAdapter,
     private val section: Section<Any, Any>,
 ) : ListUpdateCallback {
-
     override fun onInserted(position: Int, count: Int) {
         val offset = adapter.getSectionPositionOffset(section)
         adapter.notifyItemRangeInserted(offset + position, count)

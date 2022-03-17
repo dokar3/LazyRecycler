@@ -13,3 +13,5 @@ typealias SpanSizeLookup = (position: Int) -> Int
 typealias OnItemClick<I> = (view: View, item: I) -> Unit
 
 typealias OnItemLongClick<I> = (view: View, item: I) -> Boolean
+
+typealias AdapterCreator = (sections: MutableList<Section<Any, Any>>) -> LazyAdapter

@@ -3,7 +3,6 @@ package com.dokar.lazyrecycler
 import androidx.recyclerview.widget.DiffUtil
 
 open class Differ<D> : DiffUtil.ItemCallback<D>() {
-
     private var areItemsTheSame: AreItemsTheSame<D>? = null
 
     private var areContentsTheSame: AreContentsTheSame<D>? = null

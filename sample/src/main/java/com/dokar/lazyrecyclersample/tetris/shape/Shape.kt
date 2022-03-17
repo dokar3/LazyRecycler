@@ -1,7 +1,6 @@
 package com.dokar.lazyrecyclersample.tetris.shape
 
 abstract class Shape {
-
     protected var rotation: Int = 0
 
     open fun getShape(): Array<BooleanArray> {

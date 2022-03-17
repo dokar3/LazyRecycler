@@ -1,7 +1,6 @@
 package com.dokar.lazyrecycler.viewbinder
 
 interface ItemProvider {
-
     /**
      * Get item form an adapter position
      */

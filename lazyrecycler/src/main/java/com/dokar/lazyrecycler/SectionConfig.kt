@@ -1,25 +1,23 @@
 package com.dokar.lazyrecycler
 
 import com.dokar.lazyrecycler.data.MutableValue
-import com.dokar.lazyrecycler.data.PropertyNames
 
-open class SectionConfig<I> {
+class SectionConfig<I> {
+    internal var sectionId: Int = 1
 
-    var sectionId: Int = 1
+    internal var onItemClick: OnItemClick<I>? = null
 
-    var onItemClick: OnItemClick<I>? = null
+    internal var onItemLongClick: OnItemLongClick<I>? = null
 
-    var onItemLongClick: OnItemLongClick<I>? = null
+    internal var differ: Differ<I>? = null
 
-    var differ: Differ<I>? = null
+    internal var spanSizeLookup: SpanSizeLookup? = null
 
-    var spanSizeLookup: SpanSizeLookup? = null
+    internal var subSections: MutableList<Pair<Section<Any, I>, Where<I>>>? = null
 
-    var subSections: MutableList<Pair<Section<Any, I>, Where<I>>>? = null
+    private var extras: MutableList<MutableValue<out Any?>>? = null
 
-    var extras: MutableList<MutableValue<out Any>>? = null
-
-    fun addExtra(extra: MutableValue<out Any>): SectionConfig<I> {
+    fun addExtra(extra: MutableValue<out Any?>): SectionConfig<I> {
         if (extras == null) {
             extras = mutableListOf()
         }
@@ -73,7 +71,7 @@ fun <I> SectionConfig<I>.differ(differ: Differ<I>): SectionConfig<I> {
     return this
 }
 
-inline fun <I> SectionConfig<I>.differ(body: Differ<I>.() -> Unit): SectionConfig<I> {
+fun <I> SectionConfig<I>.differ(body: Differ<I>.() -> Unit): SectionConfig<I> {
     val differ = Differ<I>()
     differ.body()
     this.differ = differ
@@ -90,13 +88,5 @@ fun <I> SectionConfig<I>.viewType(template: Template<I>, where: Where<I>): Secti
         this.subSections = mutableListOf()
     }
     this.subSections!!.add(template to where)
-    return this
-}
-
-inline fun <I> SectionConfig<I>.showWhile(block: () -> MutableValue<Boolean>): SectionConfig<I> {
-    val showWhile = block().also {
-        it.name = PropertyNames.SHOW_WHILE
-    }
-    addExtra(showWhile)
     return this
 }

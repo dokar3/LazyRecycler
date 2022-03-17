@@ -7,6 +7,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.test.platform.app.InstrumentationRegistry
 import com.dokar.lazyrecycler.SectionConfig
 import com.dokar.lazyrecycler.id
+import com.dokar.lazyrecycler.item
 import com.dokar.lazyrecycler.items
 import com.dokar.lazyrecycler.lazyRecycler
 import org.junit.Assert.assertEquals
@@ -17,14 +18,11 @@ import org.mockito.Mockito.mock
 import org.mockito.junit.MockitoJUnitRunner
 
 @RunWith(MockitoJUnitRunner::class)
-class LiveDataTest {
-
-    private val fakeLayoutId = 0
-
+class LiveDataSourcesTest {
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
 
     @Test
-    fun itemTest() {
+    fun observe_LiveData_item() {
         val id = 0
         val text = "ABC"
         val source = MutableLiveData(text)
@@ -33,9 +31,9 @@ class LiveDataTest {
         lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
 
         val recycler = lazyRecycler {
-            items(
-                data = source.asMutSource { lifecycle },
-                layout = fakeLayoutId,
+            item(
+                data = source.toMutableValue { lifecycle },
+                layout = 0,
                 config = SectionConfig<String>().id(id)
             ) {}
         }
@@ -65,7 +63,7 @@ class LiveDataTest {
         }
         assertEquals(text3, recycler.getSectionItems(id)?.get(0))
 
-        // unregistered
+        // Stop observing
         ui {
             recycler.stopObserving()
         }
@@ -77,7 +75,7 @@ class LiveDataTest {
     }
 
     @Test
-    fun itemsTest() {
+    fun observe_LiveData_items() {
         val id = 0
         val list = listOf(1, 2, 3)
         val source = MutableLiveData(list)
@@ -87,8 +85,8 @@ class LiveDataTest {
 
         val recycler = lazyRecycler {
             items(
-                data = source.asMutSource { lifecycle },
-                layout = fakeLayoutId,
+                data = source.toMutableValue { lifecycle },
+                layout = 0,
                 config = SectionConfig<Int>().id(id)
             ) {}
         }
@@ -116,7 +114,7 @@ class LiveDataTest {
         lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
         assertEquals(list3, recycler.getSectionItems(id))
 
-        // unregistered
+        // Stop observing
         ui {
             recycler.stopObserving()
         }
