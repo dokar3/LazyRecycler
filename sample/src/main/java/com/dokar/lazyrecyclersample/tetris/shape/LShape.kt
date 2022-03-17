@@ -1,7 +1,6 @@
 package com.dokar.lazyrecyclersample.tetris.shape
 
 class LShape : Shape() {
-
     override fun getTransforms(): Array<Array<BooleanArray>> {
         return TRANSFORMS
     }

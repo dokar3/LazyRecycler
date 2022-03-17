@@ -29,7 +29,6 @@ class TetrisGame(
     private val rows: Int,
     private val scope: CoroutineScope
 ) : ControlEventHandler {
-
     private val matrix: BooleanArray = BooleanArray(cols * rows) { false }
     private val activeMatrix: BooleanArray = BooleanArray(cols * rows) { false }
 

@@ -11,7 +11,6 @@ import com.dokar.lazyrecyclersample.sticky.StickyHeaderActivity
 import com.dokar.lazyrecyclersample.tetris.TetrisActivity
 
 class MainActivity : AppCompatActivity() {
-
     private lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {

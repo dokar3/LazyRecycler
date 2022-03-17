@@ -14,7 +14,6 @@ import kotlin.math.abs
 import kotlin.math.max
 
 class SwipeGameController(context: Context) : GameController(), View.OnTouchListener {
-
     private var downX = 0f
     private var downY = 0f
 
