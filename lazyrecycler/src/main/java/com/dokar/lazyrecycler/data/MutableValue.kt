@@ -1,35 +1,29 @@
 package com.dokar.lazyrecycler.data
 
-abstract class MutableValue<I>(val type: Int) {
+abstract class MutableValue<I> {
+    internal var tag: Any? = null
 
-    var valueObserver: ValueObserver<I>? = null
-
-    var name: String? = null
+    internal var valueObserver: ValueObserver<I>? = null
 
     open var current: I? = null
         set(value) {
-            field = value
-            onValueChanged()
+            if (field != value) {
+                field = value
+                valueObserver?.onChanged(this)
+            }
         }
 
-    private fun onValueChanged() {
-        valueObserver?.onChanged(this)
-    }
-
-    open fun observe(listener: ValueObserver<I>) {
+    internal fun observe(listener: ValueObserver<I>) {
         valueObserver = listener
+        requestObserve()
     }
 
-    open fun unobserve() {
+    internal fun unobserve() {
         valueObserver = null
+        requestUnobserve()
     }
 
-    companion object {
+    abstract fun requestObserve()
 
-        const val NONE = -1
-
-        const val DATA_SOURCE = 0
-
-        const val PROPERTY = 1
-    }
+    abstract fun requestUnobserve()
 }

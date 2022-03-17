@@ -1,26 +1,24 @@
 package com.dokar.lazyrecycler
 
 import com.dokar.lazyrecycler.viewbinder.ItemBinder
-import com.dokar.lazyrecycler.viewcreator.ViewCreator
+import com.dokar.lazyrecycler.viewcreator.ViewHolderCreator
 
 /**
  * List section class
  *
  * @param V view type, used to bind item
  * @param I item type
- * */
+ */
 open class Section<V, I>(
     val id: Int,
-    val viewCreator: ViewCreator<V>,
+    val viewHolderCreator: ViewHolderCreator<V>,
     val itemBinder: ItemBinder<V, I>,
     var items: List<I>,
-    var visible: Boolean = true,
     var onItemClick: OnItemClick<I>? = null,
     var onItemLongClick: OnItemLongClick<I>? = null,
     var differ: Differ<I>? = null,
     var spanSizeLookup: SpanSizeLookup? = null
 ) {
-
     internal var viewType: Int = Utils.newViewType()
 
     internal var subSections: MutableList<Pair<Section<Any, I>, Where<I>>>? = null

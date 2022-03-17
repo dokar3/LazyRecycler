@@ -10,7 +10,6 @@ import com.dokar.lazyrecycler.viewbinder.ItemProvider
 open class LazyAdapter(
     private val sections: MutableList<Section<Any, Any>>
 ) : RecyclerView.Adapter<LazyViewHolder<Any>>(), ItemProvider {
-
     private val viewTypes: MutableMap<Section<Any, Any>, Int> = hashMapOf()
 
     init {
@@ -33,14 +32,14 @@ open class LazyAdapter(
         // find target section
         val section = findSectionByViewType(viewType)
             ?: throw IllegalStateException("Cannot find section for viewType: $viewType")
-        val itemViewCreator = section.viewCreator
+        val itemViewCreator = section.viewHolderCreator
         // create ViewHolder
-        val holder = itemViewCreator.createViewHolder(parent, section.itemBinder, this)
+        val holder = itemViewCreator.create(parent, section.itemBinder, this)
         // clicks
         val onItemClick = section.onItemClick
         if (onItemClick != null) {
             holder.itemView.setOnClickListener click@{
-                val pos = holder.adapterPosition
+                val pos = holder.bindingAdapterPosition
                 val item = getItem(pos) ?: return@click
                 onItemClick(it, item)
             }
@@ -49,7 +48,7 @@ open class LazyAdapter(
         val onItemLongClick = section.onItemLongClick
         if (onItemLongClick != null) {
             holder.itemView.setOnLongClickListener longClick@{
-                val pos = holder.adapterPosition
+                val pos = holder.bindingAdapterPosition
                 val item = getItem(pos) ?: return@longClick false
                 return@longClick onItemLongClick(it, item)
             }
@@ -65,7 +64,7 @@ open class LazyAdapter(
 
     override fun getItemCount(): Int {
         return sections.fold(0) { acc, s ->
-            acc + if (s.visible) s.items.size else 0
+            acc + s.items.size
         }
     }
 
@@ -74,7 +73,7 @@ open class LazyAdapter(
         var sectionIdx = 0
         while (sectionIdx < sections.size) {
             val s = sections[sectionIdx]
-            val size = if (s.visible) s.items.size else 0
+            val size = s.items.size
             if (position < offset + size) {
                 break
             }
@@ -126,7 +125,7 @@ open class LazyAdapter(
                     viewTypes[sub] = sub.viewType
                 }
             }
-            acc + if (s.visible) s.items.size else 0
+            acc + s.items.size
         }
 
         this.sections.addAll(index, newSections)
@@ -136,7 +135,7 @@ open class LazyAdapter(
 
     fun removeSection(section: Section<Any, Any>): Boolean {
         val posOffset = getSectionPositionOffset(section)
-        val size = if (section.visible) section.items.size else 0
+        val size = section.items.size
         if (!sections.remove(section)) {
             return false
         }
@@ -157,25 +156,8 @@ open class LazyAdapter(
     fun getSectionIndex(position: Int): Int {
         var size = 0
         return sections.indexOfFirst {
-            size += if (it.visible) it.items.size else 0
+            size += it.items.size
             position < size
-        }
-    }
-
-    fun setSectionVisible(section: Section<Any, Any>, visible: Boolean) {
-        val visibleCurrently = section.visible
-        if (!visibleCurrently && visible) {
-            val offset = getSectionPositionOffset(section)
-            section.visible = visible
-            if (offset != -1) {
-                notifyItemRangeInserted(offset, section.items.size)
-            }
-        } else if (visibleCurrently && !visible) {
-            val offset = getSectionPositionOffset(section)
-            section.visible = visible
-            if (offset != -1) {
-                notifyItemRangeRemoved(offset, section.items.size)
-            }
         }
     }
 
@@ -214,8 +196,7 @@ open class LazyAdapter(
                 found = true
                 break
             }
-            val size = if (s.visible) s.items.size else 0
-            offset += size
+            offset += s.items.size
             index++
         }
         return if (found) offset else -1
@@ -235,7 +216,7 @@ open class LazyAdapter(
         var index = 0
         while (index < sections.size) {
             val section = sections[index]
-            val size = if (section.visible) section.items.size else 0
+            val size = section.items.size
             if (position < offset + size) {
                 break
             }

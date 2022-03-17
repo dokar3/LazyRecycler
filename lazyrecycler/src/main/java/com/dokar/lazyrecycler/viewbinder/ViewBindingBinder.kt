@@ -10,7 +10,6 @@ class ViewBindingBinder<V : ViewBinding, I>(
     private val bind: ViewBindingBind<V, I>? = null,
     private val indexedBind: IndexedViewBindingBind<V, I>? = null
 ) : ItemBinder<V, I> {
-
     override fun bind(view: V, item: I, position: Int) {
         if (bind != null) {
             bind.invoke(view, item)

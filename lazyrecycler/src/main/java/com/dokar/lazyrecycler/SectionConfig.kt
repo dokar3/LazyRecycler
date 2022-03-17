@@ -1,10 +1,8 @@
 package com.dokar.lazyrecycler
 
 import com.dokar.lazyrecycler.data.MutableValue
-import com.dokar.lazyrecycler.data.PropertyNames
 
 open class SectionConfig<I> {
-
     var sectionId: Int = 1
 
     var onItemClick: OnItemClick<I>? = null
@@ -17,9 +15,9 @@ open class SectionConfig<I> {
 
     var subSections: MutableList<Pair<Section<Any, I>, Where<I>>>? = null
 
-    var extras: MutableList<MutableValue<out Any>>? = null
+    var extras: MutableList<MutableValue<out Any?>>? = null
 
-    fun addExtra(extra: MutableValue<out Any>): SectionConfig<I> {
+    fun addExtra(extra: MutableValue<out Any?>): SectionConfig<I> {
         if (extras == null) {
             extras = mutableListOf()
         }
@@ -90,13 +88,5 @@ fun <I> SectionConfig<I>.viewType(template: Template<I>, where: Where<I>): Secti
         this.subSections = mutableListOf()
     }
     this.subSections!!.add(template to where)
-    return this
-}
-
-inline fun <I> SectionConfig<I>.showWhile(block: () -> MutableValue<Boolean>): SectionConfig<I> {
-    val showWhile = block().also {
-        it.name = PropertyNames.SHOW_WHILE
-    }
-    addExtra(showWhile)
     return this
 }

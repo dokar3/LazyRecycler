@@ -7,31 +7,35 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.dokar.lazyrecycler.data.MutableValue
-import com.dokar.lazyrecycler.data.PropertyNames
 import com.dokar.lazyrecycler.data.ValueObserver
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
-typealias AdapterCreator = (sections: MutableList<Section<Any, Any>>) -> LazyAdapter
-
 /**
  * Create a LazyRecycler
  *
- * ```
- * Sample:
+ * ### Sample:
+ * ```kotlin
  * lazyRecycler(recyclerView) {
- *     item(R.layout.item_header, user) {
- *         bind { user ->
+ *     item(
+ *         data = info,
+ *         layout = R.layout.item_header,
+ *     ) { root ->
+ *         val tvTitle: TextView = root.findViewById(R.id.tv_title)
+ *         bind { info ->
  *             // bind item
  *         }
  *     }
  *
- *     items(photos) { binding: ItemPhotoBinding, photo ->
+ *     items(
+ *      data = photos,
+ *      layout = ItemPhotoBinding::inflate,
+ *     ) { binding, photo ->
  *         // bind item
  *     }
  * }
  * ```
- * */
+ */
 fun lazyRecycler(
     recyclerView: RecyclerView? = null,
     setupLayoutManager: Boolean = true,
@@ -68,32 +72,25 @@ class LazyRecycler(
     private val stackFromEnd: Boolean,
     private val spanCount: Int,
 ) {
-    private val differs: MutableMap<Section<Any, Any>, AsyncListDiffer<Any>> = mutableMapOf()
+    private val differs = mutableMapOf<Section<Any, Any>, AsyncListDiffer<Any>>()
 
-    private val dataSourceObserver: ValueObserver<Any> = ValueObserver {
-        onDataSourceChanged(it)
-    }
-
-    private val propertiesObserver: ValueObserver<Any> = ValueObserver {
-        onPropertyChanged(it)
-    }
+    private val valueObserver = ValueObserver<Any> { onMutableValueChanged(it) }
 
     init {
         setupDiffers(sections)
     }
 
     /**
-     * Setup with RecyclerView
+     * Setup with RecyclerView.
      *
-     * @param rv Target RecyclerView
+     * @param rv Target RecyclerView.
      * @param observeChanges Observe section changes, set to false if LazyRecycler does not
-     * contain any MutableSource/MutableValue to prevent additional check
-     * */
+     * contain any [MutableValue] to prevent additional check.
+     */
     fun attachTo(rv: RecyclerView, observeChanges: Boolean = true) {
         if (observeChanges) {
             observeChanges()
         }
-
         if (setupLayoutManager) {
             setupLayoutManager(rv)
         }
@@ -101,22 +98,22 @@ class LazyRecycler(
     }
 
     /**
-     * Insert new sections at end
+     * Insert new sections.
      *
-     * @param body DSL body
-     * */
+     * @param body Builder body.
+     */
     fun newSections(body: RecyclerBuilder.() -> Unit) {
         newSections(sections.size, true, body)
     }
 
     /**
-     * Insert new sections at specific position
+     * Insert new sections at specific position.
      *
      * @param index Insert position
      * @param observeChanges Observe section changes, set to false if new sections do not
-     * contain any MutableSource/MutableValue to prevent additional check
-     * @param body DSL body
-     * */
+     * contain any [MutableValue] to prevent additional check.
+     * @param body Builder body.
+     */
     fun newSections(
         index: Int,
         observeChanges: Boolean = true,
@@ -132,12 +129,12 @@ class LazyRecycler(
     }
 
     /**
-     * Remove section
+     * Remove section.
      *
-     * @param id Section id
+     * @param id Section id.
      * @return Returns true if successfully removed, false if target
-     * section does not existing or failed to remove
-     * */
+     * section does not exist or failed to remove.
+     */
     fun removeSection(id: Int): Boolean {
         val section = sections.find { it.id == id } ?: return false
         return removeSection(section)
@@ -148,38 +145,15 @@ class LazyRecycler(
     }
 
     /**
-     * Check if target section is contained in sections
+     * Check if target section is contained in sections.
      * */
     fun containsSection(id: Int): Boolean {
         return sections.find { it.id == id } != null
     }
 
     /**
-     * Hide or show a section
-     * */
-    fun setSectionVisible(id: Int, visible: Boolean) {
-        sections.find { it.id == id }?.let {
-            setSectionVisible(it, visible)
-        }
-    }
-
-    private fun setSectionVisible(section: Section<Any, Any>, visible: Boolean) {
-        if (section.visible == visible) {
-            return
-        }
-        adapter.setSectionVisible(section, visible)
-    }
-
-    /**
-     * Check if target section is visible
-     * */
-    fun isSectionVisible(id: Int): Boolean {
-        return sections.find { it.id == id }?.visible ?: false
-    }
-
-    /**
-     * Update items for target section
-     * */
+     * Update items for target section.
+     */
     fun updateSection(id: Int, items: List<Any>) {
         sections.find { it.id == id }?.let {
             updateSection(it, items)
@@ -196,35 +170,61 @@ class LazyRecycler(
     }
 
     /**
-     * Get all section items
-     * */
+     * Get all section items.
+     */
     fun getSectionItems(id: Int): List<Any>? {
         return sections.find { it.id == id }?.items
     }
 
     /**
-     * Get size of sections
-     * */
+     * Get size of sections.
+     */
     fun getSectionCount(): Int {
         return sections.size
     }
 
     /**
-     * Clear all sections
-     * */
+     * Clear all sections.
+     */
     fun clearSections() {
         sections.clear()
         adapter.notifyDataSetChanged()
     }
 
+    /**
+     * Observe the mutable data sources, will be called when attach to [RecyclerView].
+     */
+    fun observeChanges() {
+        observeChanges(sections)
+    }
+
     @Suppress("UNCHECKED_CAST")
-    private fun onDataSourceChanged(data: MutableValue<*>) {
+    private fun observeChanges(sectionList: List<Section<Any, Any>>) {
+        sectionList.forEachMutableValues { mutVal ->
+            if (mutVal.valueObserver != valueObserver) {
+                (mutVal as MutableValue<Any>).observe(valueObserver)
+            }
+        }
+    }
+
+    /**
+     * Stop observing the mutable data sources.
+     */
+    @Suppress("UNCHECKED_CAST")
+    fun stopObserving() {
+        sections.forEachMutableValues { mutVal ->
+            mutVal.unobserve()
+        }
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    private fun onMutableValueChanged(value: MutableValue<*>) {
         // Mutable data source changed
         val section = sections.find {
-            it.findExtras(MutableValue::class.java)?.contains(data) == true
+            it.findExtras(MutableValue::class.java)?.contains(value) == true
         } ?: return
 
-        val current = data.current
+        val current = value.current
         when {
             current is List<*> -> {
                 updateSection(section, current as List<Any>)
@@ -235,55 +235,6 @@ class LazyRecycler(
             else -> {
                 updateSection(section, emptyList())
             }
-        }
-    }
-
-    private fun onPropertyChanged(property: MutableValue<Any>) {
-        // Mutable property changed
-        val section = sections.find {
-            it.findExtras(MutableValue::class.java)?.contains(property) == true
-        } ?: return
-
-        val name = property.name ?: return
-        val value = property.current ?: return
-
-        when (name) {
-            PropertyNames.SHOW_WHILE -> {
-                val visible = value as? Boolean ?: return
-                setSectionVisible(section, visible)
-            }
-        }
-    }
-
-    /**
-     * Observe the mutable data sources, will be called when attach to [RecyclerView]
-     * */
-    fun observeChanges() {
-        observeChanges(sections)
-    }
-
-    @Suppress("UNCHECKED_CAST")
-    private fun observeChanges(sectionList: List<Section<Any, Any>>) {
-        sectionList.forEachMutableValues { mutVal ->
-            if (mutVal.type == MutableValue.DATA_SOURCE &&
-                mutVal.valueObserver != dataSourceObserver
-            ) {
-                (mutVal as MutableValue<Any>).observe(dataSourceObserver)
-            } else if (mutVal.type == MutableValue.PROPERTY &&
-                mutVal.valueObserver != propertiesObserver
-            ) {
-                (mutVal as MutableValue<Any>).observe(propertiesObserver)
-            }
-        }
-    }
-
-    /**
-     * Stop observing the mutable data sources
-     * */
-    @Suppress("UNCHECKED_CAST")
-    fun stopObserving() {
-        sections.forEachMutableValues { mutVal ->
-            mutVal.unobserve()
         }
     }
 
@@ -344,7 +295,6 @@ class LazyRecycler(
     }
 
     companion object {
-
         // DiffUtil executor
         private val sExecutor: ExecutorService = Executors.newFixedThreadPool(2)
     }
