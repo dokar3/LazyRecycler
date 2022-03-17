@@ -6,7 +6,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import com.dokar.lazyrecycler.SectionConfig
 import com.dokar.lazyrecycler.differ
-import com.dokar.lazyrecycler.flow.asMutSource
+import com.dokar.lazyrecycler.flow.toMutableValue
 import com.dokar.lazyrecycler.items
 import com.dokar.lazyrecycler.lazyRecycler
 import com.dokar.lazyrecycler.viewType
@@ -30,7 +30,6 @@ import java.util.Locale
 import kotlin.random.Random
 
 class ChatActivity : AppCompatActivity() {
-
     private lateinit var binding: ActivityChatBinding
 
     private val messages: MutableStateFlow<List<ChatItem>> = MutableStateFlow(emptyList())
@@ -78,7 +77,7 @@ class ChatActivity : AppCompatActivity() {
             }
 
             items(
-                data = messages.asMutSource(lifecycleScope),
+                data = messages.toMutableValue(lifecycleScope),
                 template = fromFriend,
                 config = SectionConfig<ChatItem>()
                     .viewType(fromMe) { item, _ ->

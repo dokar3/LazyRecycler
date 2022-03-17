@@ -10,7 +10,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.SimpleItemAnimator
 import com.dokar.lazyrecycler.SectionConfig
 import com.dokar.lazyrecycler.differ
-import com.dokar.lazyrecycler.flow.asMutSource
+import com.dokar.lazyrecycler.flow.toMutableValue
+import com.dokar.lazyrecycler.item
 import com.dokar.lazyrecycler.items
 import com.dokar.lazyrecycler.lazyRecycler
 import com.dokar.lazyrecycler.spanSize
@@ -26,7 +27,6 @@ import kotlinx.coroutines.withContext
 import kotlin.math.max
 
 class TetrisActivity : AppCompatActivity() {
-
     private val cols = 10
     private val rows = 20
 
@@ -72,8 +72,8 @@ class TetrisActivity : AppCompatActivity() {
 
     private suspend fun createCanvas() = withContext(Dispatchers.Default) {
         lazyRecycler(spanCount = cols) {
-            items(
-                data = score.asMutSource(lifecycleScope),
+            item(
+                data = score.toMutableValue(lifecycleScope),
                 layout = ItemTetrisScoreBinding::inflate,
                 config = SectionConfig<IntArray>().spanSize { cols }
             ) { binding, score ->
@@ -82,7 +82,7 @@ class TetrisActivity : AppCompatActivity() {
             }
 
             items(
-                data = matrix.asMutSource(lifecycleScope),
+                data = matrix.toMutableValue(lifecycleScope),
                 layout = ItemTetrisBlockBinding::inflate,
                 config = SectionConfig<Boolean>()
                     .spanSize { 1 }

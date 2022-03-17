@@ -1,8 +1,6 @@
-include ':reflection-benchmark'
+rootProject.name = "LazyRecycler"
+include ':lazyrecycler'
 include ':rxjava3'
 include ':flow'
 include ':livedata'
-include ':lazyrecycler'
 include ':sample'
-project(':reflection-benchmark').projectDir = new File(rootDir, 'test/reflection-benchmark/')
-rootProject.name = "LazyRecycler"

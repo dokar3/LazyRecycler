@@ -12,13 +12,11 @@ import com.dokar.lazyrecycler.SectionConfig
 import com.dokar.lazyrecycler.Template
 import com.dokar.lazyrecycler.clicks
 import com.dokar.lazyrecycler.differ
-import com.dokar.lazyrecycler.flow.asMutProperty
-import com.dokar.lazyrecycler.flow.asMutSource
+import com.dokar.lazyrecycler.flow.toMutableValue
 import com.dokar.lazyrecycler.id
 import com.dokar.lazyrecycler.item
 import com.dokar.lazyrecycler.items
 import com.dokar.lazyrecycler.lazyRecycler
-import com.dokar.lazyrecycler.showWhile
 import com.dokar.lazyrecycler.spanSize
 import com.dokar.lazyrecycler.template
 import com.dokar.lazyrecyclersample.Constants
@@ -35,14 +33,12 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlin.random.Random
 
 class GalleryActivity : AppCompatActivity() {
-
     private lateinit var lazyRecycler: LazyRecycler
 
     private lateinit var titleTemplate: Template<String>
     private lateinit var paintingTemplate: Template<Painting>
 
     private val paintings = MutableStateFlow(VINCENT_PAINTINGS)
-    private val paintingsVisible = MutableStateFlow(true)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -84,7 +80,7 @@ class GalleryActivity : AppCompatActivity() {
             }
 
             items(
-                data = paintings.asMutSource(lifecycleScope),
+                data = paintings.toMutableValue(lifecycleScope),
                 template = paintingTemplate,
                 config = SectionConfig<Painting>()
                     .id(ID_PAINTINGS)
@@ -98,7 +94,6 @@ class GalleryActivity : AppCompatActivity() {
                             oldItem.title == newItem.title
                         }
                     }
-                    .showWhile { paintingsVisible.asMutProperty(lifecycleScope) }
             )
         }.let {
             lazyRecycler = it
@@ -107,12 +102,6 @@ class GalleryActivity : AppCompatActivity() {
 
     private fun onOptionItemClicked(item: Option) {
         when (item.id) {
-            Constants.OPT_SHOW -> {
-                paintingsVisible.value = true
-            }
-            Constants.OPT_HIDE -> {
-                paintingsVisible.value = false
-            }
             Constants.OPT_SHUFFLE -> {
                 paintings.value = VINCENT_PAINTINGS.shuffled()
             }

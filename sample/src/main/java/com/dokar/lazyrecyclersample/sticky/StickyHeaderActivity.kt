@@ -13,7 +13,6 @@ import com.dokar.lazyrecyclersample.databinding.ItemAlphabetBinding
 import com.jay.widget.StickyHeadersLinearLayoutManager
 
 class StickyHeaderActivity : AppCompatActivity() {
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 

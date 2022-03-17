@@ -3,18 +3,13 @@ package com.dokar.lazyrecyclersample
 import kotlin.random.Random
 
 object Constants {
-
     const val ID_PAINTINGS = 0
 
-    const val OPT_SHOW = 0
-    const val OPT_HIDE = 1
     const val OPT_SHUFFLE = 2
     const val OPT_REMOVE_SECTION = 3
     const val OPT_NEW_SECTIONS = 4
 
     val OPTIONS = listOf(
-        Option(OPT_SHOW, "Show"),
-        Option(OPT_HIDE, "Hide"),
         Option(OPT_SHUFFLE, "Shuffle"),
         Option(OPT_REMOVE_SECTION, "Remove"),
         Option(OPT_NEW_SECTIONS, "New sections"),

@@ -1,15 +1,15 @@
 package com.dokar.lazyrecycler
 
 import com.dokar.lazyrecycler.viewbinder.ItemBinder
-import com.dokar.lazyrecycler.viewcreator.ViewCreator
+import com.dokar.lazyrecycler.viewcreator.ViewHolderCreator
 
 @Suppress("UNCHECKED_CAST")
 class Template<I>(
-    viewCreator: ViewCreator<out Any>,
+    viewCreator: ViewHolderCreator<out Any>,
     itemBinder: ItemBinder<out Any, I>,
 ) : Section<Any, I>(
     id = -1,
-    viewCreator = viewCreator as ViewCreator<Any>,
+    viewHolderCreator = viewCreator as ViewHolderCreator<Any>,
     itemBinder = itemBinder as ItemBinder<Any, I>,
     items = emptyList()
 )

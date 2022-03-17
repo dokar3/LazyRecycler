@@ -1,23 +1,25 @@
 # RecyclerView，Compose like
 
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.github.dokar3/lazyrecycler/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.github.dokar3/lazyrecycler)
-
 ![](arts/lazyrecycler.png)
 
-**LazyRecycler** is a library that provides [LazyColumn](https://developer.android.com/reference/kotlin/androidx/compose/foundation/lazy/package-summary) (from [Jetpack Compose](https://developer.android.com/jetpack/compose)) like APIs to build lists with RecyclerView. 
+**LazyRecycler** is a library that provides [LazyColumn](https://developer.android.com/reference/kotlin/androidx/compose/foundation/lazy/package-summary) like APIs to build lists with RecyclerView. 
 
 ### Usage
+
+Add the dependency [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.github.dokar3/lazyrecycler/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.github.dokar3/lazyrecycler):
 
 ```groovy
 implementation 'io.github.dokar3:lazyrecycler:latest_version'
 ```
 
-With LazyRecycler, a few dozen lines of code can do almost all things for RecyclerView. Adapter, LayoutManager, DiffUtil, OnItemClickListener and more, these are **all in one** block:
+Then create a list by using the `lazyRecycler()` function. Adapter, LayoutManager, DiffUtil, OnItemClickListener and more, these are **all in one** block:
 
 ```kotlin
 lazyRecycler(recyclerView, spanCount = 3) {
+    // Header
     item(data = Unit, layout = R.layout.header) {}
 
+    // Create a section
     items(
         data = listOfNews,
         layout = ItemNewsBinding::inflate,
@@ -42,7 +44,12 @@ lazyRecycler(recyclerView, spanCount = 3) {
     ) { binding, news ->
         // bind item
     }
-    ...
+    
+    // Some other sections
+    items(...)
+    items(...)
+    
+    // Footer
     item(data = Unit, layout = R.layout.footer) {}
 }
 ```
@@ -88,11 +95,11 @@ items(data = news, layout = R.layout.item_news) { ... }
 items(data = news, layout = ItemNewsBinding::inflate) { binding, item -> ... }
 ```
 
-Providing an item view in the bind scope is also supported:
+Instantiate an item view in the bind scope is also supported:
 
 ```kotlin
 items(data = news) { parent ->
-    val itemView = CustomNewsItemView(context)
+    val itemView = NewsItemView(context)
     ...
     return@items itemView
 }
@@ -130,7 +137,7 @@ items(data = news, layout = R.layout.item_news) { view ->
 }
 ```
 
-For view required item/items:
+For view instantiation item/items:
 
 ```kotlin
 items(data = news) { parent ->
@@ -156,64 +163,24 @@ items<I>(data = news) { ... }
 * `I` for item type
 * `V` for the View Binding
 
-### Overloads
-
-There are a lots of `item`/`items` functions to support various layouts, for helping compiler to pick correct one, lambdas may require explicit argument(s):
-
-```kotlin
-// item
-item(data = Item, layout = R.layout.item) {
-	// Parameter 'view' can be omitted
-}
-item(data = Item, layout = ItemBinding::inflate) { binding, item ->
-}
-item(data = Item) { parent ->
-    // Parameter 'parent' is required to distinguish from view binding one
-    // Replace with '_' if it's unused
-    return@item TextView(context) 
-}
-
-// items
-items(data = listOf(Item), layout = R.layout.item) {
-    // Parameter 'view' can be omitted
-}
-items(data = listOf(Item), layout = ItemBinding::inflate) { binding, item ->
-}
-items(data = listOf(Item)) { parent ->
-    // Parameter 'parent' is required to distinguish from view binding one
-    // Replace with '_' if it's unused
-    return@items TextView(context) 
-}
-```
-
 ### LayoutManager
 
-LazyRecycler creates a LinearLayoutManager by default, if `spanCount`  is defined, GridLayoutManager will be picked.  To skip the LayoutManager setup, set `setupLayoutManager` to `false`:
+LazyRecycler creates a LinearLayoutManager by default, if `spanCount`  > 1, GridLayoutManager will be used,  to skip the LayoutManager setup, set `setupLayoutManager` to `false`:
 
 ```kotlin
 lazyRecycler(
     recyclerView,
     setupLayoutManager = false,
-    isHorizontal = false, // ignored
-    spanCount = 3, // ignored
-    reverseLayout = false, // ignored
-    stackFromEnd = false, // ignored
 ) { ... }
 ....
-recyclerView.layoutManager = ...
+recyclerView.layoutManager = YourOwnLayoutManager(...)
 ```
 
 `spanSize()` is used to define `SpanSizeLookup` for GridLayoutManager:
 
 ```kotlin
-item(
+items(
     ...,
-    config = SectionConfig<Item>()
-        .spanSize { 3 }
-) {
-}
-
-items(...,
     config = SectionConfig<Item>()
         .spanSize { position ->
            if (position == 0) 3 else 1
@@ -225,7 +192,7 @@ items(...,
 
 ### DiffUtil
 
-Use `differ` function, then LazyRecycler will do the all works after section items changed. 
+Use `differ` function, then LazyRecycler will do the all works after section items were changed. 
 
 ``` kotlin
 items(
@@ -263,9 +230,9 @@ items(
 }
 ```
 
-# Mutable data sources
+# Reactive data sources
 
-To support some mutable(observable) data sources like `Flow`, `LiveData`, or `RxJava`, add the dependencies:
+To support reactive data sources like `Flow`, `LiveData`, or `RxJava`, add the dependencies:
 
 ```groovy
 // Flow
@@ -276,64 +243,49 @@ implementation 'io.github.dokar3:lazyrecycler-livedata:latest_version'
 implementation 'io.github.dokar3:lazyrecycler-rxjava3:latest_version'
 ```
 
+Latest version: [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.github.dokar3/lazyrecycler/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.github.dokar3/lazyrecycler)
+
 ### Flow
 
-1. Use extension function `Flow.asMutSource(CoroutineScope)`:
+```kotlin
+val entry: Flow<I> = ...
+item(data = entry.toMutableValue(coroutineScope), ...) { ... }
 
-   ```kotlin
-   import com.dokar.lazyrecycler.flow.asMutSource
-   
-   val entry: Flow<I> = ...
-   // Use items() instead of item()
-   items(data = entry.asMutSource(coroutineScope), ...) { ... }
-   
-   val source: Flow<List<I>> = ...
-   items(data = source.asMutSource(coroutineScope), ...) { ... }
-   ```
-
+val source: Flow<List<I>> = ...
+items(data = source.toMutableValue(coroutineScope), ...) { ... }
+```
 
 ### LiveData
 
-1. Use extension function `LiveData.asMutSource(LifecycleOwner)`:
+```kotlin
+val entry: LiveData<I> = ...
+item(data = entry.toMutableValue(lifecycleOwner), ...) { ... }
 
-   ```kotlin
-   import com.dokar.lazyrecycler.livedata.asMutSource
-   
-   val entry: LiveData<I> = ...
-   // Use items() instead of item()
-   items(data = entry.asMutSource(lifecycleOwner), ...) { ... }
-   
-   val source: LiveData<List<I>> = ...
-   items(data = source.asMutSource(lifecycleOwner), ...) { ... }
-   ```
-
+val source: LiveData<List<I>> = ...
+items(data = source.toMutableValue(lifecycleOwner), ...) { ... }
+```
 
 ### RxJava
 
-1. Use extension function `Observable.asMutSource()`:
+```kotlin
+val entry: Observable<I> = ...
+item(data = entry.toMutableValue(), ...) { ... }
 
-   ```kotlin
-   import com.dokar.lazyrecycler.rxjava3.asMutSource
-   
-   val entry: Observable<I> = ...
-   // Use items() instead of item()
-   items(data = entry.asMutSource(), ...) { ... }
-   
-   val source: Observable<List<I>> = ...
-   items(data = source.asMutSource(), ...) { ... }
-   ```
+val source: Observable<List<I>> = ...
+items(data = source.toMutableValue(), ...) { ... }
+```
 
 
 ### Observe/stop observing data sources:
 
-LazyRecycler will observe the data changes automatically, so it's no necessary to call it manually. But there is a call if really needed:
+LazyRecycler will observe the data sources automatically after attaching to the RecyclerView, so it's no necessary to call it manually. But there is a function call if really needed:
 
 ```kotlin
 // After stopObserving() have been called
 recycler.observeChanges()
 ```
 
-Manually stop the observing is required when using a RxJava data source, or not using lifecycleScope to create a Flow data source:
+When using a RxJava data source or a Flow data source which was not created by the `lifecycleScope`, should stop observing data sources manually to prevent leaks:
 
 ```kotlin
 // onDestroy(), etc.
@@ -344,7 +296,7 @@ recycler.stopObserving()
 
 ### Alternate sections
 
-`template()` + `items(section, ...)`: A section can be created from a `Template`:
+Use `template()`  to reuse bindings:
 
 ```kotlin
 lazyRecycler {
@@ -372,20 +324,19 @@ lazyRecycler {
 
 ```kotlin
 lazyRecycler {
-    val bubbleFromMe = template<Message>(ItemMsgFromMeBinding::inflate) { binding, msg ->
-        // bind item
+    val friendBubble = template<Message>(ItemFriendBubbleBinding::inflate) { binding, msg ->
+        // bind alternative items
     }
     
     items(
         data = messages,
-        layout = ItemMsgBinding::inflate,
+        layout = ItemOwnerBubbleBinding::inflate,
         config = SectionConfig<Message>()
             .viewType(bubbleFromMe) { msg, position ->
-                // condition
-                msg.isFromMe
+                // predicate
             }
     { binding, msg ->
-        // bind item
+        // bind default items
     }
     ...
 }
@@ -393,7 +344,7 @@ lazyRecycler {
 
 ### Add new sections dynamically
 
-`recycler.newSections()`:
+Use `recycler.newSections()`:
 
 ```kotlin
 val recycler = ...
@@ -409,10 +360,9 @@ recycler.observeChanges()
 
 ### Build list in background
 
-`recycler.attachTo()`:
-
 ```kotlin
 backgroundThread {
+    // Do not pass RecyclerView to the lazyRecycler()
     val recycler = lazyRecycler {
         ...
     }

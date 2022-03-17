@@ -13,10 +13,10 @@ typealias ViewBindingInflate<V> = (
     attachToParent: Boolean
 ) -> V
 
-class ViewBindingCreator2<V : ViewBinding>(
+class ViewBindingCreator<V : ViewBinding>(
     private val inflate: ViewBindingInflate<V>
-) : ViewCreator<V> {
-    override fun createViewHolder(
+) : ViewHolderCreator<V> {
+    override fun create(
         parent: ViewGroup,
         binder: ItemBinder<V, Any>,
         itemProvider: ItemProvider

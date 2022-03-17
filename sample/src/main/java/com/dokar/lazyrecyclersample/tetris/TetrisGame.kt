@@ -29,7 +29,6 @@ class TetrisGame(
     private val rows: Int,
     private val scope: CoroutineScope
 ) : ControlEventHandler {
-
     private val matrix: BooleanArray = BooleanArray(cols * rows) { false }
     private val activeMatrix: BooleanArray = BooleanArray(cols * rows) { false }
 
@@ -71,7 +70,7 @@ class TetrisGame(
 
     fun finish() {
         isRunning = false
-        pauseChannel.offer(Unit)
+        pauseChannel.trySend(Unit)
         tickJob?.cancel()
         speedUpFallingJob?.cancel()
     }
@@ -88,7 +87,7 @@ class TetrisGame(
             return
         }
         isPaused = false
-        pauseChannel.offer(Unit)
+        pauseChannel.trySend(Unit)
     }
 
     fun doOnTick(onTick: (matrix: BooleanArray) -> Unit) {

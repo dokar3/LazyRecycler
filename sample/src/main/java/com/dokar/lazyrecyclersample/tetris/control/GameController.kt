@@ -1,7 +1,6 @@
 package com.dokar.lazyrecyclersample.tetris.control
 
 abstract class GameController {
-
     private var eventHandler: ControlEventHandler? = null
 
     fun setEventHandler(handler: ControlEventHandler) {
