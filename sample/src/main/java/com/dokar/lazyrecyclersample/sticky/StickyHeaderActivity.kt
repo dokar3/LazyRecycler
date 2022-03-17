@@ -55,5 +55,4 @@ class StickyHeaderActivity : AppCompatActivity() {
         val layoutManager = StickyHeadersLinearLayoutManager<StickyHeaderAdapter>(this)
         rv.layoutManager = layoutManager
     }
-
 }
