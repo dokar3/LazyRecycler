@@ -3,13 +3,13 @@ package com.dokar.lazyrecycler.flow
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.dokar.lazyrecycler.SectionConfig
 import com.dokar.lazyrecycler.id
+import com.dokar.lazyrecycler.item
 import com.dokar.lazyrecycler.items
 import com.dokar.lazyrecycler.lazyRecycler
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.test.TestCoroutineScope
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Test
@@ -17,22 +17,19 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @ExperimentalCoroutinesApi
-class FlowTest {
-
-    private val fakeLayoutId = 0
-
+class FlowSourcesTest {
     @Test
-    fun itemTest() {
+    fun test_item_observing() {
         val id = 0
         val text = "ABC"
         val source = MutableStateFlow(text)
 
-        val scope = TestCoroutineScope(SupervisorJob())
+        val scope = TestScope(UnconfinedTestDispatcher())
 
         val recycler = lazyRecycler {
-            items(
-                data = source.asMutSource(scope),
-                layout = fakeLayoutId,
+            item(
+                data = source.toMutableValue(scope),
+                layout = 0,
                 config = SectionConfig<String>().id(id)
             ) {}
         }
@@ -45,36 +42,30 @@ class FlowTest {
         source.value = text2
         assertEquals(text2, recycler.getSectionItems(id)?.get(0))
 
-        // unregistered
+        // Stop observing
         recycler.stopObserving()
 
         val text3 = "GHI"
         source.value = text3
         assertNotEquals(text3, recycler.getSectionItems(id)?.get(0))
 
-        // registered
+        // Re-observe
         recycler.observeChanges()
         assertEquals(text3, recycler.getSectionItems(id)?.get(0))
-
-        // Coroutine scope canceled
-        scope.cancel()
-        val text4 = "JKL"
-        source.value = text4
-        assertNotEquals(text4, recycler.getSectionItems(id)?.get(0))
     }
 
     @Test
-    fun itemsTest() {
+    fun test_items_observing() {
         val id = 0
         val list = listOf(1, 2, 3)
         val source = MutableStateFlow(list)
 
-        val scope = TestCoroutineScope(SupervisorJob())
+        val scope = TestScope(UnconfinedTestDispatcher())
 
         val recycler = lazyRecycler {
             items(
-                data = source.asMutSource(scope),
-                layout = fakeLayoutId,
+                data = source.toMutableValue(scope),
+                layout = 0,
                 config = SectionConfig<Int>().id(id)
             ) {}
         }
@@ -86,21 +77,15 @@ class FlowTest {
         source.value = list2
         assertEquals(list2, recycler.getSectionItems(id))
 
-        // unregistered
+        // Stop observing
         recycler.stopObserving()
 
         val list3 = listOf(7, 8, 9)
         source.value = list3
         assertNotEquals(list3, recycler.getSectionItems(id))
 
-        // registered
+        // Re-observe
         recycler.observeChanges()
         assertEquals(list3, recycler.getSectionItems(id))
-
-        // Coroutine scope canceled
-        scope.cancel()
-        val list4 = listOf(10, 11, 12)
-        source.value = list4
-        assertNotEquals(list4, recycler.getSectionItems(id))
     }
 }

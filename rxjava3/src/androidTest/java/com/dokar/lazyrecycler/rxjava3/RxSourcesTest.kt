@@ -3,6 +3,7 @@ package com.dokar.lazyrecycler.rxjava3
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.dokar.lazyrecycler.SectionConfig
 import com.dokar.lazyrecycler.id
+import com.dokar.lazyrecycler.item
 import com.dokar.lazyrecycler.items
 import com.dokar.lazyrecycler.lazyRecycler
 import io.reactivex.rxjava3.core.Observable
@@ -15,19 +16,16 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
-class RxTest {
-
-    private val fakeLayoutId = 1
-
+class RxSourcesTest {
     @Test
-    fun observableItemTest() {
+    fun observe_Observable_item() {
         val id = 0
         val source = PublishSubject.create<String>()
 
         val recycler = lazyRecycler {
-            items(
-                data = source.asMutSource(),
-                layout = fakeLayoutId,
+            item(
+                data = source.toMutableValue(),
+                layout = 0,
                 config = SectionConfig<String>().id(id)
             ) {}
         }
@@ -45,15 +43,15 @@ class RxTest {
     }
 
     @Test
-    fun behaviorSubjectItemTest() {
+    fun observe_BehaviorSubject_item() {
         val text = "ABC"
         val id = 0
         val source = BehaviorSubject.createDefault(text)
 
         val recycler = lazyRecycler {
-            items(
-                data = source.asMutSource(),
-                layout = fakeLayoutId,
+            item(
+                data = source.toMutableValue(),
+                layout = 0,
                 config = SectionConfig<String>().id(id)
             ) {}
         }
@@ -72,14 +70,14 @@ class RxTest {
     }
 
     @Test
-    fun observableItemsTest() {
+    fun observe_Observable_items() {
         val id = 0
         val source = PublishSubject.create<List<Int>>()
 
         val recycler = lazyRecycler {
             items(
-                data = source.asMutSource(),
-                layout = fakeLayoutId,
+                data = source.toMutableValue(),
+                layout = 0,
                 config = SectionConfig<Int>().id(id)
             ) {}
         }
@@ -96,15 +94,15 @@ class RxTest {
     }
 
     @Test
-    fun behaviorSubjectItemsTest() {
+    fun observe_BehaviorSubject_items() {
         val id = 0
         val list = listOf(1, 2, 3)
         val source = BehaviorSubject.createDefault(list)
 
         val recycler = lazyRecycler {
             items(
-                data = source.asMutSource(),
-                layout = fakeLayoutId,
+                data = source.toMutableValue(),
+                layout = 0,
                 config = SectionConfig<Int>().id(id)
             ) {}
         }
@@ -123,7 +121,7 @@ class RxTest {
     }
 
     @Test
-    fun withError() {
+    fun observe_if_error_occurred() {
         val id = 0
         val source = Observable.create<Int> {
             val x = 3 / 0
@@ -131,9 +129,9 @@ class RxTest {
         }
 
         val recycler = lazyRecycler {
-            items(
-                data = source.asMutSource(),
-                layout = fakeLayoutId,
+            item(
+                data = source.toMutableValue(),
+                layout = 0,
                 config = SectionConfig<Int>().id(id)
             ) {}
         }
