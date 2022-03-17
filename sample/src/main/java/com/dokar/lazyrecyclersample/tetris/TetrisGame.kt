@@ -71,7 +71,7 @@ class TetrisGame(
 
     fun finish() {
         isRunning = false
-        pauseChannel.offer(Unit)
+        pauseChannel.trySend(Unit)
         tickJob?.cancel()
         speedUpFallingJob?.cancel()
     }
@@ -88,7 +88,7 @@ class TetrisGame(
             return
         }
         isPaused = false
-        pauseChannel.offer(Unit)
+        pauseChannel.trySend(Unit)
     }
 
     fun doOnTick(onTick: (matrix: BooleanArray) -> Unit) {
