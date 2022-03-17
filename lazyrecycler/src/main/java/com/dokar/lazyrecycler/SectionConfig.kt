@@ -2,20 +2,20 @@ package com.dokar.lazyrecycler
 
 import com.dokar.lazyrecycler.data.MutableValue
 
-open class SectionConfig<I> {
-    var sectionId: Int = 1
+class SectionConfig<I> {
+    internal var sectionId: Int = 1
 
-    var onItemClick: OnItemClick<I>? = null
+    internal var onItemClick: OnItemClick<I>? = null
 
-    var onItemLongClick: OnItemLongClick<I>? = null
+    internal var onItemLongClick: OnItemLongClick<I>? = null
 
-    var differ: Differ<I>? = null
+    internal var differ: Differ<I>? = null
 
-    var spanSizeLookup: SpanSizeLookup? = null
+    internal var spanSizeLookup: SpanSizeLookup? = null
 
-    var subSections: MutableList<Pair<Section<Any, I>, Where<I>>>? = null
+    internal var subSections: MutableList<Pair<Section<Any, I>, Where<I>>>? = null
 
-    var extras: MutableList<MutableValue<out Any?>>? = null
+    private var extras: MutableList<MutableValue<out Any?>>? = null
 
     fun addExtra(extra: MutableValue<out Any?>): SectionConfig<I> {
         if (extras == null) {
@@ -71,7 +71,7 @@ fun <I> SectionConfig<I>.differ(differ: Differ<I>): SectionConfig<I> {
     return this
 }
 
-inline fun <I> SectionConfig<I>.differ(body: Differ<I>.() -> Unit): SectionConfig<I> {
+fun <I> SectionConfig<I>.differ(body: Differ<I>.() -> Unit): SectionConfig<I> {
     val differ = Differ<I>()
     differ.body()
     this.differ = differ
