@@ -19,7 +19,7 @@ import org.junit.runner.RunWith
 @ExperimentalCoroutinesApi
 class FlowSourcesTest {
     @Test
-    fun test_item_observing() {
+    fun observe_MutableStateFlow_item() {
         val id = 0
         val text = "ABC"
         val source = MutableStateFlow(text)
@@ -55,7 +55,7 @@ class FlowSourcesTest {
     }
 
     @Test
-    fun test_items_observing() {
+    fun observe_MutableStateFlow_items() {
         val id = 0
         val list = listOf(1, 2, 3)
         val source = MutableStateFlow(list)

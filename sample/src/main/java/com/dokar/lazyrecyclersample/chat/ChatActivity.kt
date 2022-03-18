@@ -9,8 +9,8 @@ import com.dokar.lazyrecycler.differ
 import com.dokar.lazyrecycler.flow.toMutableValue
 import com.dokar.lazyrecycler.items
 import com.dokar.lazyrecycler.lazyRecycler
-import com.dokar.lazyrecycler.viewType
 import com.dokar.lazyrecycler.template
+import com.dokar.lazyrecycler.viewType
 import com.dokar.lazyrecyclersample.ChatItem
 import com.dokar.lazyrecyclersample.Constants.CHAT_MESSAGES
 import com.dokar.lazyrecyclersample.Message

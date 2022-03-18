@@ -58,7 +58,7 @@ lazyRecycler(recyclerView, spanCount = 3) {
 
 ### Sections
 
-LazyRecycler uses sections to build lists, A section will contain id, items, view creator, view binder, click listeners and other needed properties, it represents a view type in adapter. To create a new section, use the `item` and `items` function:
+In LazyRecycler, every `item` and `items` call will create a section, sections will be added to the Adapter by creating order.
 
 ```kotlin
 item(...) { ... }
@@ -66,14 +66,14 @@ item(...) { ... }
 items(...) { ... }
 ```
 
-Sections should only be used in `lazyRecycler` / `newSections` block, so it's necessary to pass a unique id when creating a dynamic section (Require doing some operations after list is created, like update, remove, hide and show). Or use mutable data sources (see the section below).
+When creating a dynamic section, it's necessary to set a unique id to update the section, or use reactive data sources (see the <a href="#Reactive data sources">Reactive data sources</a> section).
 
 ```kotlin
 val recycler = lazyRecycler {
     items(
         data = news,
         layout = R.layout.item_news,
-        config = SectionConfig<Item>().sectionId(SOME_ID)
+        config = SectionConfig<Item>().id(SOME_ID)
     ) { ... }
 }
 
@@ -81,8 +81,6 @@ val recycler = lazyRecycler {
 recycler.updateSection(SOME_ID, items)
 // remove
 recycler.removeSection(SOME_ID)
-// hide and show
-recycler.setSectionVisible(SOME_ID, false)
 ```
 
 ### Layout
@@ -347,8 +345,7 @@ lazyRecycler {
 Use `recycler.newSections()`:
 
 ```kotlin
-val recycler = ...
-...
+val recycler = lazyRecycler { ... }
 recycler.newSections {
     item(...) { ... }
     items(...) { ... }
