@@ -66,7 +66,7 @@ item(...) { ... }
 items(...) { ... }
 ```
 
-When creating a dynamic section, it's necessary to set a unique id to update the section, or use reactive data sources (see the <a href="#Reactive data sources">Reactive data sources</a> section).
+When creating a dynamic section, it's necessary to set a unique id to update the section later, or using reactive data sources may be a better choice (see the [Reactive data sources](reactive-data-sources) section).
 
 ```kotlin
 val recycler = lazyRecycler {
