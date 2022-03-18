@@ -18,16 +18,12 @@ import com.dokar.lazyrecycler.viewcreator.ViewInstantiationCreator
 class RecyclerBuilder {
     private val sections: MutableList<Section<Any, Any>> = mutableListOf()
 
-    fun sections(): List<Section<Any, Any>> {
+    internal fun sections(): List<Section<Any, Any>> {
         return sections
     }
 
     @Suppress("UNCHECKED_CAST")
-    @Deprecated(
-        "Should not call this function directly, use item/items instead",
-        ReplaceWith("")
-    )
-    fun addSection(section: Section<*, *>) {
+    internal fun addSection(section: Section<*, *>) {
         sections.add(section as Section<Any, Any>)
     }
 
