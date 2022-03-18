@@ -2,14 +2,14 @@
 
 package com.dokar.lazyrecycler
 
+import android.view.View
+import android.view.ViewGroup
 import androidx.annotation.LayoutRes
 import androidx.viewbinding.ViewBinding
-import com.dokar.lazyrecycler.viewbinder.IndexedViewBindingBind
+import com.dokar.lazyrecycler.data.MutableValue
+import com.dokar.lazyrecycler.viewbinder.BindViewScope
 import com.dokar.lazyrecycler.viewbinder.ItemViewBinder
-import com.dokar.lazyrecycler.viewbinder.LayoutIdBindScope
-import com.dokar.lazyrecycler.viewbinder.ViewBindingBind
 import com.dokar.lazyrecycler.viewbinder.ViewBindingBinder
-import com.dokar.lazyrecycler.viewbinder.ViewInstantiationBindScope
 import com.dokar.lazyrecycler.viewcreator.LayoutIdCreator
 import com.dokar.lazyrecycler.viewcreator.ViewBindingCreator
 import com.dokar.lazyrecycler.viewcreator.ViewBindingInflate
@@ -27,57 +27,116 @@ class RecyclerBuilder {
         sections.add(section as Section<Any, Any>)
     }
 
-    internal fun <I> newLayoutIdItems(
+    internal fun <I> layoutIdItems(
         items: List<I>,
         @LayoutRes layoutId: Int,
-        config: SectionConfig<I>,
-        bindScope: LayoutIdBindScope<I>
+        id: Int = 0,
+        mutableValue: MutableValue<*>? = null,
+        clicks: ((itemView: View, item: I) -> Unit)? = null,
+        longClicks: ((itemView: View, item: I) -> Boolean)? = null,
+        differ: (Differ<I>.() -> Unit)? = null,
+        spans: ((position: Int) -> Int)? = null,
+        extraViewTypes: List<ViewType<I>>? = null,
+        bind: BindViewScope<I>.(root: View) -> Unit
     ) {
-        val itemViewCreator = LayoutIdCreator(layoutId, bindScope)
+        val viewHolderCreator = LayoutIdCreator(layoutId, bind)
         val itemBinder = ItemViewBinder<I>()
         val section = Section(
-            config.sectionId,
-            itemViewCreator,
-            itemBinder,
-            items
+            id = id,
+            viewHolderCreator = viewHolderCreator,
+            itemBinder = itemBinder,
+            items = items,
+            data = mutableValue,
+            clicks = clicks,
+            longClicks = longClicks,
+            differ = if (differ != null) Differ<I>().also(differ) else null,
+            spans = spans,
+            extraViewTypes = extraViewTypes,
         )
-        config.applyTo(section)
         addSection(section)
     }
 
-    internal fun <V : ViewBinding, I> newBindingItems(
+    internal fun <V : ViewBinding, I> viewBindingItems(
         items: List<I>,
         inflate: ViewBindingInflate<V>,
-        config: SectionConfig<I>,
-        bind: ViewBindingBind<V, I>?,
-        indexedBind: IndexedViewBindingBind<V, I>?
+        id: Int = 0,
+        mutableData: MutableValue<*>? = null,
+        clicks: ((itemView: View, item: I) -> Unit)? = null,
+        longClicks: ((itemView: View, item: I) -> Boolean)? = null,
+        differ: (Differ<I>.() -> Unit)? = null,
+        spans: ((position: Int) -> Int)? = null,
+        bind: ((binding: V, item: I) -> Unit)?,
+        extraViewTypes: List<ViewType<I>>? = null,
+        indexedBind: ((index: Int, binding: V, item: I) -> Unit)?
     ) {
-        val itemCreator = ViewBindingCreator(inflate)
+        val viewHolderCreator = ViewBindingCreator(inflate)
         val itemBinder = ViewBindingBinder(bind, indexedBind)
         val section = Section(
-            config.sectionId,
-            itemCreator,
-            itemBinder,
-            items
+            id = id,
+            viewHolderCreator = viewHolderCreator,
+            itemBinder = itemBinder,
+            items = items,
+            data = mutableData,
+            clicks = clicks,
+            longClicks = longClicks,
+            differ = if (differ != null) Differ<I>().also(differ) else null,
+            spans = spans,
+            extraViewTypes = extraViewTypes,
         )
-        config.applyTo(section)
         addSection(section)
     }
 
-    internal fun <I> newViewInstantiationItems(
+    internal fun <I> viewInstantiationItems(
         items: List<I>,
-        config: SectionConfig<I>,
-        bindScope: ViewInstantiationBindScope<I>
+        id: Int = 0,
+        mutableData: MutableValue<*>? = null,
+        clicks: ((itemView: View, item: I) -> Unit)? = null,
+        longClicks: ((itemView: View, item: I) -> Boolean)? = null,
+        differ: (Differ<I>.() -> Unit)? = null,
+        spans: ((position: Int) -> Int)? = null,
+        extraViewTypes: List<ViewType<I>>? = null,
+        bind: BindViewScope<I>.(parent: ViewGroup) -> View
     ) {
-        val itemCreator = ViewInstantiationCreator(bindScope)
+        val viewHolderCreator = ViewInstantiationCreator(bind)
         val itemBinder = ItemViewBinder<I>()
         val section = Section(
-            config.sectionId,
-            itemCreator,
-            itemBinder,
-            items
+            id = id,
+            viewHolderCreator = viewHolderCreator,
+            itemBinder = itemBinder,
+            items = items,
+            data = mutableData,
+            clicks = clicks,
+            longClicks = longClicks,
+            differ = if (differ != null) Differ<I>().also(differ) else null,
+            spans = spans,
+            extraViewTypes = extraViewTypes,
         )
-        config.applyTo(section)
+        addSection(section)
+    }
+
+    internal fun <I> templateItems(
+        items: List<I>,
+        template: Template<I>,
+        id: Int = 0,
+        mutableData: MutableValue<*>? = null,
+        clicks: ((itemView: View, item: I) -> Unit)? = null,
+        longClicks: ((itemView: View, item: I) -> Boolean)? = null,
+        differ: (Differ<I>.() -> Unit)? = null,
+        spans: ((position: Int) -> Int)? = null,
+        extraViewTypes: List<ViewType<I>>? = null,
+    ) {
+        val section = Section(
+            id = id,
+            viewHolderCreator = template.viewHolderCreator,
+            itemBinder = template.itemBinder,
+            items = items,
+            data = mutableData,
+            clicks = clicks,
+            longClicks = longClicks,
+            differ = if (differ != null) Differ<I>().also(differ) else null,
+            spans = spans,
+            extraViewTypes = extraViewTypes,
+        )
         addSection(section)
     }
 }

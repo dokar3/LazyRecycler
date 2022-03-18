@@ -2,10 +2,6 @@ package com.dokar.lazyrecycler.viewbinder
 
 import androidx.recyclerview.widget.RecyclerView
 
-typealias Bind<I> = (item: I) -> Unit
-
-typealias IndexedBind<I> = (index: Int, item: I) -> Unit
-
 interface BindViewScope<I> {
     /**
      * Get position. If If this function is called before ViewHolder is attached
@@ -22,17 +18,17 @@ interface BindViewScope<I> {
     /**
      * Bind item
      */
-    fun bind(bind: Bind<I>)
+    fun bind(bind: (item: I) -> Unit)
 
     /**
      * Bind item
      */
-    fun bindIndexed(bind: IndexedBind<I>)
+    fun bindIndexed(bind: (index: Int, item: I) -> Unit)
 }
 
 internal class BindViewScopeImpl<I> : BindViewScope<I> {
-    var bind: Bind<I>? = null
-    var indexedBind: IndexedBind<I>? = null
+    var bind: ((item: I) -> Unit)? = null
+    var indexedBind: ((index: Int, item: I) -> Unit)? = null
 
     var itemProvider: ItemProvider? = null
     var viewHolder: RecyclerView.ViewHolder? = null
@@ -50,11 +46,11 @@ internal class BindViewScopeImpl<I> : BindViewScope<I> {
         return provider.getItem(vh.bindingAdapterPosition) as I?
     }
 
-    override fun bind(bind: Bind<I>) {
+    override fun bind(bind: (item: I) -> Unit) {
         this.bind = bind
     }
 
-    override fun bindIndexed(bind: IndexedBind<I>) {
+    override fun bindIndexed(bind: (index: Int, item: I) -> Unit) {
         this.indexedBind = bind
     }
 }

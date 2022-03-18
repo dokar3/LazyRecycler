@@ -8,16 +8,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import com.dokar.lazyrecycler.LazyRecycler
-import com.dokar.lazyrecycler.SectionConfig
 import com.dokar.lazyrecycler.Template
-import com.dokar.lazyrecycler.clicks
-import com.dokar.lazyrecycler.differ
 import com.dokar.lazyrecycler.flow.toMutableValue
-import com.dokar.lazyrecycler.id
 import com.dokar.lazyrecycler.item
 import com.dokar.lazyrecycler.items
 import com.dokar.lazyrecycler.lazyRecycler
-import com.dokar.lazyrecycler.spanSize
 import com.dokar.lazyrecycler.template
 import com.dokar.lazyrecyclersample.Constants
 import com.dokar.lazyrecyclersample.Constants.ID_PAINTINGS
@@ -62,19 +57,17 @@ class GalleryActivity : AppCompatActivity() {
 
         lazyRecycler(rv, spanCount = 6) {
             item(
-                data = Unit,
                 layout = ItemGalleryHeaderBinding::inflate,
-                config = SectionConfig<Unit>().spanSize { 6 }
-            ) { binding, _ ->
+                spans = 6,
+            ) { binding ->
                 binding.title.text = "Vincent Gallery"
             }
 
             items(
-                data = OPTIONS,
+                items = OPTIONS,
                 layout = ItemOptionBinding::inflate,
-                config = SectionConfig<Option>()
-                    .spanSize { 2 }
-                    .clicks { _, item -> onOptionItemClicked(item) }
+                spans = { 2 },
+                clicks = { _, item -> onOptionItemClicked(item) },
             ) { binding, opt ->
                 binding.title.text = opt.text
             }
@@ -82,18 +75,17 @@ class GalleryActivity : AppCompatActivity() {
             items(
                 data = paintings.toMutableValue(lifecycleScope),
                 template = paintingTemplate,
-                config = SectionConfig<Painting>()
-                    .id(ID_PAINTINGS)
-                    .clicks { _, item -> openUrl(item.url) }
-                    .spanSize { position -> if (position % 3 == 0) 6 else 3 }
-                    .differ {
-                        areItemsTheSame { oldItem, newItem ->
-                            oldItem.id == newItem.id
-                        }
-                        areContentsTheSame { oldItem, newItem ->
-                            oldItem.title == newItem.title
-                        }
+                id = ID_PAINTINGS,
+                clicks = { _, item -> openUrl(item.url) },
+                spans = { position -> if (position % 3 == 0) 6 else 3 },
+                differ = {
+                    areItemsTheSame { oldItem, newItem ->
+                        oldItem.id == newItem.id
                     }
+                    areContentsTheSame { oldItem, newItem ->
+                        oldItem.title == newItem.title
+                    }
+                },
             )
         }.let {
             lazyRecycler = it
@@ -118,14 +110,14 @@ class GalleryActivity : AppCompatActivity() {
         val newItems = VINCENT_PAINTINGS.shuffled().subList(0, Random.nextInt(2, 4))
         lazyRecycler.newSections(index = 2) {
             item(
-                data = "Dynamic section",
+                item = "Dynamic section",
                 template = titleTemplate,
-                config = SectionConfig<String>().spanSize { 6 }
+                spans = 6,
             )
             items(
-                data = newItems,
+                items = newItems,
                 template = paintingTemplate,
-                config = SectionConfig<Painting>().spanSize { 6 }
+                spans = { 6 },
             )
         }
     }

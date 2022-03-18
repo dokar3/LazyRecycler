@@ -8,13 +8,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.SimpleItemAnimator
-import com.dokar.lazyrecycler.SectionConfig
-import com.dokar.lazyrecycler.differ
 import com.dokar.lazyrecycler.flow.toMutableValue
 import com.dokar.lazyrecycler.item
 import com.dokar.lazyrecycler.items
 import com.dokar.lazyrecycler.lazyRecycler
-import com.dokar.lazyrecycler.spanSize
 import com.dokar.lazyrecyclersample.R
 import com.dokar.lazyrecyclersample.databinding.ActivityTetrisBinding
 import com.dokar.lazyrecyclersample.databinding.ItemTetrisBlockBinding
@@ -75,7 +72,7 @@ class TetrisActivity : AppCompatActivity() {
             item(
                 data = score.toMutableValue(lifecycleScope),
                 layout = ItemTetrisScoreBinding::inflate,
-                config = SectionConfig<IntArray>().spanSize { cols }
+                spans = cols,
             ) { binding, score ->
                 binding.tvScore.text = String.format("%03d", score[0])
                 binding.tvHighestScore.text = score[1].toString()
@@ -84,12 +81,11 @@ class TetrisActivity : AppCompatActivity() {
             items(
                 data = matrix.toMutableValue(lifecycleScope),
                 layout = ItemTetrisBlockBinding::inflate,
-                config = SectionConfig<Boolean>()
-                    .spanSize { 1 }
-                    .differ {
-                        areItemsTheSame { _, _ -> true }
-                        areContentsTheSame { oldItem, newItem -> oldItem == newItem }
-                    }
+                differ = {
+                    areItemsTheSame { _, _ -> true }
+                    areContentsTheSame { oldItem, newItem -> oldItem == newItem }
+                },
+                spans = { 1 },
             ) { binding, fillBlock ->
                 val color = if (fillBlock) fillColor else blockColor
                 binding.block.setBackgroundColor(color)

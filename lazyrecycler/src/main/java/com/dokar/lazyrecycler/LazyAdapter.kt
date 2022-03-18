@@ -15,11 +15,11 @@ open class LazyAdapter(
     init {
         sections.forEach { section ->
             // add view types
-            viewTypes[section] = section.viewType
-            val subSections = section.subSections
-            if (!subSections.isNullOrEmpty()) {
-                subSections.forEach { (sub, _) ->
-                    viewTypes[sub] = sub.viewType
+            viewTypes[section] = section.defaultViewType
+            val viewTypes = section.extraViewTypes
+            if (!viewTypes.isNullOrEmpty()) {
+                viewTypes.forEach {
+                    this.viewTypes[it.template] = it.template.defaultViewType
                 }
             }
         }
@@ -36,7 +36,7 @@ open class LazyAdapter(
         // create ViewHolder
         val holder = itemViewCreator.create(parent, section.itemBinder, this)
         // clicks
-        val onItemClick = section.onItemClick
+        val onItemClick = section.clicks
         if (onItemClick != null) {
             holder.itemView.setOnClickListener click@{
                 val pos = holder.bindingAdapterPosition
@@ -45,7 +45,7 @@ open class LazyAdapter(
             }
         }
         // long clicks
-        val onItemLongClick = section.onItemLongClick
+        val onItemLongClick = section.longClicks
         if (onItemLongClick != null) {
             holder.itemView.setOnLongClickListener longClick@{
                 val pos = holder.bindingAdapterPosition
@@ -82,21 +82,21 @@ open class LazyAdapter(
         }
 
         val section = sections[sectionIdx]
-        val subSections = section.subSections
-        if (!subSections.isNullOrEmpty()) {
+        val viewTypes = section.extraViewTypes
+        if (!viewTypes.isNullOrEmpty()) {
             val pos = position - offset
             val item = section.items[pos]
-            for (sub in subSections) {
-                val s = sub.first
-                val where = sub.second
-                if (where(item, pos)) {
-                    return viewTypes[s]
+            for (type in viewTypes) {
+                val s = type.template
+                val where = type.where
+                if (where(pos, item)) {
+                    return this.viewTypes[s]
                         ?: throw IllegalStateException("Cannot solve viewType for item: $position")
                 }
             }
         }
 
-        return viewTypes[section]
+        return this.viewTypes[section]
             ?: throw IllegalStateException("Cannot solve viewType for item: $position")
     }
 
@@ -118,11 +118,11 @@ open class LazyAdapter(
         }
         val newSize = newSections.fold(0) { acc, s ->
             // add view types
-            viewTypes[s] = s.viewType
-            val subSections = s.subSections
-            if (!subSections.isNullOrEmpty()) {
-                subSections.forEach { (sub, _) ->
-                    viewTypes[sub] = sub.viewType
+            viewTypes[s] = s.defaultViewType
+            val viewTypes = s.extraViewTypes
+            if (!viewTypes.isNullOrEmpty()) {
+                viewTypes.forEach {
+                    this.viewTypes[it.template] = it.template.defaultViewType
                 }
             }
             acc + s.items.size
@@ -140,13 +140,13 @@ open class LazyAdapter(
             return false
         }
         // remove view types
-        val subSections = section.subSections
-        if (!subSections.isNullOrEmpty()) {
-            subSections.forEach { (sub, _) ->
-                viewTypes.remove(sub)
+        val viewTypes = section.extraViewTypes
+        if (!viewTypes.isNullOrEmpty()) {
+            viewTypes.forEach {
+                this.viewTypes.remove(it.template)
             }
         }
-        viewTypes.remove(section)
+        this.viewTypes.remove(section)
 
         notifyItemRangeRemoved(posOffset, size)
 

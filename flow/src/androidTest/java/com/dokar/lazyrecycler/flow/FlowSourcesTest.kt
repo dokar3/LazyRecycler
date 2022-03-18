@@ -1,8 +1,6 @@
 package com.dokar.lazyrecycler.flow
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.dokar.lazyrecycler.SectionConfig
-import com.dokar.lazyrecycler.id
 import com.dokar.lazyrecycler.item
 import com.dokar.lazyrecycler.items
 import com.dokar.lazyrecycler.lazyRecycler
@@ -30,7 +28,7 @@ class FlowSourcesTest {
             item(
                 data = source.toMutableValue(scope),
                 layout = 0,
-                config = SectionConfig<String>().id(id)
+                id = id,
             ) {}
         }
 
@@ -66,7 +64,7 @@ class FlowSourcesTest {
             items(
                 data = source.toMutableValue(scope),
                 layout = 0,
-                config = SectionConfig<Int>().id(id)
+                id = id,
             ) {}
         }
         recycler.observeChanges()

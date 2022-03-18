@@ -1,18 +1,16 @@
 package com.dokar.lazyrecycler
 
+import android.view.View
 import androidx.annotation.LayoutRes
 import com.dokar.lazyrecycler.data.MutableValue
-import com.dokar.lazyrecycler.viewbinder.LayoutIdBindScope
+import com.dokar.lazyrecycler.viewbinder.BindViewScope
 
 /**
  * Create item
  *
  * ### Example:
  * ```kotlin
- * item(
- *     data = "Title",
- *     layout = R.layout.item_title
- * ) { root ->
+ * item(layout = R.layout.item_title) { root ->
  *     val tvTitle: TextView = root.findViewById(R.id.tv_title)
  *     bind { item ->
  *         ...
@@ -20,13 +18,35 @@ import com.dokar.lazyrecycler.viewbinder.LayoutIdBindScope
  * }
  * ```
  */
-fun <I> RecyclerBuilder.item(
-    data: I,
+fun RecyclerBuilder.item(
     @LayoutRes layout: Int,
-    config: SectionConfig<I> = SectionConfig(),
-    bind: LayoutIdBindScope<I>
+    id: Int = 0,
+    clicks: ((itemView: View) -> Unit)? = null,
+    longClicks: ((itemView: View) -> Boolean)? = null,
+    spans: Int = 0,
+    bind: BindViewScope<Any>.(view: View) -> Unit
 ) {
-    items(listOf(data), layout, config, bind)
+    layoutIdItems(
+        items = listOf(Any()),
+        layoutId = layout,
+        id = id,
+        clicks = if (clicks != null) {
+            { v, _ -> clicks(v) }
+        } else {
+            null
+        },
+        longClicks = if (longClicks != null) {
+            { v, _ -> longClicks(v) }
+        } else {
+            null
+        },
+        differ = {
+            areItemsTheSame { oldItem, newItem -> oldItem == newItem }
+            areContentsTheSame { oldItem, newItem -> oldItem == newItem }
+        },
+        spans = if (spans != 0) ({ spans }) else null,
+        bind = bind,
+    )
 }
 
 /**
@@ -37,7 +57,7 @@ fun <I> RecyclerBuilder.item(
  * val data: Observable<Item> = ...
  * item(
  *     data = data.toMutableValue(),
- *     layout = R.layout.item
+ *     layout = R.layout.item,
  * ) { root ->
  *     val tvTitle: TextView = root.findViewById(R.id.tv_title)
  *     bind { item ->
@@ -49,13 +69,22 @@ fun <I> RecyclerBuilder.item(
 fun <I> RecyclerBuilder.item(
     data: MutableValue<I>,
     @LayoutRes layout: Int,
-    config: SectionConfig<I> = SectionConfig(),
-    bind: LayoutIdBindScope<I>
+    id: Int = 0,
+    clicks: ((itemView: View, item: I) -> Unit)? = null,
+    longClicks: ((itemView: View, item: I) -> Boolean)? = null,
+    differ: (Differ<I>.() -> Unit)? = null,
+    spans: Int = 0,
+    bind: BindViewScope<I>.(view: View) -> Unit
 ) {
-    items(
-        data = data.current?.let { listOf(it) } ?: emptyList(),
-        layout = layout,
-        config = config.addExtra(data),
+    layoutIdItems(
+        items = data.current?.let { listOf(it) } ?: emptyList(),
+        layoutId = layout,
+        id = id,
+        mutableValue = data,
+        clicks = clicks,
+        longClicks = longClicks,
+        differ = differ,
+        spans = if (spans != 0) ({ spans }) else null,
         bind = bind,
     )
 }
@@ -66,8 +95,8 @@ fun <I> RecyclerBuilder.item(
  * ### Example:
  * ```kotlin
  * items(
- *     data = listOf("A", "B", "C"),
- *     layout = R.layout.item
+ *     items = listOf("A", "B", "C"),
+ *     layout = R.layout.item,
  * ) { root ->
  *     val tvTitle: TextView = root.findViewById(R.id.tv_title)
  *     bind { item ->
@@ -77,12 +106,27 @@ fun <I> RecyclerBuilder.item(
  * ```
  */
 fun <I> RecyclerBuilder.items(
-    data: List<I>,
+    items: List<I>,
     @LayoutRes layout: Int,
-    config: SectionConfig<I> = SectionConfig(),
-    bind: LayoutIdBindScope<I>
+    id: Int = 0,
+    clicks: ((itemView: View, item: I) -> Unit)? = null,
+    longClicks: ((itemView: View, item: I) -> Boolean)? = null,
+    differ: (Differ<I>.() -> Unit)? = null,
+    spans: ((position: Int) -> Int)? = null,
+    extraViewTypes: List<ViewType<I>>? = null,
+    bind: BindViewScope<I>.(root: View) -> Unit,
 ) {
-    newLayoutIdItems(data, layout, config, bind)
+    layoutIdItems(
+        items = items,
+        layoutId = layout,
+        id = id,
+        clicks = clicks,
+        longClicks = longClicks,
+        differ = differ,
+        spans = spans,
+        extraViewTypes = extraViewTypes,
+        bind = bind,
+    )
 }
 
 /**
@@ -93,7 +137,7 @@ fun <I> RecyclerBuilder.items(
  * val data: Observable<List<Item>> = ...
  * items(
  *     data = data.toMutableValue(),
- *     layout = R.layout.item
+ *     layout = R.layout.item,
  * ) { root ->
  *     val tvTitle: TextView = root.findViewById(R.id.tv_title)
  *     bind { item ->
@@ -105,13 +149,24 @@ fun <I> RecyclerBuilder.items(
 fun <I> RecyclerBuilder.items(
     data: MutableValue<List<I>>,
     @LayoutRes layout: Int,
-    config: SectionConfig<I> = SectionConfig(),
-    bind: LayoutIdBindScope<I>
+    id: Int = 0,
+    clicks: ((itemView: View, item: I) -> Unit)? = null,
+    longClicks: ((itemView: View, item: I) -> Boolean)? = null,
+    differ: (Differ<I>.() -> Unit)? = null,
+    spans: ((position: Int) -> Int)? = null,
+    extraViewTypes: List<ViewType<I>>? = null,
+    bind: BindViewScope<I>.(view: View) -> Unit
 ) {
-    items(
-        data = data.current ?: emptyList(),
-        layout = layout,
-        config = config.addExtra(data),
+    layoutIdItems(
+        items = data.current ?: emptyList(),
+        layoutId = layout,
+        id = id,
+        mutableValue = data,
+        clicks = clicks,
+        longClicks = longClicks,
+        differ = differ,
+        spans = spans,
+        extraViewTypes = extraViewTypes,
         bind = bind,
     )
 }
