@@ -1,46 +1,16 @@
 package com.dokar.lazyrecycler
 
+import android.view.View
+import android.view.ViewGroup
 import com.dokar.lazyrecycler.data.MutableValue
-import com.dokar.lazyrecycler.viewbinder.ViewInstantiationBindScope
-import kotlin.experimental.ExperimentalTypeInference
+import com.dokar.lazyrecycler.viewbinder.BindViewScope
 
 /**
  * Create item
  *
  * ### Example:
  * ```kotlin
- * item(
- *  data = "Title"
- * ) { parent ->
- *     val root = LinearLayout(context)
- *     ...
- *     bind { item ->
- *         ...
- *     }
- *     return@items root
- * }
- * ```
- */
-@JvmName("viewRequiredItem")
-@OverloadResolutionByLambdaReturnType
-@OptIn(ExperimentalTypeInference::class)
-fun <I> RecyclerBuilder.item(
-    data: I,
-    config: SectionConfig<I> = SectionConfig(),
-    bind: ViewInstantiationBindScope<I>
-) {
-    newViewInstantiationItems(listOf(data), config, bind)
-}
-
-/**
- * Create a mutable item
- *
- * ### Example:
- * ```kotlin
- * val data: Observable<Item> = ...
- * item(
- *  data = data.toMutableValue()
- * ) { parent ->
+ * item { parent ->
  *     val root = LinearLayout(context)
  *     ...
  *     bind { item ->
@@ -50,17 +20,68 @@ fun <I> RecyclerBuilder.item(
  * }
  * ```
  */
-@JvmName("viewRequiredItem")
-@OverloadResolutionByLambdaReturnType
-@OptIn(ExperimentalTypeInference::class)
+fun RecyclerBuilder.item(
+    id: Int = 0,
+    clicks: ((itemView: View) -> Unit)? = null,
+    longClicks: ((itemView: View) -> Boolean)? = null,
+    spans: Int = 0,
+    bind: BindViewScope<Any>.(parent: ViewGroup) -> View
+) {
+    viewInstantiationItems(
+        items = listOf(Any()),
+        id = id,
+        clicks = if (clicks != null) {
+            { v, _ -> clicks(v) }
+        } else {
+            null
+        },
+        longClicks = if (longClicks != null) {
+            { v, _ -> longClicks(v) }
+        } else {
+            null
+        },
+        differ = {
+            areItemsTheSame { oldItem, newItem -> oldItem == newItem }
+            areContentsTheSame { oldItem, newItem -> oldItem == newItem }
+        },
+        spans = if (spans != 0) ({ spans }) else null,
+        bind = bind,
+    )
+}
+
+/**
+ * Create a mutable item
+ *
+ * ### Example:
+ * ```kotlin
+ * val data: Observable<Item> = ...
+ * item(data = data.toMutableValue()) { parent ->
+ *     val root = LinearLayout(context)
+ *     ...
+ *     bind { item ->
+ *         ...
+ *     }
+ *     root
+ * }
+ * ```
+ */
 fun <I> RecyclerBuilder.item(
     data: MutableValue<I>,
-    config: SectionConfig<I> = SectionConfig(),
-    bind: ViewInstantiationBindScope<I>
+    id: Int = 0,
+    clicks: ((itemView: View, item: I) -> Unit)? = null,
+    longClicks: ((itemView: View, item: I) -> Boolean)? = null,
+    differ: (Differ<I>.() -> Unit)? = null,
+    spans: Int = 0,
+    bind: BindViewScope<I>.(parent: ViewGroup) -> View
 ) {
-    items(
-        data = data.current?.let { listOf(it) } ?: emptyList(),
-        config = config.addExtra(data),
+    viewInstantiationItems(
+        items = data.current?.let { listOf(it) } ?: emptyList(),
+        id = id,
+        mutableData = data,
+        clicks = clicks,
+        longClicks = longClicks,
+        differ = differ,
+        spans = if (spans != 0) ({ spans }) else null,
         bind = bind,
     )
 }
@@ -71,7 +92,7 @@ fun <I> RecyclerBuilder.item(
  * ### Example:
  * ```kotlin
  * items(
- *     data = listOf("A", "B", "C")
+ *     items = listOf("A", "B", "C")
  * ) { parent ->
  *     val root = LinearLayout(context)
  *     ...
@@ -82,15 +103,24 @@ fun <I> RecyclerBuilder.item(
  * }
  * ```
  */
-@JvmName("viewRequiredItems")
-@OverloadResolutionByLambdaReturnType
-@OptIn(ExperimentalTypeInference::class)
 fun <I> RecyclerBuilder.items(
-    data: List<I>,
-    config: SectionConfig<I> = SectionConfig(),
-    bind: ViewInstantiationBindScope<I>
+    items: List<I>,
+    id: Int = 0,
+    clicks: ((itemView: View, item: I) -> Unit)? = null,
+    longClicks: ((itemView: View, item: I) -> Boolean)? = null,
+    differ: (Differ<I>.() -> Unit)? = null,
+    spans: ((position: Int) -> Int)? = null,
+    bind: BindViewScope<I>.(parent: ViewGroup) -> View
 ) {
-    newViewInstantiationItems(data, config, bind)
+    viewInstantiationItems(
+        items = items,
+        id = id,
+        clicks = clicks,
+        longClicks = longClicks,
+        differ = differ,
+        spans = spans,
+        bind = bind,
+    )
 }
 
 /**
@@ -99,9 +129,7 @@ fun <I> RecyclerBuilder.items(
  * ### Example:
  * ```kotlin
  * val data: Observable<List<Item>> = ...
- * items(
- *     data = data.toMutableValue()
- * ) { parent ->
+ * items(data = data.toMutableValue()) { parent ->
  *     val root = LinearLayout(context)
  *     ...
  *     bind { item ->
@@ -111,17 +139,23 @@ fun <I> RecyclerBuilder.items(
  * }
  * ```
  */
-@JvmName("viewRequiredMutableItems")
-@OverloadResolutionByLambdaReturnType
-@OptIn(ExperimentalTypeInference::class)
 fun <I> RecyclerBuilder.items(
     data: MutableValue<List<I>>,
-    config: SectionConfig<I> = SectionConfig(),
-    bind: ViewInstantiationBindScope<I>
+    id: Int = 0,
+    clicks: ((itemView: View, item: I) -> Unit)? = null,
+    longClicks: ((itemView: View, item: I) -> Boolean)? = null,
+    differ: (Differ<I>.() -> Unit)? = null,
+    spans: ((position: Int) -> Int)? = null,
+    bind: BindViewScope<I>.(parent: ViewGroup) -> View
 ) {
-    items(
-        data.current ?: emptyList(),
-        config.addExtra(data),
-        bind
+    viewInstantiationItems(
+        items = data.current ?: emptyList(),
+        id = id,
+        mutableData = data,
+        clicks = clicks,
+        longClicks = longClicks,
+        differ = differ,
+        spans = spans,
+        bind = bind,
     )
 }

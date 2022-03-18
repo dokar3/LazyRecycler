@@ -220,9 +220,7 @@ class LazyRecycler(
     @Suppress("UNCHECKED_CAST")
     private fun onMutableValueChanged(value: MutableValue<*>) {
         // Mutable data source changed
-        val section = sections.find {
-            it.findExtras(MutableValue::class.java)?.contains(value) == true
-        } ?: return
+        val section = sections.find { it.data == value } ?: return
 
         val current = value.current
         when {
@@ -241,9 +239,11 @@ class LazyRecycler(
     private inline fun List<Section<Any, Any>>.forEachMutableValues(
         block: (mutVal: MutableValue<*>) -> Unit
     ) {
-        mapNotNull { it.findExtras(MutableValue::class.java) }
-            .flatten()
-            .forEach(block)
+        for (section in this) {
+            if (section.data != null) {
+                block(section.data)
+            }
+        }
     }
 
     private fun setupLayoutManager(rv: RecyclerView) {
@@ -255,7 +255,7 @@ class LazyRecycler(
                 override fun getSpanSize(position: Int): Int {
                     val sectionIdx = adapter.getSectionIndex(position)
                     val section = sections[sectionIdx]
-                    val spanSizeLookup = section.spanSizeLookup ?: return 1
+                    val spanSizeLookup = section.spans ?: return 1
                     val offset = adapter.getSectionPositionOffset(section)
                     return spanSizeLookup(position - offset)
                 }

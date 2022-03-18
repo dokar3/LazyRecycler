@@ -5,8 +5,6 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.MutableLiveData
 import androidx.test.platform.app.InstrumentationRegistry
-import com.dokar.lazyrecycler.SectionConfig
-import com.dokar.lazyrecycler.id
 import com.dokar.lazyrecycler.item
 import com.dokar.lazyrecycler.items
 import com.dokar.lazyrecycler.lazyRecycler
@@ -34,7 +32,7 @@ class LiveDataSourcesTest {
             item(
                 data = source.toMutableValue { lifecycle },
                 layout = 0,
-                config = SectionConfig<String>().id(id)
+                id = id,
             ) {}
         }
         assertEquals(text, recycler.getSectionItems(id)?.get(0))
@@ -87,7 +85,7 @@ class LiveDataSourcesTest {
             items(
                 data = source.toMutableValue { lifecycle },
                 layout = 0,
-                config = SectionConfig<Int>().id(id)
+                id = id,
             ) {}
         }
         // default value

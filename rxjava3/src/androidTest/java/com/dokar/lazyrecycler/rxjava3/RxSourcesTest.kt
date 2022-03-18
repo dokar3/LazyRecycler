@@ -1,8 +1,6 @@
 package com.dokar.lazyrecycler.rxjava3
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.dokar.lazyrecycler.SectionConfig
-import com.dokar.lazyrecycler.id
 import com.dokar.lazyrecycler.item
 import com.dokar.lazyrecycler.items
 import com.dokar.lazyrecycler.lazyRecycler
@@ -26,7 +24,7 @@ class RxSourcesTest {
             item(
                 data = source.toMutableValue(),
                 layout = 0,
-                config = SectionConfig<String>().id(id)
+                id = id,
             ) {}
         }
         recycler.observeChanges()
@@ -52,7 +50,7 @@ class RxSourcesTest {
             item(
                 data = source.toMutableValue(),
                 layout = 0,
-                config = SectionConfig<String>().id(id)
+                id = id,
             ) {}
         }
         recycler.observeChanges()
@@ -78,7 +76,7 @@ class RxSourcesTest {
             items(
                 data = source.toMutableValue(),
                 layout = 0,
-                config = SectionConfig<Int>().id(id)
+                id = id,
             ) {}
         }
         recycler.observeChanges()
@@ -103,7 +101,7 @@ class RxSourcesTest {
             items(
                 data = source.toMutableValue(),
                 layout = 0,
-                config = SectionConfig<Int>().id(id)
+                id = id,
             ) {}
         }
         recycler.observeChanges()
@@ -132,7 +130,7 @@ class RxSourcesTest {
             item(
                 data = source.toMutableValue(),
                 layout = 0,
-                config = SectionConfig<Int>().id(id)
+                id = id,
             ) {}
         }
         recycler.observeChanges()

@@ -1,14 +1,13 @@
 package com.dokar.lazyrecycler
 
+import android.view.View
+import android.view.ViewGroup
 import androidx.annotation.LayoutRes
 import androidx.viewbinding.ViewBinding
 import com.dokar.lazyrecycler.data.MutableValue
-import com.dokar.lazyrecycler.viewbinder.IndexedViewBindingBind
+import com.dokar.lazyrecycler.viewbinder.BindViewScope
 import com.dokar.lazyrecycler.viewbinder.ItemViewBinder
-import com.dokar.lazyrecycler.viewbinder.LayoutIdBindScope
-import com.dokar.lazyrecycler.viewbinder.ViewBindingBind
 import com.dokar.lazyrecycler.viewbinder.ViewBindingBinder
-import com.dokar.lazyrecycler.viewbinder.ViewInstantiationBindScope
 import com.dokar.lazyrecycler.viewcreator.LayoutIdCreator
 import com.dokar.lazyrecycler.viewcreator.ViewBindingCreator
 import com.dokar.lazyrecycler.viewcreator.ViewBindingInflate
@@ -37,17 +36,22 @@ import kotlin.experimental.ExperimentalTypeInference
  */
 fun <I> template(
     @LayoutRes layout: Int,
-    config: SectionConfig<I> = SectionConfig(),
-    bind: LayoutIdBindScope<I>
+    clicks: ((itemView: View, item: I) -> Unit)? = null,
+    longClicks: ((itemView: View, item: I) -> Boolean)? = null,
+    differ: (Differ<I>.() -> Unit)? = null,
+    spans: ((position: Int) -> Int)? = null,
+    bind: BindViewScope<I>.(view: View) -> Unit
 ): Template<I> {
-    val itemViewCreator = LayoutIdCreator(layout, bind)
+    val viewHolderCreator = LayoutIdCreator(layout, bind)
     val itemBinder = ItemViewBinder<I>()
     return Template(
-        itemViewCreator,
-        itemBinder
-    ).also {
-        config.applyTo(it)
-    }
+        viewHolderCreator = viewHolderCreator,
+        itemBinder = itemBinder,
+        clicks = clicks,
+        longClicks = longClicks,
+        differ = if (differ != null) Differ<I>().also(differ) else null,
+        spans = spans,
+    )
 }
 
 /**
@@ -68,19 +72,23 @@ fun <I> template(
  * )
  * ```
  */
-@JvmName("viewRequiredTemplate")
 fun <I> template(
-    config: SectionConfig<I> = SectionConfig(),
-    bind: ViewInstantiationBindScope<I>
+    clicks: ((itemView: View, item: I) -> Unit)? = null,
+    longClicks: ((itemView: View, item: I) -> Boolean)? = null,
+    differ: (Differ<I>.() -> Unit)? = null,
+    spans: ((position: Int) -> Int)? = null,
+    bind: BindViewScope<I>.(parent: ViewGroup) -> View
 ): Template<I> {
-    val itemViewCreator = ViewInstantiationCreator(bind)
+    val viewHolderCreator = ViewInstantiationCreator(bind)
     val itemBinder = ItemViewBinder<I>()
     return Template(
-        itemViewCreator,
-        itemBinder
-    ).also {
-        config.applyTo(it)
-    }
+        viewHolderCreator = viewHolderCreator,
+        itemBinder = itemBinder,
+        clicks = clicks,
+        longClicks = longClicks,
+        differ = if (differ != null) Differ<I>().also(differ) else null,
+        spans = spans,
+    )
 }
 
 /**
@@ -99,20 +107,24 @@ fun <I> template(
  * )
  * ```
  */
-@JvmName("viewBindingTemplate")
 fun <V : ViewBinding, I> template(
     layout: ViewBindingInflate<V>,
-    config: SectionConfig<I> = SectionConfig(),
-    bind: ViewBindingBind<V, I>
+    clicks: ((itemView: View, item: I) -> Unit)? = null,
+    longClicks: ((itemView: View, item: I) -> Boolean)? = null,
+    differ: (Differ<I>.() -> Unit)? = null,
+    spans: ((position: Int) -> Int)? = null,
+    bind: (binding: V, item: I) -> Unit
 ): Template<I> {
-    val itemViewCreator = ViewBindingCreator(layout)
+    val viewHolderCreator = ViewBindingCreator(layout)
     val itemBinder = ViewBindingBinder(bind, null)
     return Template(
-        itemViewCreator,
-        itemBinder,
-    ).also {
-        config.applyTo(it)
-    }
+        viewHolderCreator = viewHolderCreator,
+        itemBinder = itemBinder,
+        clicks = clicks,
+        longClicks = longClicks,
+        differ = if (differ != null) Differ<I>().also(differ) else null,
+        spans = spans,
+    )
 }
 
 /**
@@ -131,22 +143,26 @@ fun <V : ViewBinding, I> template(
  * )
  * ```
  */
-@JvmName("viewBindingTemplate")
 @OverloadResolutionByLambdaReturnType
 @OptIn(ExperimentalTypeInference::class)
 fun <V : ViewBinding, I> template(
     layout: ViewBindingInflate<V>,
-    config: SectionConfig<I> = SectionConfig(),
-    bind: IndexedViewBindingBind<V, I>
+    clicks: ((itemView: View, item: I) -> Unit)? = null,
+    longClicks: ((itemView: View, item: I) -> Boolean)? = null,
+    differ: (Differ<I>.() -> Unit)? = null,
+    spans: ((position: Int) -> Int)? = null,
+    bind: (index: Int, binding: V, item: I) -> Unit
 ): Template<I> {
-    val itemViewCreator = ViewBindingCreator(layout)
+    val viewHolderCreator = ViewBindingCreator(layout)
     val itemBinder = ViewBindingBinder(null, bind)
     return Template(
-        itemViewCreator,
-        itemBinder
-    ).also {
-        config.applyTo(it)
-    }
+        viewHolderCreator = viewHolderCreator,
+        itemBinder = itemBinder,
+        clicks = clicks,
+        longClicks = longClicks,
+        differ = if (differ != null) Differ<I>().also(differ) else null,
+        spans = spans,
+    )
 }
 
 /**
@@ -155,25 +171,68 @@ fun <V : ViewBinding, I> template(
  * ### Example:
  * ```kotlin
  * val template = template { ... }
- * item(data = "Title", template = template)
+ * item(template = template)
+ * ```
+ */
+fun RecyclerBuilder.item(
+    template: Template<Any>,
+    id: Int = 0,
+    clicks: ((itemView: View) -> Unit)? = null,
+    longClicks: ((itemView: View) -> Boolean)? = null,
+    spans: Int = 0,
+) {
+    templateItems(
+        items = listOf(Any()),
+        template = template,
+        id = id,
+        clicks = if (clicks != null) {
+            { v, _ -> clicks(v) }
+        } else {
+            null
+        },
+        longClicks = if (longClicks != null) {
+            { v, _ -> longClicks(v) }
+        } else {
+            null
+        },
+        differ = {
+            areItemsTheSame { oldItem, newItem -> oldItem == newItem }
+            areContentsTheSame { oldItem, newItem -> oldItem == newItem }
+        },
+        spans = if (spans != 0) ({ spans }) else null,
+    )
+}
+
+/**
+ * Create an item from a template
+ *
+ * ### Example:
+ * ```kotlin
+ * val template = template { ... }
+ * item(
+ *     item = "Title",
+ *     template = template,
+ * )
  * ```
  */
 fun <I> RecyclerBuilder.item(
-    data: I,
+    item: I,
     template: Template<I>,
-    config: SectionConfig<I> = SectionConfig(),
+    id: Int = 0,
+    clicks: ((itemView: View, item: I) -> Unit)? = null,
+    longClicks: ((itemView: View, item: I) -> Boolean)? = null,
+    differ: (Differ<I>.() -> Unit)? = null,
+    spans: Int = 0,
 ) {
-    val creator = template.viewHolderCreator
-    val binder = template.itemBinder
-    val section = Section(config.sectionId, creator, binder, listOf(data)).apply {
-        onItemClick = template.onItemClick
-        onItemLongClick = template.onItemLongClick
-        differ = template.differ
-        spanSizeLookup = template.spanSizeLookup
-    }
-    section.viewType = template.viewType
-    config.applyTo(section)
-    addSection(section)
+    templateItems(
+        items = listOf(item),
+        template = template,
+        id = id,
+        clicks = clicks,
+        longClicks = longClicks,
+        differ = differ,
+        spans = if (spans != 0) ({ spans }) else null,
+    )
 }
 
 /**
@@ -183,18 +242,30 @@ fun <I> RecyclerBuilder.item(
  * ```kotlin
  * val template = template { ... }
  * val data: Observable<Item> = ...
- * item(data = data.toMutableValue(), template = template)
+ * item(
+ *     data = data.toMutableValue(),
+ *     template = template,
+ * )
  * ```
  */
 fun <I> RecyclerBuilder.item(
     data: MutableValue<I>,
     template: Template<I>,
-    config: SectionConfig<I> = SectionConfig(),
+    id: Int = 0,
+    clicks: ((itemView: View, item: I) -> Unit)? = null,
+    longClicks: ((itemView: View, item: I) -> Boolean)? = null,
+    differ: (Differ<I>.() -> Unit)? = null,
+    spans: Int = 0,
 ) {
-    items(
-        data = data.current?.let { listOf(it) } ?: emptyList(),
+    templateItems(
+        items = data.current?.let { listOf(it) } ?: emptyList(),
         template = template,
-        config = config.addExtra(data),
+        id = id,
+        mutableData = data,
+        clicks = clicks,
+        longClicks = longClicks,
+        differ = differ,
+        spans = if (spans != 0) ({ spans }) else null,
     )
 }
 
@@ -204,45 +275,66 @@ fun <I> RecyclerBuilder.item(
  * ### Example:
  * ```kotlin
  * val template = template { ... }
- * item(data = listOf("A", "B", "C"), template = template)
+ * items(
+ *     items = listOf("A", "B", "C"),
+ *     template = template,
+ * )
  * ```
  */
 fun <I> RecyclerBuilder.items(
-    data: List<I>,
+    items: List<I>,
     template: Template<I>,
-    config: SectionConfig<I> = SectionConfig(),
+    id: Int = 0,
+    clicks: ((itemView: View, item: I) -> Unit)? = null,
+    longClicks: ((itemView: View, item: I) -> Boolean)? = null,
+    differ: (Differ<I>.() -> Unit)? = null,
+    spans: ((position: Int) -> Int)? = null,
+    extraViewTypes: List<ViewType<I>>? = null,
 ) {
-    val creator = template.viewHolderCreator
-    val binder = template.itemBinder
-    val section = Section(config.sectionId, creator, binder, data).apply {
-        onItemClick = template.onItemClick
-        onItemLongClick = template.onItemLongClick
-        differ = template.differ
-        spanSizeLookup = template.spanSizeLookup
-    }
-    section.viewType = template.viewType
-    config.applyTo(section)
-    addSection(section)
+    templateItems(
+        items = items,
+        template = template,
+        id = id,
+        clicks = clicks,
+        longClicks = longClicks,
+        differ = differ,
+        spans = spans,
+        extraViewTypes = extraViewTypes,
+    )
 }
 
 /**
- * Create items from a template
+ * Create mutable items from a template
  *
  * ### Example:
  * ```kotlin
  * val template = template { ... }
  * val data: Observable<List<Item>> = ...
- * item(data = data.toMutableValue(), template = template)
+ * items(
+ *     data = data.toMutableValue(),
+ *     template = template,
+ * )
  * ```
  */
 fun <I> RecyclerBuilder.items(
     data: MutableValue<List<I>>,
     template: Template<I>,
-    config: SectionConfig<I> = SectionConfig(),
+    id: Int = 0,
+    clicks: ((itemView: View, item: I) -> Unit)? = null,
+    longClicks: ((itemView: View, item: I) -> Boolean)? = null,
+    differ: (Differ<I>.() -> Unit)? = null,
+    spans: ((position: Int) -> Int)? = null,
+    extraViewTypes: List<ViewType<I>>? = null,
 ) {
-    items(
-        data.current ?: emptyList(),
-        template,
-        config.addExtra(data)
+    templateItems(
+        items = data.current ?: emptyList(),
+        template = template,
+        id = id,
+        mutableData = data,
+        clicks = clicks,
+        longClicks = longClicks,
+        differ = differ,
+        spans = spans,
+        extraViewTypes = extraViewTypes,
     )
 }

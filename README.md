@@ -4,7 +4,7 @@
 
 **LazyRecycler** is a library that provides [LazyColumn](https://developer.android.com/reference/kotlin/androidx/compose/foundation/lazy/package-summary) like APIs to build lists with RecyclerView. 
 
-### Usage
+### Quick start
 
 Add the dependency [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.github.dokar3/lazyrecycler/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.github.dokar3/lazyrecycler):
 
@@ -17,32 +17,32 @@ Then create a list by using the `lazyRecycler()` function. Adapter, LayoutManage
 ```kotlin
 lazyRecycler(recyclerView, spanCount = 3) {
     // Header
-    item(data = Unit, layout = R.layout.header) {}
+    item(layout = R.layout.header) {}
 
     // Create a section
     items(
-        data = listOfNews,
+        items = listOfNews,
         layout = ItemNewsBinding::inflate,
-        config = SectionConfig<NewsItem>()
-            .clicks { view, item ->
-                // handle item clicks
+        clicks = { view, item ->
+            // Handle item clicks
+        },
+        longClicks = { view, item -> 
+            // Handle long clicks
+            true
+        },
+        differ = {
+            areItemsTheSame { oldItem, newItem ->
+                oldItem.id == newItem.id
             }
-            .spanSize { position ->
-                // map to SpanSizeLookup.getSpanSize()
-                if (position % 3 == 0) 3 else 1
+            areContentsTheSame { oldItem, newItem ->
+                oldItem.title == newItem.title && ...
             }
-            .differ {
-                areItemsTheSame { oldItem, newItem ->
-                    // map to DiffUtil.ItemCallback.areItemsTheSame()
-                    oldItem.id == newItem.id
-                }
-                areContentsTheSame { oldItem, newItem ->
-                    // map to DiffUtil.ItemCallback.areContentsTheSame()
-                    oldItem.title == newItem.title && ...
-                }
-            }
+        },
+        spans = { position ->
+            if (position % 3 == 0) 3 else 1
+        },
     ) { binding, news ->
-        // bind item
+        // Bind item
     }
     
     // Some other sections
@@ -50,15 +50,17 @@ lazyRecycler(recyclerView, spanCount = 3) {
     items(...)
     
     // Footer
-    item(data = Unit, layout = R.layout.footer) {}
+    item(layout = R.layout.footer) {}
 }
 ```
+
+
 
 # Basic
 
 ### Sections
 
-In LazyRecycler, every `item` and `items` call will create a section, sections will be added to the Adapter by creating order.
+In LazyRecycler, every `item` and `items` call will create a section, sections will be added to the Adapter by the creating order.
 
 ```kotlin
 item(...) { ... }
@@ -71,35 +73,32 @@ When creating a dynamic section, it's necessary to set a unique id to update the
 ```kotlin
 val recycler = lazyRecycler {
     items(
-        data = news,
+        items = news,
         layout = R.layout.item_news,
-        config = SectionConfig<Item>().id(SOME_ID)
+        id = SOME_ID,
     ) { ... }
 }
 
-// update
+// Update
 recycler.updateSection(SOME_ID, items)
-// remove
+// Remove
 recycler.removeSection(SOME_ID)
 ```
 
 ### Layout
 
-layout id and ViewBinding/DataBinding are supported:
-
 ```kotlin
-items(data = news, layout = R.layout.item_news) { ... }
+// xml layout id
+items(items = news, layout = R.layout.item_news) { ... }
 
-items(data = news, layout = ItemNewsBinding::inflate) { binding, item -> ... }
-```
+// ViewBinding, DataBinding
+items(items = news, layout = ItemNewsBinding::inflate) { binding, item -> ... }
 
-Instantiate an item view in the bind scope is also supported:
-
-```kotlin
-items(data = news) { parent ->
+// Instantiate views
+items(items = news) { parent ->
     val itemView = NewsItemView(context)
     ...
-    return@items itemView
+    itemView
 }
 ```
 
@@ -108,7 +107,7 @@ items(data = news) { parent ->
 For ViewBinding item/items:
 
 ```kotlin
-items(data = news, layout = ItemNewsBinding::inflate) { binding, item ->
+items(items = news, layout = ItemNewsBinding::inflate) { binding, item ->
     binding.title.text = item.title
     binding.image.load(item.cover)
     ...
@@ -118,7 +117,7 @@ items(data = news, layout = ItemNewsBinding::inflate) { binding, item ->
 For DataBinding item/items:
 
 ```kotlin
-items(data = news, layout = ItemNewsDataBinding::inflate) { binding, item ->
+items(items = news, layout = ItemNewsDataBinding::inflate) { binding, item ->
     binding.news = item
 }
 ```
@@ -126,7 +125,7 @@ items(data = news, layout = ItemNewsDataBinding::inflate) { binding, item ->
 For layoutId item/items:
 
 ```kotlin
-items(data = news, layout = R.layout.item_news) { view ->
+items(items = news, layout = R.layout.item_news) { view ->
     ...
     val tv: TextView = view.findViewById(R.id.title)
     bind { item ->
@@ -138,28 +137,28 @@ items(data = news, layout = R.layout.item_news) { view ->
 For view instantiation item/items:
 
 ```kotlin
-items(data = news) { parent ->
+items(items = news) { parent ->
     val itemView = CustomNewsItemView(context)
     bind { item ->
         itemView.title(item.title)
         ...
     }
-    return@items itemView
+    itemView
 }
 ```
 
 ### Generics
 
-All the `item`, `items`, and `template` are generic functions:
-
 ```kotlin
-items<I>(data = news, layout = layoutId) { ... }
-items<V, I>(data = news, layout = ItemViewBinding::inflate) { ... }
-items<I>(data = news) { ... }
+items<I>(items = news, layout = layoutId) { ... }
+items<V, I>(items = news, layout = ItemViewBinding::inflate) { ... }
+items<I>(items = news) { ... }
 ```
 
 * `I` for item type
 * `V` for the View Binding
+
+In most cases, the compiler is smart enough so type parameter(s) can be omitted.
 
 ### LayoutManager
 
@@ -174,59 +173,20 @@ lazyRecycler(
 recyclerView.layoutManager = YourOwnLayoutManager(...)
 ```
 
-`spanSize()` is used to define `SpanSizeLookup` for GridLayoutManager:
+`spans` is used to define `SpanSizeLookup` for GridLayoutManager:
 
 ```kotlin
 items(
     ...,
-    config = SectionConfig<Item>()
-        .spanSize { position ->
-           if (position == 0) 3 else 1
-        }
+    spans = { position -> 
+        if (position == 0) 3 else 1 
+    },
 ) {
     ...
 }
 ```
 
-### DiffUtil
 
-Use `differ` function, then LazyRecycler will do the all works after section items were changed. 
-
-``` kotlin
-items(
-    ...,
-    config = SectionConfig<Item>()
-        .differ {
-            areItemsTheSame { oldItem, newItem ->
-                ...
-            }
-            areContentsTheSame { oldItem, newItem ->
-                ...
-            }
-        }
-) {
-    ...
-}
-```
-
-### Clicks
-
-`clicks` for the OnItemClickListener, `longClicks` for the OnItemLongClickListener.
-
-```kotlin
-items(
-    ...,
-    config = SectionConfig<Item>()
-        .clicks { view, item ->
-         ...
-        }
-        .longClicks { view, item ->
-         ...
-        }
-){
-    ...
-}
-```
 
 # Reactive data sources
 
@@ -279,16 +239,16 @@ items(data = source.toMutableValue(), ...) { ... }
 LazyRecycler will observe the data sources automatically after attaching to the RecyclerView, so it's no necessary to call it manually. But there is a function call if really needed:
 
 ```kotlin
-// After stopObserving() have been called
 recycler.observeChanges()
 ```
 
 When using a RxJava data source or a Flow data source which was not created by the `lifecycleScope`, should stop observing data sources manually to prevent leaks:
 
 ```kotlin
-// onDestroy(), etc.
 recycler.stopObserving()
 ```
+
+
 
 # Advanced
 
@@ -298,43 +258,43 @@ Use `template()`  to reuse bindings:
 
 ```kotlin
 lazyRecycler {
-    // layout id definition
+    // layout id template
     val sectionHeader = template<String>(R.layout.section_header) {
-        // bind item
+        // Bind item
+        bind { ... }
     }
-    // ViewBinding definition
-    val normalItem = template<ItemViewBinding, Item> { binding, item ->
-        // bind item
+    // ViewBinding template
+    val normalItem = template<Item>(ItemFriendBubbleBinding::inflate) { binding, item ->
+        // Bind item
     }
     
-    item(data = "section 1", template = sectionHeader)
-    items(data = someItems, template = normalItem)
+    item(item = "section 1", template = sectionHeader)
+    items(items = someItems, template = normalItem)
     
-    item(data = "section 2", template = sectionHeader)
-    items(data = otherItems, template = normalItem)
+    item(item = "section 2", template = sectionHeader)
+    items(items = otherItems, template = normalItem)
     ...
 }
 ```
 
 ### Single items with multiple view types
 
-`template()` + `viewType()`: Multiple view types for single data source is supported:
+Use `template()` + `extraViewTypes`: 
 
 ```kotlin
 lazyRecycler {
     val friendBubble = template<Message>(ItemFriendBubbleBinding::inflate) { binding, msg ->
-        // bind alternative items
+        // Bind alternative items
     }
     
     items(
-        data = messages,
+        items = messages,
         layout = ItemOwnerBubbleBinding::inflate,
-        config = SectionConfig<Message>()
-            .viewType(bubbleFromMe) { msg, position ->
-                // predicate
-            }
+        extraViewTypes = listOf(
+            ViewType(friendBubble) { position, item -> /* predicate */ },
+        ),
     { binding, msg ->
-        // bind default items
+        // Bind default items
     }
     ...
 }
@@ -370,6 +330,7 @@ backgroundThread {
 ```
 
 
+
 # Demos
 
 ### 1. Multiple sections
@@ -390,11 +351,15 @@ backgroundThread {
 | :-----------------------------: | :-----------------------------------: |
 |               Day               |                 Night                 |
 
+
+
 # Links
 
 * [Jetpack Compose](https://developer.android.com/jetpack/compose)
 * [LazyColumn](https://developer.android.com/reference/kotlin/androidx/compose/foundation/lazy/package-summary#lazycolumn)
 * [square/cycler](https://github.com/square/cycler)
+
+
 
 # License
 

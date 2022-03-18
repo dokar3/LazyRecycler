@@ -4,13 +4,11 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
-import com.dokar.lazyrecycler.SectionConfig
-import com.dokar.lazyrecycler.differ
+import com.dokar.lazyrecycler.ViewType
 import com.dokar.lazyrecycler.flow.toMutableValue
 import com.dokar.lazyrecycler.items
 import com.dokar.lazyrecycler.lazyRecycler
 import com.dokar.lazyrecycler.template
-import com.dokar.lazyrecycler.viewType
 import com.dokar.lazyrecyclersample.ChatItem
 import com.dokar.lazyrecyclersample.Constants.CHAT_MESSAGES
 import com.dokar.lazyrecyclersample.Message
@@ -79,31 +77,28 @@ class ChatActivity : AppCompatActivity() {
             items(
                 data = messages.toMutableValue(lifecycleScope),
                 template = fromFriend,
-                config = SectionConfig<ChatItem>()
-                    .viewType(fromMe) { item, _ ->
-                        item is Message && item.senderId == 0
-                    }
-                    .viewType(sentDate) { item, _ ->
-                        item is SentDate
-                    }
-                    .differ {
-                        areItemsTheSame { oldItem, newItem ->
-                            if (oldItem::class != newItem::class) {
-                                false
-                            } else {
-                                oldItem.id == newItem.id
-                            }
-                        }
-                        areContentsTheSame { oldItem, newItem ->
-                            if (oldItem is Message && newItem is Message) {
-                                oldItem.content == newItem.content
-                            } else if (oldItem is SentDate && newItem is SentDate) {
-                                oldItem.dateText == newItem.dateText
-                            } else {
-                                false
-                            }
+                differ = {
+                    areItemsTheSame { oldItem, newItem ->
+                        if (oldItem::class != newItem::class) {
+                            false
+                        } else {
+                            oldItem.id == newItem.id
                         }
                     }
+                    areContentsTheSame { oldItem, newItem ->
+                        if (oldItem is Message && newItem is Message) {
+                            oldItem.content == newItem.content
+                        } else if (oldItem is SentDate && newItem is SentDate) {
+                            oldItem.dateText == newItem.dateText
+                        } else {
+                            false
+                        }
+                    }
+                },
+                extraViewTypes = listOf(
+                    ViewType(fromMe) { _, item -> item is Message && item.senderId == 0 },
+                    ViewType(sentDate) { _, item -> item is SentDate },
+                ),
             )
         }
     }
