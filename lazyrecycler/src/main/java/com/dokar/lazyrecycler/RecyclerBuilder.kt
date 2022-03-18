@@ -35,7 +35,7 @@ class RecyclerBuilder {
         clicks: ((itemView: View, item: I) -> Unit)? = null,
         longClicks: ((itemView: View, item: I) -> Boolean)? = null,
         differ: (Differ<I>.() -> Unit)? = null,
-        spans: ((position: Int) -> Int)? = null,
+        span: ((position: Int) -> Int)? = null,
         extraViewTypes: List<ViewType<I>>? = null,
         bind: BindViewScope<I>.(root: View) -> Unit
     ) {
@@ -50,7 +50,7 @@ class RecyclerBuilder {
             clicks = clicks,
             longClicks = longClicks,
             differ = if (differ != null) Differ<I>().also(differ) else null,
-            spans = spans,
+            span = span,
             extraViewTypes = extraViewTypes,
         )
         addSection(section)
@@ -64,7 +64,7 @@ class RecyclerBuilder {
         clicks: ((itemView: View, item: I) -> Unit)? = null,
         longClicks: ((itemView: View, item: I) -> Boolean)? = null,
         differ: (Differ<I>.() -> Unit)? = null,
-        spans: ((position: Int) -> Int)? = null,
+        span: ((position: Int) -> Int)? = null,
         bind: ((binding: V, item: I) -> Unit)?,
         extraViewTypes: List<ViewType<I>>? = null,
         indexedBind: ((index: Int, binding: V, item: I) -> Unit)?
@@ -80,7 +80,7 @@ class RecyclerBuilder {
             clicks = clicks,
             longClicks = longClicks,
             differ = if (differ != null) Differ<I>().also(differ) else null,
-            spans = spans,
+            span = span,
             extraViewTypes = extraViewTypes,
         )
         addSection(section)
@@ -93,7 +93,7 @@ class RecyclerBuilder {
         clicks: ((itemView: View, item: I) -> Unit)? = null,
         longClicks: ((itemView: View, item: I) -> Boolean)? = null,
         differ: (Differ<I>.() -> Unit)? = null,
-        spans: ((position: Int) -> Int)? = null,
+        span: ((position: Int) -> Int)? = null,
         extraViewTypes: List<ViewType<I>>? = null,
         bind: BindViewScope<I>.(parent: ViewGroup) -> View
     ) {
@@ -108,7 +108,7 @@ class RecyclerBuilder {
             clicks = clicks,
             longClicks = longClicks,
             differ = if (differ != null) Differ<I>().also(differ) else null,
-            spans = spans,
+            span = span,
             extraViewTypes = extraViewTypes,
         )
         addSection(section)
@@ -122,7 +122,7 @@ class RecyclerBuilder {
         clicks: ((itemView: View, item: I) -> Unit)? = null,
         longClicks: ((itemView: View, item: I) -> Boolean)? = null,
         differ: (Differ<I>.() -> Unit)? = null,
-        spans: ((position: Int) -> Int)? = null,
+        span: ((position: Int) -> Int)? = null,
         extraViewTypes: List<ViewType<I>>? = null,
     ) {
         val section = Section(
@@ -134,7 +134,7 @@ class RecyclerBuilder {
             clicks = clicks,
             longClicks = longClicks,
             differ = if (differ != null) Differ<I>().also(differ) else null,
-            spans = spans,
+            span = span,
             extraViewTypes = extraViewTypes,
         )
         addSection(section)

@@ -20,7 +20,7 @@ fun <V : ViewBinding> RecyclerBuilder.item(
     id: Int = 0,
     clicks: ((itemView: View) -> Unit)? = null,
     longClicks: ((itemView: View) -> Boolean)? = null,
-    spans: Int = 0,
+    span: Int = 0,
     bind: (binding: V) -> Unit
 ) {
     viewBindingItems(
@@ -41,7 +41,7 @@ fun <V : ViewBinding> RecyclerBuilder.item(
             areItemsTheSame { oldItem, newItem -> oldItem == newItem }
             areContentsTheSame { oldItem, newItem -> oldItem == newItem }
         },
-        spans = if (spans != 0) ({ spans }) else null,
+        span = if (span != 0) ({ span }) else null,
         bind = { binding, _ -> bind(binding) },
         indexedBind = null,
     )
@@ -68,7 +68,7 @@ fun <V : ViewBinding, I> RecyclerBuilder.item(
     clicks: ((itemView: View, item: I) -> Unit)? = null,
     longClicks: ((itemView: View, item: I) -> Boolean)? = null,
     differ: (Differ<I>.() -> Unit)? = null,
-    spans: Int = 0,
+    span: Int = 0,
     bind: (binding: V, item: I) -> Unit
 ) {
     viewBindingItems(
@@ -79,7 +79,7 @@ fun <V : ViewBinding, I> RecyclerBuilder.item(
         clicks = clicks,
         longClicks = longClicks,
         differ = differ,
-        spans = if (spans != 0) ({ spans }) else null,
+        span = if (span != 0) ({ span }) else null,
         bind = bind,
         indexedBind = null,
     )
@@ -105,7 +105,7 @@ fun <V : ViewBinding, I> RecyclerBuilder.items(
     clicks: ((itemView: View, item: I) -> Unit)? = null,
     longClicks: ((itemView: View, item: I) -> Boolean)? = null,
     differ: (Differ<I>.() -> Unit)? = null,
-    spans: ((position: Int) -> Int)? = null,
+    span: ((position: Int) -> Int)? = null,
     extraViewTypes: List<ViewType<I>>? = null,
     bind: (binding: V, item: I) -> Unit
 ) {
@@ -116,7 +116,7 @@ fun <V : ViewBinding, I> RecyclerBuilder.items(
         clicks = clicks,
         longClicks = longClicks,
         differ = differ,
-        spans = spans,
+        span = span,
         extraViewTypes = extraViewTypes,
         bind = bind,
         indexedBind = null,
@@ -144,7 +144,7 @@ fun <V : ViewBinding, I> RecyclerBuilder.items(
     clicks: ((itemView: View, item: I) -> Unit)? = null,
     longClicks: ((itemView: View, item: I) -> Boolean)? = null,
     differ: (Differ<I>.() -> Unit)? = null,
-    spans: ((position: Int) -> Int)? = null,
+    span: ((position: Int) -> Int)? = null,
     extraViewTypes: List<ViewType<I>>? = null,
     bind: (binding: V, item: I) -> Unit
 ) {
@@ -156,7 +156,7 @@ fun <V : ViewBinding, I> RecyclerBuilder.items(
         clicks = clicks,
         longClicks = longClicks,
         differ = differ,
-        spans = spans,
+        span = span,
         extraViewTypes = extraViewTypes,
         bind = bind,
         indexedBind = null,
@@ -183,7 +183,7 @@ fun <V : ViewBinding, I> RecyclerBuilder.itemsIndexed(
     clicks: ((itemView: View, item: I) -> Unit)? = null,
     longClicks: ((itemView: View, item: I) -> Boolean)? = null,
     differ: (Differ<I>.() -> Unit)? = null,
-    spans: ((position: Int) -> Int)? = null,
+    span: ((position: Int) -> Int)? = null,
     extraViewTypes: List<ViewType<I>>? = null,
     bind: (index: Int, binding: V, item: I) -> Unit
 ) {
@@ -194,7 +194,7 @@ fun <V : ViewBinding, I> RecyclerBuilder.itemsIndexed(
         clicks = clicks,
         longClicks = longClicks,
         differ = differ,
-        spans = spans,
+        span = span,
         extraViewTypes = extraViewTypes,
         bind = null,
         indexedBind = bind,
@@ -222,7 +222,7 @@ fun <V : ViewBinding, I> RecyclerBuilder.itemsIndexed(
     clicks: ((itemView: View, item: I) -> Unit)? = null,
     longClicks: ((itemView: View, item: I) -> Boolean)? = null,
     differ: (Differ<I>.() -> Unit)? = null,
-    spans: ((position: Int) -> Int)? = null,
+    span: ((position: Int) -> Int)? = null,
     extraViewTypes: List<ViewType<I>>? = null,
     bind: (index: Int, binding: V, item: I) -> Unit
 ) {
@@ -234,7 +234,7 @@ fun <V : ViewBinding, I> RecyclerBuilder.itemsIndexed(
         clicks = clicks,
         longClicks = longClicks,
         differ = differ,
-        spans = spans,
+        span = span,
         extraViewTypes = extraViewTypes,
         bind = null,
         indexedBind = bind,

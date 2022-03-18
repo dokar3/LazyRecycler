@@ -38,7 +38,7 @@ lazyRecycler(recyclerView, spanCount = 3) {
                 oldItem.title == newItem.title && ...
             }
         },
-        spans = { position ->
+        span = { position ->
             if (position % 3 == 0) 3 else 1
         },
     ) { binding, news ->
@@ -173,12 +173,12 @@ lazyRecycler(
 recyclerView.layoutManager = YourOwnLayoutManager(...)
 ```
 
-`spans` is used to define `SpanSizeLookup` for GridLayoutManager:
+`span` is used to define `SpanSizeLookup` for GridLayoutManager:
 
 ```kotlin
 items(
     ...,
-    spans = { position -> 
+    span = { position ->
         if (position == 0) 3 else 1 
     },
 ) {

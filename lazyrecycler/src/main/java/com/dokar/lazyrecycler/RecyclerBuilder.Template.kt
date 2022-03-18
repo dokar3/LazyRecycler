@@ -39,7 +39,7 @@ fun <I> template(
     clicks: ((itemView: View, item: I) -> Unit)? = null,
     longClicks: ((itemView: View, item: I) -> Boolean)? = null,
     differ: (Differ<I>.() -> Unit)? = null,
-    spans: ((position: Int) -> Int)? = null,
+    span: ((position: Int) -> Int)? = null,
     bind: BindViewScope<I>.(view: View) -> Unit
 ): Template<I> {
     val viewHolderCreator = LayoutIdCreator(layout, bind)
@@ -50,7 +50,7 @@ fun <I> template(
         clicks = clicks,
         longClicks = longClicks,
         differ = if (differ != null) Differ<I>().also(differ) else null,
-        spans = spans,
+        span = span,
     )
 }
 
@@ -76,7 +76,7 @@ fun <I> template(
     clicks: ((itemView: View, item: I) -> Unit)? = null,
     longClicks: ((itemView: View, item: I) -> Boolean)? = null,
     differ: (Differ<I>.() -> Unit)? = null,
-    spans: ((position: Int) -> Int)? = null,
+    span: ((position: Int) -> Int)? = null,
     bind: BindViewScope<I>.(parent: ViewGroup) -> View
 ): Template<I> {
     val viewHolderCreator = ViewInstantiationCreator(bind)
@@ -87,7 +87,7 @@ fun <I> template(
         clicks = clicks,
         longClicks = longClicks,
         differ = if (differ != null) Differ<I>().also(differ) else null,
-        spans = spans,
+        span = span,
     )
 }
 
@@ -112,7 +112,7 @@ fun <V : ViewBinding, I> template(
     clicks: ((itemView: View, item: I) -> Unit)? = null,
     longClicks: ((itemView: View, item: I) -> Boolean)? = null,
     differ: (Differ<I>.() -> Unit)? = null,
-    spans: ((position: Int) -> Int)? = null,
+    span: ((position: Int) -> Int)? = null,
     bind: (binding: V, item: I) -> Unit
 ): Template<I> {
     val viewHolderCreator = ViewBindingCreator(layout)
@@ -123,7 +123,7 @@ fun <V : ViewBinding, I> template(
         clicks = clicks,
         longClicks = longClicks,
         differ = if (differ != null) Differ<I>().also(differ) else null,
-        spans = spans,
+        span = span,
     )
 }
 
@@ -150,7 +150,7 @@ fun <V : ViewBinding, I> template(
     clicks: ((itemView: View, item: I) -> Unit)? = null,
     longClicks: ((itemView: View, item: I) -> Boolean)? = null,
     differ: (Differ<I>.() -> Unit)? = null,
-    spans: ((position: Int) -> Int)? = null,
+    span: ((position: Int) -> Int)? = null,
     bind: (index: Int, binding: V, item: I) -> Unit
 ): Template<I> {
     val viewHolderCreator = ViewBindingCreator(layout)
@@ -161,7 +161,7 @@ fun <V : ViewBinding, I> template(
         clicks = clicks,
         longClicks = longClicks,
         differ = if (differ != null) Differ<I>().also(differ) else null,
-        spans = spans,
+        span = span,
     )
 }
 
@@ -179,7 +179,7 @@ fun RecyclerBuilder.item(
     id: Int = 0,
     clicks: ((itemView: View) -> Unit)? = null,
     longClicks: ((itemView: View) -> Boolean)? = null,
-    spans: Int = 0,
+    span: Int = 0,
 ) {
     templateItems(
         items = listOf(Any()),
@@ -199,7 +199,7 @@ fun RecyclerBuilder.item(
             areItemsTheSame { oldItem, newItem -> oldItem == newItem }
             areContentsTheSame { oldItem, newItem -> oldItem == newItem }
         },
-        spans = if (spans != 0) ({ spans }) else null,
+        span = if (span != 0) ({ span }) else null,
     )
 }
 
@@ -222,7 +222,7 @@ fun <I> RecyclerBuilder.item(
     clicks: ((itemView: View, item: I) -> Unit)? = null,
     longClicks: ((itemView: View, item: I) -> Boolean)? = null,
     differ: (Differ<I>.() -> Unit)? = null,
-    spans: Int = 0,
+    span: Int = 0,
 ) {
     templateItems(
         items = listOf(item),
@@ -231,7 +231,7 @@ fun <I> RecyclerBuilder.item(
         clicks = clicks,
         longClicks = longClicks,
         differ = differ,
-        spans = if (spans != 0) ({ spans }) else null,
+        span = if (span != 0) ({ span }) else null,
     )
 }
 
@@ -255,7 +255,7 @@ fun <I> RecyclerBuilder.item(
     clicks: ((itemView: View, item: I) -> Unit)? = null,
     longClicks: ((itemView: View, item: I) -> Boolean)? = null,
     differ: (Differ<I>.() -> Unit)? = null,
-    spans: Int = 0,
+    span: Int = 0,
 ) {
     templateItems(
         items = data.current?.let { listOf(it) } ?: emptyList(),
@@ -265,7 +265,7 @@ fun <I> RecyclerBuilder.item(
         clicks = clicks,
         longClicks = longClicks,
         differ = differ,
-        spans = if (spans != 0) ({ spans }) else null,
+        span = if (span != 0) ({ span }) else null,
     )
 }
 
@@ -288,7 +288,7 @@ fun <I> RecyclerBuilder.items(
     clicks: ((itemView: View, item: I) -> Unit)? = null,
     longClicks: ((itemView: View, item: I) -> Boolean)? = null,
     differ: (Differ<I>.() -> Unit)? = null,
-    spans: ((position: Int) -> Int)? = null,
+    span: ((position: Int) -> Int)? = null,
     extraViewTypes: List<ViewType<I>>? = null,
 ) {
     templateItems(
@@ -298,7 +298,7 @@ fun <I> RecyclerBuilder.items(
         clicks = clicks,
         longClicks = longClicks,
         differ = differ,
-        spans = spans,
+        span = span,
         extraViewTypes = extraViewTypes,
     )
 }
@@ -323,7 +323,7 @@ fun <I> RecyclerBuilder.items(
     clicks: ((itemView: View, item: I) -> Unit)? = null,
     longClicks: ((itemView: View, item: I) -> Boolean)? = null,
     differ: (Differ<I>.() -> Unit)? = null,
-    spans: ((position: Int) -> Int)? = null,
+    span: ((position: Int) -> Int)? = null,
     extraViewTypes: List<ViewType<I>>? = null,
 ) {
     templateItems(
@@ -334,7 +334,7 @@ fun <I> RecyclerBuilder.items(
         clicks = clicks,
         longClicks = longClicks,
         differ = differ,
-        spans = spans,
+        span = span,
         extraViewTypes = extraViewTypes,
     )
 }

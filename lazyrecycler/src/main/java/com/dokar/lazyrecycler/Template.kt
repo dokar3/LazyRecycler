@@ -11,7 +11,7 @@ class Template<I>(
     clicks: ((View, I) -> Unit)? = null,
     longClicks: ((View, I) -> Boolean)? = null,
     differ: Differ<I>? = null,
-    spans: ((Int) -> Int)? = null,
+    span: ((Int) -> Int)? = null,
 ) : Section<Any, I>(
     id = -1,
     viewHolderCreator = viewHolderCreator as ViewHolderCreator<Any>,
@@ -20,5 +20,5 @@ class Template<I>(
     clicks = clicks,
     longClicks = longClicks,
     differ = differ,
-    spans = spans,
+    span = span,
 )

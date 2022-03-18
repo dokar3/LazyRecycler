@@ -58,7 +58,7 @@ class GalleryActivity : AppCompatActivity() {
         lazyRecycler(rv, spanCount = 6) {
             item(
                 layout = ItemGalleryHeaderBinding::inflate,
-                spans = 6,
+                span = 6,
             ) { binding ->
                 binding.title.text = "Vincent Gallery"
             }
@@ -66,7 +66,7 @@ class GalleryActivity : AppCompatActivity() {
             items(
                 items = OPTIONS,
                 layout = ItemOptionBinding::inflate,
-                spans = { 2 },
+                span = { 2 },
                 clicks = { _, item -> onOptionItemClicked(item) },
             ) { binding, opt ->
                 binding.title.text = opt.text
@@ -77,7 +77,7 @@ class GalleryActivity : AppCompatActivity() {
                 template = paintingTemplate,
                 id = ID_PAINTINGS,
                 clicks = { _, item -> openUrl(item.url) },
-                spans = { position -> if (position % 3 == 0) 6 else 3 },
+                span = { position -> if (position % 3 == 0) 6 else 3 },
                 differ = {
                     areItemsTheSame { oldItem, newItem ->
                         oldItem.id == newItem.id
@@ -112,12 +112,12 @@ class GalleryActivity : AppCompatActivity() {
             item(
                 item = "Dynamic section",
                 template = titleTemplate,
-                spans = 6,
+                span = 6,
             )
             items(
                 items = newItems,
                 template = paintingTemplate,
-                spans = { 6 },
+                span = { 6 },
             )
         }
     }

@@ -72,7 +72,7 @@ class TetrisActivity : AppCompatActivity() {
             item(
                 data = score.toMutableValue(lifecycleScope),
                 layout = ItemTetrisScoreBinding::inflate,
-                spans = cols,
+                span = cols,
             ) { binding, score ->
                 binding.tvScore.text = String.format("%03d", score[0])
                 binding.tvHighestScore.text = score[1].toString()
@@ -85,7 +85,7 @@ class TetrisActivity : AppCompatActivity() {
                     areItemsTheSame { _, _ -> true }
                     areContentsTheSame { oldItem, newItem -> oldItem == newItem }
                 },
-                spans = { 1 },
+                span = { 1 },
             ) { binding, fillBlock ->
                 val color = if (fillBlock) fillColor else blockColor
                 binding.block.setBackgroundColor(color)

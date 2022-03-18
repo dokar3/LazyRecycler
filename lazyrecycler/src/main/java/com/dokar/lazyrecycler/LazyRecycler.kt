@@ -255,7 +255,7 @@ class LazyRecycler(
                 override fun getSpanSize(position: Int): Int {
                     val sectionIdx = adapter.getSectionIndex(position)
                     val section = sections[sectionIdx]
-                    val spanSizeLookup = section.spans ?: return 1
+                    val spanSizeLookup = section.span ?: return 1
                     val offset = adapter.getSectionPositionOffset(section)
                     return spanSizeLookup(position - offset)
                 }

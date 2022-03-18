@@ -24,7 +24,7 @@ fun RecyclerBuilder.item(
     id: Int = 0,
     clicks: ((itemView: View) -> Unit)? = null,
     longClicks: ((itemView: View) -> Boolean)? = null,
-    spans: Int = 0,
+    span: Int = 0,
     bind: BindViewScope<Any>.(parent: ViewGroup) -> View
 ) {
     viewInstantiationItems(
@@ -44,7 +44,7 @@ fun RecyclerBuilder.item(
             areItemsTheSame { oldItem, newItem -> oldItem == newItem }
             areContentsTheSame { oldItem, newItem -> oldItem == newItem }
         },
-        spans = if (spans != 0) ({ spans }) else null,
+        span = if (span != 0) ({ span }) else null,
         bind = bind,
     )
 }
@@ -71,7 +71,7 @@ fun <I> RecyclerBuilder.item(
     clicks: ((itemView: View, item: I) -> Unit)? = null,
     longClicks: ((itemView: View, item: I) -> Boolean)? = null,
     differ: (Differ<I>.() -> Unit)? = null,
-    spans: Int = 0,
+    span: Int = 0,
     bind: BindViewScope<I>.(parent: ViewGroup) -> View
 ) {
     viewInstantiationItems(
@@ -81,7 +81,7 @@ fun <I> RecyclerBuilder.item(
         clicks = clicks,
         longClicks = longClicks,
         differ = differ,
-        spans = if (spans != 0) ({ spans }) else null,
+        span = if (span != 0) ({ span }) else null,
         bind = bind,
     )
 }
@@ -109,7 +109,7 @@ fun <I> RecyclerBuilder.items(
     clicks: ((itemView: View, item: I) -> Unit)? = null,
     longClicks: ((itemView: View, item: I) -> Boolean)? = null,
     differ: (Differ<I>.() -> Unit)? = null,
-    spans: ((position: Int) -> Int)? = null,
+    span: ((position: Int) -> Int)? = null,
     bind: BindViewScope<I>.(parent: ViewGroup) -> View
 ) {
     viewInstantiationItems(
@@ -118,7 +118,7 @@ fun <I> RecyclerBuilder.items(
         clicks = clicks,
         longClicks = longClicks,
         differ = differ,
-        spans = spans,
+        span = span,
         bind = bind,
     )
 }
@@ -145,7 +145,7 @@ fun <I> RecyclerBuilder.items(
     clicks: ((itemView: View, item: I) -> Unit)? = null,
     longClicks: ((itemView: View, item: I) -> Boolean)? = null,
     differ: (Differ<I>.() -> Unit)? = null,
-    spans: ((position: Int) -> Int)? = null,
+    span: ((position: Int) -> Int)? = null,
     bind: BindViewScope<I>.(parent: ViewGroup) -> View
 ) {
     viewInstantiationItems(
@@ -155,7 +155,7 @@ fun <I> RecyclerBuilder.items(
         clicks = clicks,
         longClicks = longClicks,
         differ = differ,
-        spans = spans,
+        span = span,
         bind = bind,
     )
 }

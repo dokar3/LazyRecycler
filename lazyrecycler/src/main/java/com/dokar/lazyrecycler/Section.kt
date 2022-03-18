@@ -22,7 +22,7 @@ open class Section<V, I>(
     val clicks: ((View, I) -> Unit)? = null,
     val longClicks: ((View, I) -> Boolean)? = null,
     val differ: Differ<I>? = null,
-    val spans: ((Int) -> Int)? = null,
+    val span: ((Int) -> Int)? = null,
     val extraViewTypes: List<ViewType<I>>? = null
 ) {
     val defaultViewType: Int = Utils.newViewType()
