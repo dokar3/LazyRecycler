@@ -1,13 +1,12 @@
 package com.dokar.lazyrecycler.viewbinder
 
-class ItemViewBinder<I> : ItemBinder<BindViewScope<I>, I> {
-    override fun bind(view: BindViewScope<I>, item: I, position: Int) {
-        // TODO: Handle this in better way
-        view as BindViewScopeImpl
-        val bind = view.bind
-        val bindIndexed = view.indexedBind
+internal class ItemViewBinder<I> : ItemBinder<SimpleBindable<I>, I> {
+    override fun bind(bindable: SimpleBindable<I>, item: I, position: Int) {
+        val bind = bindable.bind
         if (bind != null) {
             bind.invoke(item)
-        } else bindIndexed?.invoke(position, item)
+        } else {
+            bindable.indexedBind?.invoke(position, item)
+        }
     }
 }

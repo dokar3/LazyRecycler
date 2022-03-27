@@ -5,29 +5,28 @@ import android.view.View
 import android.view.ViewGroup
 import com.dokar.lazyrecycler.LazyViewHolder
 import com.dokar.lazyrecycler.viewbinder.BindViewScope
-import com.dokar.lazyrecycler.viewbinder.BindViewScopeImpl
+import com.dokar.lazyrecycler.viewbinder.SimpleBindable
 import com.dokar.lazyrecycler.viewbinder.ItemBinder
 import com.dokar.lazyrecycler.viewbinder.ItemProvider
 
-class LayoutIdCreator<I>(
+internal class LayoutIdCreator<I>(
     private val layoutId: Int,
     private val bind: BindViewScope<I>.(view: View) -> Unit
-) : ViewHolderCreator<BindViewScope<I>> {
+) : ViewHolderCreator<SimpleBindable<I>> {
     override fun create(
         parent: ViewGroup,
-        binder: ItemBinder<BindViewScope<I>, Any>,
+        binder: ItemBinder<SimpleBindable<I>, Any>,
         itemProvider: ItemProvider
-    ): LazyViewHolder<BindViewScope<I>> {
+    ): LazyViewHolder<SimpleBindable<I>> {
         val inflater = LayoutInflater.from(parent.context)
         val view = inflater.inflate(layoutId, parent, false)
 
-        val bindScope = BindViewScopeImpl<I>()
-        bindScope.itemProvider = itemProvider
+        val bindable = SimpleBindable<I>(itemProvider)
 
-        bind(bindScope, view)
+        bind(bindable, view)
 
-        return LazyViewHolder(view, bindScope, binder).also {
-            bindScope.viewHolder = it
+        return LazyViewHolder(view, bindable, binder).also {
+            bindable.viewHolder = it
         }
     }
 }

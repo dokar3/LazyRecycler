@@ -1,5 +1,5 @@
 package com.dokar.lazyrecycler.viewbinder
 
 interface ItemBinder<V, I> {
-    fun bind(view: V, item: I, position: Int)
+    fun bind(bindable: V, item: I, position: Int)
 }
