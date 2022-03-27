@@ -17,18 +17,18 @@ import com.dokar.lazyrecyclersample.databinding.ActivityTetrisBinding
 import com.dokar.lazyrecyclersample.databinding.ItemTetrisBlockBinding
 import com.dokar.lazyrecyclersample.databinding.ItemTetrisScoreBinding
 import com.dokar.lazyrecyclersample.tetris.control.SwipeGameController
+import kotlin.math.max
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlin.math.max
 
 class TetrisActivity : AppCompatActivity() {
     private val cols = 10
     private val rows = 20
 
     private val score = MutableStateFlow(intArrayOf(0, 0))
-    private val matrix = MutableStateFlow(List(rows * cols) { false })
+    private val matrix = MutableStateFlow(List(rows * cols) { ' ' })
 
     private var blockColor: Int = 0
     private var fillColor: Int = 0
@@ -46,9 +46,8 @@ class TetrisActivity : AppCompatActivity() {
         blockColor = ContextCompat.getColor(this, R.color.tetris_block)
         fillColor = ContextCompat.getColor(this, R.color.tetris_block_active)
 
-        lifecycleScope.launch(Dispatchers.Default) {
+        lifecycleScope.launch {
             createCanvas()
-
             initGame()
         }
     }
@@ -86,12 +85,12 @@ class TetrisActivity : AppCompatActivity() {
                     areContentsTheSame { oldItem, newItem -> oldItem == newItem }
                 },
                 span = { 1 },
-            ) { binding, fillBlock ->
-                val color = if (fillBlock) fillColor else blockColor
+            ) { binding, block ->
+                val color = if (block == ' ') blockColor else fillColor
                 binding.block.setBackgroundColor(color)
             }
         }.let { recycler ->
-            withContext(Dispatchers.Main.immediate) {
+            withContext(Dispatchers.Main) {
                 val rv = binding.rvTetris
                 recycler.attachTo(rv)
                 rv.overScrollMode = View.OVER_SCROLL_NEVER
@@ -107,7 +106,7 @@ class TetrisActivity : AppCompatActivity() {
     }
 
     @SuppressLint("ClickableViewAccessibility")
-    private suspend fun initGame() {
+    private suspend fun initGame() = withContext(Dispatchers.Default) {
         tetrisGame = TetrisGame(cols, rows, lifecycleScope)
         tetrisGame.doOnTick { m ->
             matrix.value = m.toList()
@@ -119,7 +118,7 @@ class TetrisActivity : AppCompatActivity() {
             if (tetrisGame.getScore() > score.value[1]) {
                 updateHighestScore(tetrisGame.getScore())
             }
-            AlertDialog.Builder(this)
+            AlertDialog.Builder(this@TetrisActivity)
                 .setTitle("GameOver!")
                 .setPositiveButton("I know") { _, _ ->
                     updateScore(0)

@@ -1,62 +1,38 @@
 package com.dokar.lazyrecyclersample.tetris.shape
 
 abstract class Shape {
-    protected var rotation: Int = 0
+    protected var currentRotation: Int = 0
+        private set
 
-    open fun getShape(): Array<BooleanArray> {
-        val transforms = getTransforms()
-        val count = transforms.size
-        return if (count == 1) {
-            transforms[0]
-        } else if (rotation == 90 && count > 1) {
-            transforms[1]
-        } else if (rotation == 180 && count > 2) {
-            transforms[2]
-        } else if (rotation == 270 && count > 3) {
-            transforms[3]
-        } else {
-            transforms[0]
-        }
+    open fun getShape(): Array<CharArray> {
+        return checkNotNull(transformations[currentRotation])
     }
 
     open fun rotate() {
-        val transforms = getTransforms()
-        val size = transforms.size
-        if (size == 1) {
-            return
-        }
-        rotation = if (rotation == 0 && size > 1) {
-            90
-        } else if (rotation == 90 && size > 2) {
-            180
-        } else if (rotation == 180 && size > 3) {
-            270
-        } else {
-            0
-        }
+        currentRotation = nextRotation()
     }
 
-    open fun tryRotate(): Array<BooleanArray> {
-        val transforms = getTransforms()
-        val count = transforms.size
-        return if (rotation == 0 && count > 1) {
-            transforms[1]
-        } else if (rotation == 90 && count > 2) {
-            transforms[2]
-        } else if (rotation == 180 && count > 3) {
-            transforms[3]
-        } else {
-            transforms[0]
-        }
+    open fun tryRotate(): Array<CharArray> {
+        return checkNotNull(transformations[nextRotation()])
     }
 
-    open fun getRotationXYOffset(): IntArray? {
+    open fun getRotationOffset(): IntArray? {
         return null
     }
 
     open fun reset() {
-        rotation = 0
+        currentRotation = 0
     }
 
-    abstract fun getTransforms(): Array<Array<BooleanArray>>
+    private fun nextRotation(): Int {
+        val size = transformations.size
+        return when {
+            currentRotation == 0 && size > 1 -> 90
+            currentRotation == 90 && size > 2 -> 180
+            currentRotation == 180 && size > 3 -> 270
+            else -> 0
+        }
+    }
+
+    abstract val transformations: Map<Int, Array<CharArray>>
 }

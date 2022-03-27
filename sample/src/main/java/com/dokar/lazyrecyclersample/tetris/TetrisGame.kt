@@ -12,6 +12,9 @@ import com.dokar.lazyrecyclersample.tetris.shape.SkewShape
 import com.dokar.lazyrecyclersample.tetris.shape.SquareShape
 import com.dokar.lazyrecyclersample.tetris.shape.StraightShape
 import com.dokar.lazyrecyclersample.tetris.shape.TShape
+import java.util.Arrays
+import kotlin.math.max
+import kotlin.math.min
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -20,17 +23,14 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.util.Arrays
-import kotlin.math.max
-import kotlin.math.min
 
 class TetrisGame(
     private val cols: Int,
     private val rows: Int,
     private val scope: CoroutineScope
 ) : ControlEventHandler {
-    private val matrix: BooleanArray = BooleanArray(cols * rows) { false }
-    private val activeMatrix: BooleanArray = BooleanArray(cols * rows) { false }
+    private val matrix = CharArray(cols * rows) { ' ' }
+    private val activeMatrix = CharArray(cols * rows) { ' ' }
 
     private lateinit var currShape: Shape
 
@@ -40,7 +40,7 @@ class TetrisGame(
 
     private var score = 0
 
-    private var pauseChannel: Channel<Unit> = Channel(0)
+    private var resumeChannel = Channel<Unit>(0)
 
     private val tickInterval = 500L
     private val initialSpeed = 1.0f
@@ -57,7 +57,7 @@ class TetrisGame(
 
     private var onGameOver: (() -> Unit)? = null
     private var onRemove: ((score: Int) -> Unit)? = null
-    private var onTick: ((matrix: BooleanArray) -> Unit)? = null
+    private var onTick: ((matrix: CharArray) -> Unit)? = null
 
     fun start() {
         if (isRunning) {
@@ -70,7 +70,7 @@ class TetrisGame(
 
     fun finish() {
         isRunning = false
-        pauseChannel.trySend(Unit)
+        resumeChannel.trySend(Unit)
         tickJob?.cancel()
         speedUpFallingJob?.cancel()
     }
@@ -87,10 +87,10 @@ class TetrisGame(
             return
         }
         isPaused = false
-        pauseChannel.trySend(Unit)
+        resumeChannel.trySend(Unit)
     }
 
-    fun doOnTick(onTick: (matrix: BooleanArray) -> Unit) {
+    fun doOnTick(onTick: (matrix: CharArray) -> Unit) {
         this.onTick = onTick
     }
 
@@ -149,8 +149,8 @@ class TetrisGame(
     }
 
     private suspend fun startInternal() = withContext(Dispatchers.Default) {
-        Arrays.fill(activeMatrix, false)
-        Arrays.fill(matrix, false)
+        Arrays.fill(activeMatrix, ' ')
+        Arrays.fill(matrix, ' ')
         withContext(Dispatchers.Main) {
             onTick?.invoke(matrix)
         }
@@ -166,7 +166,7 @@ class TetrisGame(
 
     private suspend fun tick(fall: Boolean) {
         while (isPaused) {
-            pauseChannel.receive()
+            resumeChannel.receive()
         }
 
         if (!isRunning) {
@@ -225,7 +225,7 @@ class TetrisGame(
     }
 
     private fun checkCollision(
-        shape: Array<BooleanArray>,
+        shape: Array<CharArray>,
         checkBottom: Int,
         checkLeft: Int
     ): Boolean {
@@ -241,7 +241,7 @@ class TetrisGame(
         for ((i, row) in (top until checkBottom).withIndex()) {
             if (row < 0) continue
             for ((j, col) in (checkLeft until right).withIndex()) {
-                if (matrix[row * cols + col] && shape[i][j]) {
+                if (matrix[row * cols + col] != ' ' && shape[i][j] != ' ') {
                     return true
                 }
             }
@@ -257,7 +257,7 @@ class TetrisGame(
         while (row >= 0) {
             var canRemove = true
             for (col in (cols - 1) downTo 0) {
-                if (!matrix[row * cols + col]) {
+                if (matrix[row * cols + col] == ' ') {
                     canRemove = false
                     break
                 }
@@ -268,11 +268,11 @@ class TetrisGame(
                     var empty = true
                     for (j in 0 until cols) {
                         matrix[i * cols + j] = if (i == 0) {
-                            false
+                            ' '
                         } else {
                             matrix[(i - 1) * cols + j]
                         }
-                        if (empty && matrix[i * cols + j]) {
+                        if (empty && matrix[i * cols + j] != ' ') {
                             empty = false
                         }
                     }
@@ -300,8 +300,8 @@ class TetrisGame(
         for ((i, row) in (top until shapeBottom).withIndex()) {
             if (row < 0) continue
             for ((j, col) in (shapeLeft until right).withIndex()) {
-                if (shape[i][j]) {
-                    activeMatrix[row * cols + col] = true
+                if (shape[i][j] != ' ') {
+                    activeMatrix[row * cols + col] = '-'
                 }
             }
         }
@@ -323,7 +323,7 @@ class TetrisGame(
     private fun rotateInternal(): Boolean {
         val rotated = currShape.tryRotate()
         val shapeWidth = rotated[0].size
-        val rotationXYOffset = currShape.getRotationXYOffset()
+        val rotationXYOffset = currShape.getRotationOffset()
         val offsetX: Int
         val offsetY: Int
         if (rotationXYOffset != null) {

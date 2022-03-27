@@ -1,30 +1,28 @@
 package com.dokar.lazyrecyclersample.tetris.shape
 
 class LShape : Shape() {
-    override fun getTransforms(): Array<Array<BooleanArray>> {
-        return TRANSFORMS
-    }
+    override val transformations: Map<Int, Array<CharArray>>
+        get() = TRANSFORMATIONS
 
     companion object {
-
-        private val TRANSFORMS = arrayOf(
-            arrayOf(
-                booleanArrayOf(true, false),
-                booleanArrayOf(true, false),
-                booleanArrayOf(true, true),
+        private val TRANSFORMATIONS = mapOf(
+            0 to arrayOf(
+                charArrayOf('-', ' '),
+                charArrayOf('-', ' '),
+                charArrayOf('-', '-'),
             ),
-            arrayOf(
-                booleanArrayOf(true, true, true),
-                booleanArrayOf(true, false, false),
+            90 to arrayOf(
+                charArrayOf('-', '-', '-'),
+                charArrayOf('-', ' ', ' '),
             ),
-            arrayOf(
-                booleanArrayOf(true, true),
-                booleanArrayOf(false, true),
-                booleanArrayOf(false, true),
+            180 to arrayOf(
+                charArrayOf('-', '-'),
+                charArrayOf(' ', '-'),
+                charArrayOf(' ', '-'),
             ),
-            arrayOf(
-                booleanArrayOf(false, false, true),
-                booleanArrayOf(true, true, true),
+            270 to arrayOf(
+                charArrayOf(' ', ' ', '-'),
+                charArrayOf('-', '-', '-'),
             ),
         )
     }

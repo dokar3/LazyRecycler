@@ -1,12 +1,11 @@
 package com.dokar.lazyrecyclersample.tetris.shape
 
 class StraightShape : Shape() {
-    override fun getTransforms(): Array<Array<BooleanArray>> {
-        return TRANSFORMS
-    }
+    override val transformations: Map<Int, Array<CharArray>>
+        get() = TRANSFORMATIONS
 
-    override fun getRotationXYOffset(): IntArray {
-        return if (rotation == 0) {
+    override fun getRotationOffset(): IntArray {
+        return if (currentRotation == 0) {
             intArrayOf(1, 0)
         } else {
             intArrayOf(-1, 0)
@@ -14,17 +13,17 @@ class StraightShape : Shape() {
     }
 
     companion object {
-        private val TRANSFORMS = arrayOf(
-            arrayOf(
-                booleanArrayOf(
-                    true, true, true, true
+        private val TRANSFORMATIONS = mapOf(
+            0 to arrayOf(
+                charArrayOf(
+                    '-', '-', '-', '-'
                 )
             ),
-            arrayOf(
-                booleanArrayOf(true),
-                booleanArrayOf(true),
-                booleanArrayOf(true),
-                booleanArrayOf(true),
+            90 to arrayOf(
+                charArrayOf('-'),
+                charArrayOf('-'),
+                charArrayOf('-'),
+                charArrayOf('-'),
             )
         )
     }

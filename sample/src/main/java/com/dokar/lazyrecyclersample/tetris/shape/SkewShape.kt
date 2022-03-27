@@ -1,21 +1,19 @@
 package com.dokar.lazyrecyclersample.tetris.shape
 
 class SkewShape : Shape() {
-    override fun getTransforms(): Array<Array<BooleanArray>> {
-        return TRANSFORMS
-    }
+    override val transformations: Map<Int, Array<CharArray>>
+        get() = TRANSFORMATIONS
 
     companion object {
-
-        private val TRANSFORMS = arrayOf(
-            arrayOf(
-                booleanArrayOf(false, true, true),
-                booleanArrayOf(true, true, false),
+        private val TRANSFORMATIONS = mapOf(
+            0 to arrayOf(
+                charArrayOf(' ', '-', '-'),
+                charArrayOf('-', '-', ' '),
             ),
-            arrayOf(
-                booleanArrayOf(true, false),
-                booleanArrayOf(true, true),
-                booleanArrayOf(false, true),
+            90 to arrayOf(
+                charArrayOf('-', ' '),
+                charArrayOf('-', '-'),
+                charArrayOf(' ', '-'),
             )
         )
     }
