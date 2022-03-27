@@ -4,7 +4,6 @@ buildscript {
         kotlin_version = '1.6.10'
 
         COMPILE_SDK_VERSION = 31
-        BUILD_TOOLS_VERSION = '30.0.3'
         TARGET_SDK_VERSION = 31
     }
 
