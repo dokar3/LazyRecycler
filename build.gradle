@@ -9,7 +9,7 @@ buildscript {
 
     ext.libs = [
             kotlin_stdlib       : "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version",
-            coroutines          : 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0',
+            coroutines          : 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.1',
 
             recyclerview        : 'androidx.recyclerview:recyclerview:1.2.1',
 
