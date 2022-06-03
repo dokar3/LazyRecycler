@@ -27,7 +27,7 @@ buildscript {
             test_coroutines     : 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.2',
 
             appcompat           : 'androidx.appcompat:appcompat:1.4.2',
-            androidx_core       : 'androidx.core:core-ktx:1.7.0',
+            androidx_core       : 'androidx.core:core-ktx:1.8.0',
             material            : 'com.google.android.material:material:1.6.1',
             constraint_layout   : 'androidx.constraintlayout:constraintlayout:2.1.4',
 
