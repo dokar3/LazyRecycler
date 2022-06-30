@@ -14,7 +14,7 @@ buildscript {
             recyclerview        : 'androidx.recyclerview:recyclerview:1.2.1',
 
             lifecycle_runtime   : 'androidx.lifecycle:lifecycle-runtime-ktx:2.4.1',
-            lifecycle_livedata  : 'androidx.lifecycle:lifecycle-livedata-ktx:2.4.1',
+            lifecycle_livedata  : 'androidx.lifecycle:lifecycle-livedata-ktx:2.5.0',
 
             rxjava              : 'io.reactivex.rxjava3:rxjava:3.1.5',
 
