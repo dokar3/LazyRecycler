@@ -66,7 +66,7 @@ fun RecyclerBuilder.item(
  * }
  * ```
  */
-fun <I> RecyclerBuilder.item(
+fun <I : Any> RecyclerBuilder.item(
     data: MutableValue<I>,
     @LayoutRes layout: Int,
     id: Int = 0,
@@ -105,7 +105,7 @@ fun <I> RecyclerBuilder.item(
  * }
  * ```
  */
-fun <I> RecyclerBuilder.items(
+fun <I : Any> RecyclerBuilder.items(
     items: List<I>,
     @LayoutRes layout: Int,
     id: Int = 0,
@@ -146,7 +146,7 @@ fun <I> RecyclerBuilder.items(
  * }
  * ```
  */
-fun <I> RecyclerBuilder.items(
+fun <I : Any> RecyclerBuilder.items(
     data: MutableValue<List<I>>,
     @LayoutRes layout: Int,
     id: Int = 0,

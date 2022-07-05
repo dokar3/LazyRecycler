@@ -27,7 +27,7 @@ class RecyclerBuilder {
         sections.add(section as Section<Any, Any>)
     }
 
-    internal fun <I> layoutIdItems(
+    internal fun <I : Any> layoutIdItems(
         items: List<I>,
         @LayoutRes layoutId: Int,
         id: Int = 0,
@@ -56,7 +56,7 @@ class RecyclerBuilder {
         addSection(section)
     }
 
-    internal fun <V : ViewBinding, I> viewBindingItems(
+    internal fun <V : ViewBinding, I : Any> viewBindingItems(
         items: List<I>,
         inflate: ViewBindingInflate<V>,
         id: Int = 0,
@@ -86,7 +86,7 @@ class RecyclerBuilder {
         addSection(section)
     }
 
-    internal fun <I> viewInstantiationItems(
+    internal fun <I : Any> viewInstantiationItems(
         items: List<I>,
         id: Int = 0,
         mutableData: MutableValue<*>? = null,
@@ -114,7 +114,7 @@ class RecyclerBuilder {
         addSection(section)
     }
 
-    internal fun <I> templateItems(
+    internal fun <I : Any> templateItems(
         items: List<I>,
         template: Template<I>,
         id: Int = 0,
