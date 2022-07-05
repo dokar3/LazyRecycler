@@ -13,7 +13,7 @@ import com.dokar.lazyrecycler.viewcreator.ViewHolderCreator
  * @param V View type, could be [ViewBinding] or [BindViewScope].
  * @param I Item type.
  */
-open class Section<V, I>(
+open class Section<V, I : Any>(
     val id: Int,
     val viewHolderCreator: ViewHolderCreator<V>,
     val itemBinder: ItemBinder<V, I>,

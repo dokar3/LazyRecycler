@@ -5,7 +5,7 @@ import com.dokar.lazyrecycler.viewbinder.ItemBinder
 import com.dokar.lazyrecycler.viewcreator.ViewHolderCreator
 
 @Suppress("UNCHECKED_CAST")
-class Template<I>(
+class Template<I : Any>(
     viewHolderCreator: ViewHolderCreator<out Any>,
     itemBinder: ItemBinder<out Any, I>,
     clicks: ((View, I) -> Unit)? = null,

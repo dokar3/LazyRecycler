@@ -65,7 +65,7 @@ fun RecyclerBuilder.item(
  * }
  * ```
  */
-fun <I> RecyclerBuilder.item(
+fun <I : Any> RecyclerBuilder.item(
     data: MutableValue<I>,
     id: Int = 0,
     clicks: ((itemView: View, item: I) -> Unit)? = null,
@@ -103,7 +103,7 @@ fun <I> RecyclerBuilder.item(
  * }
  * ```
  */
-fun <I> RecyclerBuilder.items(
+fun <I : Any> RecyclerBuilder.items(
     items: List<I>,
     id: Int = 0,
     clicks: ((itemView: View, item: I) -> Unit)? = null,
@@ -139,7 +139,7 @@ fun <I> RecyclerBuilder.items(
  * }
  * ```
  */
-fun <I> RecyclerBuilder.items(
+fun <I : Any> RecyclerBuilder.items(
     data: MutableValue<List<I>>,
     id: Int = 0,
     clicks: ((itemView: View, item: I) -> Unit)? = null,

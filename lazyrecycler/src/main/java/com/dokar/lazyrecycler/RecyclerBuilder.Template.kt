@@ -34,7 +34,7 @@ import kotlin.experimental.ExperimentalTypeInference
  * )
  * ```
  */
-fun <I> template(
+fun <I : Any> template(
     @LayoutRes layout: Int,
     clicks: ((itemView: View, item: I) -> Unit)? = null,
     longClicks: ((itemView: View, item: I) -> Boolean)? = null,
@@ -72,7 +72,7 @@ fun <I> template(
  * )
  * ```
  */
-fun <I> template(
+fun <I : Any> template(
     clicks: ((itemView: View, item: I) -> Unit)? = null,
     longClicks: ((itemView: View, item: I) -> Boolean)? = null,
     differ: (Differ<I>.() -> Unit)? = null,
@@ -107,7 +107,7 @@ fun <I> template(
  * )
  * ```
  */
-fun <V : ViewBinding, I> template(
+fun <V : ViewBinding, I : Any> template(
     layout: ViewBindingInflate<V>,
     clicks: ((itemView: View, item: I) -> Unit)? = null,
     longClicks: ((itemView: View, item: I) -> Boolean)? = null,
@@ -145,7 +145,7 @@ fun <V : ViewBinding, I> template(
  */
 @OverloadResolutionByLambdaReturnType
 @OptIn(ExperimentalTypeInference::class)
-fun <V : ViewBinding, I> template(
+fun <V : ViewBinding, I : Any> template(
     layout: ViewBindingInflate<V>,
     clicks: ((itemView: View, item: I) -> Unit)? = null,
     longClicks: ((itemView: View, item: I) -> Boolean)? = null,
@@ -215,7 +215,7 @@ fun RecyclerBuilder.item(
  * )
  * ```
  */
-fun <I> RecyclerBuilder.item(
+fun <I : Any> RecyclerBuilder.item(
     item: I,
     template: Template<I>,
     id: Int = 0,
@@ -248,7 +248,7 @@ fun <I> RecyclerBuilder.item(
  * )
  * ```
  */
-fun <I> RecyclerBuilder.item(
+fun <I : Any> RecyclerBuilder.item(
     data: MutableValue<I>,
     template: Template<I>,
     id: Int = 0,
@@ -281,7 +281,7 @@ fun <I> RecyclerBuilder.item(
  * )
  * ```
  */
-fun <I> RecyclerBuilder.items(
+fun <I : Any> RecyclerBuilder.items(
     items: List<I>,
     template: Template<I>,
     id: Int = 0,
@@ -316,7 +316,7 @@ fun <I> RecyclerBuilder.items(
  * )
  * ```
  */
-fun <I> RecyclerBuilder.items(
+fun <I : Any> RecyclerBuilder.items(
     data: MutableValue<List<I>>,
     template: Template<I>,
     id: Int = 0,

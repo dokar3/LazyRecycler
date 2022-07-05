@@ -61,7 +61,7 @@ fun <V : ViewBinding> RecyclerBuilder.item(
  * }
  * ```
  */
-fun <V : ViewBinding, I> RecyclerBuilder.item(
+fun <V : ViewBinding, I : Any> RecyclerBuilder.item(
     data: MutableValue<I>,
     layout: ViewBindingInflate<V>,
     id: Int = 0,
@@ -98,7 +98,7 @@ fun <V : ViewBinding, I> RecyclerBuilder.item(
  * }
  * ```
  */
-fun <V : ViewBinding, I> RecyclerBuilder.items(
+fun <V : ViewBinding, I : Any> RecyclerBuilder.items(
     items: List<I>,
     layout: ViewBindingInflate<V>,
     id: Int = 0,
@@ -137,7 +137,7 @@ fun <V : ViewBinding, I> RecyclerBuilder.items(
  * }
  * ```
  */
-fun <V : ViewBinding, I> RecyclerBuilder.items(
+fun <V : ViewBinding, I : Any> RecyclerBuilder.items(
     data: MutableValue<List<I>>,
     layout: ViewBindingInflate<V>,
     id: Int = 0,
@@ -176,7 +176,7 @@ fun <V : ViewBinding, I> RecyclerBuilder.items(
  * }
  * ```
  */
-fun <V : ViewBinding, I> RecyclerBuilder.itemsIndexed(
+fun <V : ViewBinding, I : Any> RecyclerBuilder.itemsIndexed(
     items: List<I>,
     layout: ViewBindingInflate<V>,
     id: Int = 0,
@@ -215,7 +215,7 @@ fun <V : ViewBinding, I> RecyclerBuilder.itemsIndexed(
  * }
  * ```
  */
-fun <V : ViewBinding, I> RecyclerBuilder.itemsIndexed(
+fun <V : ViewBinding, I : Any> RecyclerBuilder.itemsIndexed(
     data: MutableValue<List<I>>,
     layout: ViewBindingInflate<V>,
     id: Int = 0,
