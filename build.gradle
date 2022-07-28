@@ -60,9 +60,6 @@ allprojects {
     }
 
     plugins.withId("com.vanniktech.maven.publish") {
-        mavenPublish {
-            androidVariantToPublish = "release"
-        }
         mavenPublishing {
             publishToMavenCentral("S01")
             signAllPublications()
