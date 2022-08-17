@@ -31,7 +31,7 @@ buildscript {
             material            : 'com.google.android.material:material:1.6.1',
             constraint_layout   : 'androidx.constraintlayout:constraintlayout:2.1.4',
 
-            coil                : 'io.coil-kt:coil:1.4.0',
+            coil                : 'io.coil-kt:coil:2.2.0',
 
             sticky_layoutmanager: 'com.github.qiujayen:sticky-layoutmanager:1.0.1',
     ]
