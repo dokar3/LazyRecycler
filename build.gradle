@@ -28,7 +28,7 @@ buildscript {
 
             appcompat           : 'androidx.appcompat:appcompat:1.5.1',
             androidx_core       : 'androidx.core:core-ktx:1.9.0',
-            material            : 'com.google.android.material:material:1.6.1',
+            material            : 'com.google.android.material:material:1.7.0',
             constraint_layout   : 'androidx.constraintlayout:constraintlayout:2.1.4',
 
             coil                : 'io.coil-kt:coil:1.4.0',
