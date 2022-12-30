@@ -227,9 +227,11 @@ class LazyRecycler(
             current is List<*> -> {
                 updateSection(section, current as List<Any>)
             }
+
             current != null -> {
                 updateSection(section, listOf(current))
             }
+
             else -> {
                 updateSection(section, emptyList())
             }
@@ -269,7 +271,7 @@ class LazyRecycler(
     }
 
     private fun setupDiffers(sections: List<Section<Any, Any>>) {
-        sections.forEach { section ->
+        for (section in sections) {
             val differ = section.differ
             if (differ != null) {
                 setupDiffer(adapter, section, differ)

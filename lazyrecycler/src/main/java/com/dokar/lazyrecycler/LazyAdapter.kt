@@ -13,13 +13,13 @@ open class LazyAdapter(
     private val viewTypes: MutableMap<Section<Any, Any>, Int> = hashMapOf()
 
     init {
-        sections.forEach { section ->
+        for (section in sections) {
             // add view types
             viewTypes[section] = section.defaultViewType
             val viewTypes = section.extraViewTypes
             if (!viewTypes.isNullOrEmpty()) {
-                viewTypes.forEach {
-                    this.viewTypes[it.template] = it.template.defaultViewType
+                for (viewType in viewTypes) {
+                    this.viewTypes[viewType.template] = viewType.template.defaultViewType
                 }
             }
         }
@@ -121,8 +121,8 @@ open class LazyAdapter(
             viewTypes[s] = s.defaultViewType
             val viewTypes = s.extraViewTypes
             if (!viewTypes.isNullOrEmpty()) {
-                viewTypes.forEach {
-                    this.viewTypes[it.template] = it.template.defaultViewType
+                for (viewType in viewTypes) {
+                    this.viewTypes[viewType.template] = viewType.template.defaultViewType
                 }
             }
             acc + s.items.size
@@ -142,8 +142,8 @@ open class LazyAdapter(
         // remove view types
         val viewTypes = section.extraViewTypes
         if (!viewTypes.isNullOrEmpty()) {
-            viewTypes.forEach {
-                this.viewTypes.remove(it.template)
+            for (viewType in viewTypes) {
+                this.viewTypes.remove(viewType.template)
             }
         }
         this.viewTypes.remove(section)
