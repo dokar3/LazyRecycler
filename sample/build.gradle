@@ -5,6 +5,8 @@ plugins {
 }
 
 android {
+    namespace = "com.dokar.lazyrecyclersample"
+
     compileSdkVersion COMPILE_SDK_VERSION
 
     defaultConfig {

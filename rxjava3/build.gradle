@@ -5,6 +5,8 @@ plugins {
 }
 
 android {
+    namespace = "com.dokar.lazyrecycler.rxjava3"
+
     compileSdkVersion COMPILE_SDK_VERSION
 
     defaultConfig {
