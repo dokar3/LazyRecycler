@@ -26,9 +26,7 @@ class StickyHeaderActivity : AppCompatActivity() {
     private fun createList(rv: RecyclerView) {
         lazyRecycler(
             recyclerView = rv,
-            adapterCreator = { sections ->
-                StickyHeaderAdapter(sections)
-            },
+            adapterCreator = ::StickyHeaderAdapter,
             setupLayoutManager = false
         ) {
             val header = template(ItemAlphabetBinding::inflate) { binding, item: Header ->

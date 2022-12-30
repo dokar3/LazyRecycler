@@ -5,6 +5,8 @@ plugins {
 }
 
 android {
+    namespace = "com.dokar.lazyrecycler.livedata"
+
     compileSdkVersion COMPILE_SDK_VERSION
 
     defaultConfig {

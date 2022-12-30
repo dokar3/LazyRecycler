@@ -5,6 +5,8 @@ plugins {
 }
 
 android {
+    namespace = "com.dokar.lazyrecyclersample"
+
     compileSdkVersion COMPILE_SDK_VERSION
 
     defaultConfig {
@@ -13,6 +15,7 @@ android {
         targetSdkVersion TARGET_SDK_VERSION
         versionCode 1
         versionName "1.0"
+        multiDexEnabled true
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -52,6 +55,7 @@ dependencies {
     implementation libs.coil
     implementation libs.rxjava
     implementation libs.sticky_layoutmanager
+    implementation libs.multidex
 
     testImplementation libs.test_junit
     androidTestImplementation libs.test_ext_junit

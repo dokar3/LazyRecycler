@@ -3,7 +3,7 @@ package com.dokar.lazyrecyclersample
 import kotlin.random.Random
 
 object Constants {
-    const val ID_PAINTINGS = 0
+    const val ID_PAINTINGS = 1
 
     const val OPT_SHUFFLE = 2
     const val OPT_REMOVE_SECTION = 3

@@ -4,4 +4,4 @@ typealias AreItemsTheSame<I> = (oldItem: I, newItem: I) -> Boolean
 
 typealias AreContentsTheSame<I> = (oldItem: I, newItem: I) -> Boolean
 
-typealias AdapterCreator = (sections: MutableList<Section<Any, Any>>) -> LazyAdapter
+typealias AdapterCreator = (sections: List<Section<Any, Any>>) -> LazyAdapter
