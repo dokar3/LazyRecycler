@@ -47,10 +47,9 @@ fun lazyRecycler(
     body: RecyclerBuilder.() -> Unit
 ): LazyRecycler {
     val builder = RecyclerBuilder().also(body)
-    val sections = builder.sections().toMutableList()
+    val sections = builder.sections()
     return LazyRecycler(
         adapterCreator(sections),
-        sections,
         setupLayoutManager,
         isHorizontal,
         reverseLayout,
@@ -65,7 +64,6 @@ fun lazyRecycler(
 
 class LazyRecycler(
     private val adapter: LazyAdapter,
-    private val sections: MutableList<Section<Any, Any>>,
     private val setupLayoutManager: Boolean,
     private val isHorizontal: Boolean,
     private val reverseLayout: Boolean,
@@ -77,7 +75,7 @@ class LazyRecycler(
     private val valueObserver = ValueObserver<Any> { onMutableValueChanged(it) }
 
     init {
-        setupDiffers(sections)
+        setupDiffers(adapter.sections())
     }
 
     /**
@@ -103,7 +101,7 @@ class LazyRecycler(
      * @param body Builder body.
      */
     fun newSections(body: RecyclerBuilder.() -> Unit) {
-        newSections(sections.size, true, body)
+        newSections(adapter.sections().size, true, body)
     }
 
     /**
@@ -136,7 +134,7 @@ class LazyRecycler(
      * section does not exist or failed to remove.
      */
     fun removeSection(id: Int): Boolean {
-        val section = sections.find { it.id == id } ?: return false
+        val section = adapter.sections().find { it.id == id } ?: return false
         return removeSection(section)
     }
 
@@ -148,14 +146,14 @@ class LazyRecycler(
      * Check if target section is contained in sections.
      * */
     fun containsSection(id: Int): Boolean {
-        return sections.find { it.id == id } != null
+        return adapter.sections().find { it.id == id } != null
     }
 
     /**
      * Update items for target section.
      */
     fun updateSection(id: Int, items: List<Any>) {
-        sections.find { it.id == id }?.let {
+        adapter.sections().find { it.id == id }?.let {
             updateSection(it, items)
         }
     }
@@ -173,29 +171,28 @@ class LazyRecycler(
      * Get all section items.
      */
     fun getSectionItems(id: Int): List<Any>? {
-        return sections.find { it.id == id }?.items
+        return adapter.sections().find { it.id == id }?.items
     }
 
     /**
      * Get size of sections.
      */
     fun getSectionCount(): Int {
-        return sections.size
+        return adapter.sections().size
     }
 
     /**
      * Clear all sections.
      */
     fun clearSections() {
-        sections.clear()
-        adapter.notifyDataSetChanged()
+        adapter.clearSections()
     }
 
     /**
      * Observe the mutable data sources, will be called when attach to [RecyclerView].
      */
     fun observeChanges() {
-        observeChanges(sections)
+        observeChanges(adapter.sections())
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -212,7 +209,7 @@ class LazyRecycler(
      */
     @Suppress("UNCHECKED_CAST")
     fun stopObserving() {
-        sections.forEachMutableValues { mutVal ->
+        adapter.sections().forEachMutableValues { mutVal ->
             mutVal.unobserve()
         }
     }
@@ -220,7 +217,7 @@ class LazyRecycler(
     @Suppress("UNCHECKED_CAST")
     private fun onMutableValueChanged(value: MutableValue<*>) {
         // Mutable data source changed
-        val section = sections.find { it.data == value } ?: return
+        val section = adapter.sections().find { it.data == value } ?: return
 
         val current = value.current
         when {
@@ -256,7 +253,7 @@ class LazyRecycler(
             glm.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
                 override fun getSpanSize(position: Int): Int {
                     val sectionIdx = adapter.getSectionIndex(position)
-                    val section = sections[sectionIdx]
+                    val section = adapter.sections()[sectionIdx]
                     val spanSizeLookup = section.span ?: return 1
                     val offset = adapter.getSectionPositionOffset(section)
                     return spanSizeLookup(position - offset)

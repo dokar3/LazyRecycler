@@ -8,8 +8,9 @@ import com.dokar.lazyrecycler.viewbinder.ItemProvider
  * The adapter to display [Section]s, can be extended for advanced using.
  */
 open class LazyAdapter(
-    private val sections: MutableList<Section<Any, Any>>
+    sections: List<Section<Any, Any>>
 ) : RecyclerView.Adapter<LazyViewHolder<Any>>(), ItemProvider {
+    private val sections: MutableList<Section<Any, Any>> = sections.toMutableList()
     private val viewTypes: MutableMap<Section<Any, Any>, Int> = hashMapOf()
 
     init {
@@ -110,7 +111,11 @@ open class LazyAdapter(
         return adapterPosition - getItemAndOffset(adapterPosition).second
     }
 
-    fun addSections(index: Int, newSections: List<Section<Any, Any>>) {
+    internal fun sections(): List<Section<Any, Any>> {
+        return sections.toList()
+    }
+
+    internal fun addSections(index: Int, newSections: List<Section<Any, Any>>) {
         val posOffset = when (index) {
             0 -> 0
             sections.size -> itemCount
@@ -133,7 +138,7 @@ open class LazyAdapter(
         notifyItemRangeInserted(posOffset, newSize)
     }
 
-    fun removeSection(section: Section<Any, Any>): Boolean {
+    internal fun removeSection(section: Section<Any, Any>): Boolean {
         val posOffset = getSectionPositionOffset(section)
         val size = section.items.size
         if (!sections.remove(section)) {
@@ -153,7 +158,7 @@ open class LazyAdapter(
         return true
     }
 
-    fun getSectionIndex(position: Int): Int {
+    internal fun getSectionIndex(position: Int): Int {
         var size = 0
         return sections.indexOfFirst {
             size += it.items.size
@@ -161,7 +166,13 @@ open class LazyAdapter(
         }
     }
 
-    fun updateSectionItems(section: Section<Any, Any>, newItems: List<Any>) {
+    internal fun clearSections() {
+        val removedCount = itemCount
+        sections.clear()
+        notifyItemRangeRemoved(0, removedCount)
+    }
+
+    internal fun updateSectionItems(section: Section<Any, Any>, newItems: List<Any>) {
         val offset = getSectionPositionOffset(section)
         if (offset == -1) {
             return
@@ -174,19 +185,22 @@ open class LazyAdapter(
             oldCount == newCount -> {
                 notifyItemRangeChanged(offset, oldCount)
             }
+
             oldCount == 0 -> {
                 notifyItemRangeInserted(offset, newCount)
             }
+
             newCount == 0 -> {
                 notifyItemRangeRemoved(offset, oldCount)
             }
+
             else -> {
                 notifyItemRangeChanged(offset, newCount)
             }
         }
     }
 
-    fun getSectionPositionOffset(section: Section<Any, Any>): Int {
+    internal fun getSectionPositionOffset(section: Section<Any, Any>): Int {
         var offset = 0
         var index = 0
         var found = false
