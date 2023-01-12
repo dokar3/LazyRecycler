@@ -28,7 +28,7 @@ buildscript {
             test_mockito_android: 'org.mockito:mockito-android:4.11.0',
             test_coroutines     : 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4',
 
-            appcompat           : 'androidx.appcompat:appcompat:1.5.1',
+            appcompat           : 'androidx.appcompat:appcompat:1.6.0',
             androidx_core       : 'androidx.core:core-ktx:1.9.0',
             material            : 'com.google.android.material:material:1.7.0',
             constraint_layout   : 'androidx.constraintlayout:constraintlayout:2.1.4',
