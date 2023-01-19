@@ -18,7 +18,7 @@ buildscript {
 
             multidex            : 'androidx.multidex:multidex:2.0.1',
 
-            rxjava              : 'io.reactivex.rxjava3:rxjava:3.1.5',
+            rxjava              : 'io.reactivex.rxjava3:rxjava:3.1.6',
 
             test_junit          : 'junit:junit:4.13.2',
             test_benchmark      : 'androidx.benchmark:benchmark-junit4:1.1.1',
