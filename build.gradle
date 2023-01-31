@@ -25,7 +25,7 @@ buildscript {
             test_runner         : 'androidx.test:runner:1.5.2',
             test_ext_junit      : 'androidx.test.ext:junit:1.1.5',
             test_espresso       : 'androidx.test.espresso:espresso-core:3.5.1',
-            test_mockito_android: 'org.mockito:mockito-android:5.1.0',
+            test_mockito_android: 'org.mockito:mockito-android:5.1.1',
             test_coroutines     : 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4',
 
             appcompat           : 'androidx.appcompat:appcompat:1.6.0',
