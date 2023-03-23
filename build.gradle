@@ -13,7 +13,7 @@ buildscript {
 
             recyclerview        : 'androidx.recyclerview:recyclerview:1.2.1',
 
-            lifecycle_runtime   : 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.0',
+            lifecycle_runtime   : 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.1',
             lifecycle_livedata  : 'androidx.lifecycle:lifecycle-livedata-ktx:2.5.1',
 
             multidex            : 'androidx.multidex:multidex:2.0.1',
