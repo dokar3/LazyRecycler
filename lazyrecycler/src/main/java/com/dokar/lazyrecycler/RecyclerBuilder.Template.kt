@@ -3,6 +3,7 @@ package com.dokar.lazyrecycler
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
+import androidx.recyclerview.widget.DiffUtil
 import androidx.viewbinding.ViewBinding
 import com.dokar.lazyrecycler.data.MutableValue
 import com.dokar.lazyrecycler.viewbinder.BindViewScope
@@ -38,7 +39,7 @@ fun <I : Any> template(
     @LayoutRes layout: Int,
     clicks: ((itemView: View, item: I) -> Unit)? = null,
     longClicks: ((itemView: View, item: I) -> Boolean)? = null,
-    differ: (Differ<I>.() -> Unit)? = null,
+    diffCallback: DiffUtil.ItemCallback<I>? = null,
     span: ((position: Int) -> Int)? = null,
     bind: BindViewScope<I>.(view: View) -> Unit
 ): Template<I> {
@@ -49,7 +50,7 @@ fun <I : Any> template(
         itemBinder = itemBinder,
         clicks = clicks,
         longClicks = longClicks,
-        differ = if (differ != null) Differ<I>().also(differ) else null,
+        diffCallback = diffCallback,
         span = span,
     )
 }
@@ -75,7 +76,7 @@ fun <I : Any> template(
 fun <I : Any> template(
     clicks: ((itemView: View, item: I) -> Unit)? = null,
     longClicks: ((itemView: View, item: I) -> Boolean)? = null,
-    differ: (Differ<I>.() -> Unit)? = null,
+    diffCallback: DiffUtil.ItemCallback<I>? = null,
     span: ((position: Int) -> Int)? = null,
     bind: BindViewScope<I>.(parent: ViewGroup) -> View
 ): Template<I> {
@@ -86,7 +87,7 @@ fun <I : Any> template(
         itemBinder = itemBinder,
         clicks = clicks,
         longClicks = longClicks,
-        differ = if (differ != null) Differ<I>().also(differ) else null,
+        diffCallback = diffCallback,
         span = span,
     )
 }
@@ -111,7 +112,7 @@ fun <V : ViewBinding, I : Any> template(
     layout: ViewBindingInflate<V>,
     clicks: ((itemView: View, item: I) -> Unit)? = null,
     longClicks: ((itemView: View, item: I) -> Boolean)? = null,
-    differ: (Differ<I>.() -> Unit)? = null,
+    diffCallback: DiffUtil.ItemCallback<I>? = null,
     span: ((position: Int) -> Int)? = null,
     bind: (binding: V, item: I) -> Unit
 ): Template<I> {
@@ -122,7 +123,7 @@ fun <V : ViewBinding, I : Any> template(
         itemBinder = itemBinder,
         clicks = clicks,
         longClicks = longClicks,
-        differ = if (differ != null) Differ<I>().also(differ) else null,
+        diffCallback = diffCallback,
         span = span,
     )
 }
@@ -149,7 +150,7 @@ fun <V : ViewBinding, I : Any> template(
     layout: ViewBindingInflate<V>,
     clicks: ((itemView: View, item: I) -> Unit)? = null,
     longClicks: ((itemView: View, item: I) -> Boolean)? = null,
-    differ: (Differ<I>.() -> Unit)? = null,
+    diffCallback: DiffUtil.ItemCallback<I>? = null,
     span: ((position: Int) -> Int)? = null,
     bind: (index: Int, binding: V, item: I) -> Unit
 ): Template<I> {
@@ -160,7 +161,7 @@ fun <V : ViewBinding, I : Any> template(
         itemBinder = itemBinder,
         clicks = clicks,
         longClicks = longClicks,
-        differ = if (differ != null) Differ<I>().also(differ) else null,
+        diffCallback = diffCallback,
         span = span,
     )
 }
@@ -195,7 +196,7 @@ fun RecyclerBuilder.item(
         } else {
             null
         },
-        differ = {
+        diffCallback = differCallback {
             areItemsTheSame { oldItem, newItem -> oldItem == newItem }
             areContentsTheSame { oldItem, newItem -> oldItem == newItem }
         },
@@ -221,7 +222,7 @@ fun <I : Any> RecyclerBuilder.item(
     id: Int = 0,
     clicks: ((itemView: View, item: I) -> Unit)? = null,
     longClicks: ((itemView: View, item: I) -> Boolean)? = null,
-    differ: (Differ<I>.() -> Unit)? = null,
+    diffCallback: DiffUtil.ItemCallback<I>? = null,
     span: Int = 0,
 ) {
     templateItems(
@@ -230,7 +231,7 @@ fun <I : Any> RecyclerBuilder.item(
         id = id,
         clicks = clicks,
         longClicks = longClicks,
-        differ = differ,
+        diffCallback = diffCallback,
         span = if (span != 0) ({ span }) else null,
     )
 }
@@ -254,7 +255,7 @@ fun <I : Any> RecyclerBuilder.item(
     id: Int = 0,
     clicks: ((itemView: View, item: I) -> Unit)? = null,
     longClicks: ((itemView: View, item: I) -> Boolean)? = null,
-    differ: (Differ<I>.() -> Unit)? = null,
+    diffCallback: DiffUtil.ItemCallback<I>? = null,
     span: Int = 0,
 ) {
     templateItems(
@@ -264,7 +265,7 @@ fun <I : Any> RecyclerBuilder.item(
         mutableData = data,
         clicks = clicks,
         longClicks = longClicks,
-        differ = differ,
+        diffCallback = diffCallback,
         span = if (span != 0) ({ span }) else null,
     )
 }
@@ -287,7 +288,7 @@ fun <I : Any> RecyclerBuilder.items(
     id: Int = 0,
     clicks: ((itemView: View, item: I) -> Unit)? = null,
     longClicks: ((itemView: View, item: I) -> Boolean)? = null,
-    differ: (Differ<I>.() -> Unit)? = null,
+    diffCallback: DiffUtil.ItemCallback<I>? = null,
     span: ((position: Int) -> Int)? = null,
     extraViewTypes: List<ViewType<I>>? = null,
 ) {
@@ -297,7 +298,7 @@ fun <I : Any> RecyclerBuilder.items(
         id = id,
         clicks = clicks,
         longClicks = longClicks,
-        differ = differ,
+        diffCallback = diffCallback,
         span = span,
         extraViewTypes = extraViewTypes,
     )
@@ -322,7 +323,7 @@ fun <I : Any> RecyclerBuilder.items(
     id: Int = 0,
     clicks: ((itemView: View, item: I) -> Unit)? = null,
     longClicks: ((itemView: View, item: I) -> Boolean)? = null,
-    differ: (Differ<I>.() -> Unit)? = null,
+    diffCallback: DiffUtil.ItemCallback<I>? = null,
     span: ((position: Int) -> Int)? = null,
     extraViewTypes: List<ViewType<I>>? = null,
 ) {
@@ -333,7 +334,7 @@ fun <I : Any> RecyclerBuilder.items(
         mutableData = data,
         clicks = clicks,
         longClicks = longClicks,
-        differ = differ,
+        diffCallback = diffCallback,
         span = span,
         extraViewTypes = extraViewTypes,
     )

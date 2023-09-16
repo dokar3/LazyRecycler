@@ -108,8 +108,8 @@ class LazyRecycler(
      * Insert new sections at specific position.
      *
      * @param index Insert position
-     * @param observeChanges Observe section changes, set to false to prevent additional check
-     * if new sections do not contain any [MutableValue].
+     * @param observeChanges Observe section changes, set to false to prevent
+     * additional check if new sections do not contain any [MutableValue].
      * @param body Builder body.
      */
     fun newSections(
@@ -207,7 +207,6 @@ class LazyRecycler(
     /**
      * Stop observing the mutable data sources.
      */
-    @Suppress("UNCHECKED_CAST")
     fun stopObserving() {
         adapter.sections().forEachMutableValues { mutVal ->
             mutVal.unobserve()
@@ -269,7 +268,7 @@ class LazyRecycler(
 
     private fun setupDiffers(sections: List<Section<Any, Any>>) {
         for (section in sections) {
-            val differ = section.differ
+            val differ = section.diffCallback
             if (differ != null) {
                 setupDiffer(adapter, section, differ)
             }

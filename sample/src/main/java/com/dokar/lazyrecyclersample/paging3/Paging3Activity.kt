@@ -7,9 +7,9 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.paging.LoadState
 import androidx.paging.PagingData
-import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
+import com.dokar.lazyrecycler.differCallback
 import com.dokar.lazyrecycler.flow.toMutableValue
 import com.dokar.lazyrecycler.items
 import com.dokar.lazyrecycler.lazyRecycler
@@ -32,13 +32,19 @@ class Paging3Activity : AppCompatActivity() {
         val viewModel = ViewModelProvider(this)[Paging3ViewModel::class.java]
         val pagingValue = createPagingValue(viewModel.flow)
 
-        setupRecyclerView(pagingValue = pagingValue, recyclerView = binding.rvPosts)
+        setupRecyclerView(
+            pagingValue = pagingValue,
+            recyclerView = binding.rvPosts
+        )
 
         binding.swipeFreshLayout.setOnRefreshListener(pagingValue.differ::refresh)
 
         lifecycleScope.launch {
             pagingValue.differ.onPagesUpdatedFlow
-                .collect { binding.tvTitle.text = "Posts (${pagingValue.differ.itemCount})" }
+                .collect {
+                    binding.tvTitle.text =
+                        "Posts (${pagingValue.differ.itemCount})"
+                }
         }
         lifecycleScope.launch {
             pagingValue.differ.loadStateFlow
@@ -48,12 +54,9 @@ class Paging3Activity : AppCompatActivity() {
     }
 
     private fun createPagingValue(flow: Flow<PagingData<Post>>): PagingValue<Post> {
-        val diffCallback = object : DiffUtil.ItemCallback<Post>() {
-            override fun areItemsTheSame(oldItem: Post, newItem: Post): Boolean =
-                oldItem.id == newItem.id
-
-            override fun areContentsTheSame(oldItem: Post, newItem: Post): Boolean =
-                oldItem == newItem
+        val diffCallback = differCallback<Post> {
+            areItemsTheSame { oldItem, newItem -> oldItem.id == newItem.id }
+            areContentsTheSame { oldItem, newItem -> oldItem == newItem }
         }
         return PagingValue(
             scope = lifecycleScope,
@@ -79,10 +82,7 @@ class Paging3Activity : AppCompatActivity() {
             items(
                 data = pagingValue,
                 layout = ItemPostBinding::inflate,
-                differ = {
-                    areItemsTheSame(pagingValue.diffCallback::areItemsTheSame)
-                    areContentsTheSame(pagingValue.diffCallback::areContentsTheSame)
-                },
+                diffCallback = pagingValue.diffCallback,
                 clicks = { _, _ -> },
             ) { binding, item ->
                 binding.tvTitle.text = item.title

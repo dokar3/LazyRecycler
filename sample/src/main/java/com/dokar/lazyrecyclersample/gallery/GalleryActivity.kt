@@ -9,6 +9,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import com.dokar.lazyrecycler.LazyRecycler
 import com.dokar.lazyrecycler.Template
+import com.dokar.lazyrecycler.differCallback
 import com.dokar.lazyrecycler.flow.toMutableValue
 import com.dokar.lazyrecycler.item
 import com.dokar.lazyrecycler.items
@@ -24,8 +25,8 @@ import com.dokar.lazyrecyclersample.databinding.ItemGalleryHeaderBinding
 import com.dokar.lazyrecyclersample.databinding.ItemOptionBinding
 import com.dokar.lazyrecyclersample.databinding.ItemPaintingDataBinding
 import com.dokar.lazyrecyclersample.databinding.ItemSectionTitleBinding
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlin.random.Random
+import kotlinx.coroutines.flow.MutableStateFlow
 
 class GalleryActivity : AppCompatActivity() {
     private lateinit var lazyRecycler: LazyRecycler
@@ -78,7 +79,7 @@ class GalleryActivity : AppCompatActivity() {
                 id = ID_PAINTINGS,
                 clicks = { _, item -> openUrl(item.url) },
                 span = { position -> if (position % 3 == 0) 6 else 3 },
-                differ = {
+                diffCallback = differCallback {
                     areItemsTheSame { oldItem, newItem ->
                         oldItem.id == newItem.id
                     }

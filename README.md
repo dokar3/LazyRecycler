@@ -30,7 +30,7 @@ lazyRecycler(recyclerView, spanCount = 3) {
             // Handle long clicks
             true
         },
-        differ = {
+        diffCallback = diffCallback {
             areItemsTheSame { oldItem, newItem ->
                 oldItem.id == newItem.id
             }
@@ -275,10 +275,7 @@ Finally, setup `items` to use the paging value.
 items(
     data = pagingValue,
     layout = ItemPostBinding::inflate,
-    differ = {
-        areItemsTheSame(pagingValue.diffCallback::areItemsTheSame)
-        areContentsTheSame(pagingValue.diffCallback::areContentsTheSame)
-    },
+    diffCallback = pagingValue.diffCallback,
 ) {
     // binding
 }

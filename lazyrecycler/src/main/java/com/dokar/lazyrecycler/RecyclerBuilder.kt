@@ -1,10 +1,9 @@
-@file:Suppress("DEPRECATION")
-
 package com.dokar.lazyrecycler
 
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
+import androidx.recyclerview.widget.DiffUtil
 import androidx.viewbinding.ViewBinding
 import com.dokar.lazyrecycler.data.MutableValue
 import com.dokar.lazyrecycler.viewbinder.BindViewScope
@@ -34,7 +33,7 @@ class RecyclerBuilder {
         mutableValue: MutableValue<*>? = null,
         clicks: ((itemView: View, item: I) -> Unit)? = null,
         longClicks: ((itemView: View, item: I) -> Boolean)? = null,
-        differ: (Differ<I>.() -> Unit)? = null,
+        diffCallback: DiffUtil.ItemCallback<I>? = null,
         span: ((position: Int) -> Int)? = null,
         extraViewTypes: List<ViewType<I>>? = null,
         bind: BindViewScope<I>.(root: View) -> Unit
@@ -49,7 +48,7 @@ class RecyclerBuilder {
             data = mutableValue,
             clicks = clicks,
             longClicks = longClicks,
-            differ = if (differ != null) Differ<I>().also(differ) else null,
+            diffCallback = diffCallback,
             span = span,
             extraViewTypes = extraViewTypes,
         )
@@ -63,7 +62,7 @@ class RecyclerBuilder {
         mutableData: MutableValue<*>? = null,
         clicks: ((itemView: View, item: I) -> Unit)? = null,
         longClicks: ((itemView: View, item: I) -> Boolean)? = null,
-        differ: (Differ<I>.() -> Unit)? = null,
+        diffCallback: DiffUtil.ItemCallback<I>? = null,
         span: ((position: Int) -> Int)? = null,
         bind: ((binding: V, item: I) -> Unit)?,
         extraViewTypes: List<ViewType<I>>? = null,
@@ -79,7 +78,7 @@ class RecyclerBuilder {
             data = mutableData,
             clicks = clicks,
             longClicks = longClicks,
-            differ = if (differ != null) Differ<I>().also(differ) else null,
+            diffCallback = diffCallback,
             span = span,
             extraViewTypes = extraViewTypes,
         )
@@ -92,7 +91,7 @@ class RecyclerBuilder {
         mutableData: MutableValue<*>? = null,
         clicks: ((itemView: View, item: I) -> Unit)? = null,
         longClicks: ((itemView: View, item: I) -> Boolean)? = null,
-        differ: (Differ<I>.() -> Unit)? = null,
+        diffCallback: DiffUtil.ItemCallback<I>? = null,
         span: ((position: Int) -> Int)? = null,
         extraViewTypes: List<ViewType<I>>? = null,
         bind: BindViewScope<I>.(parent: ViewGroup) -> View
@@ -107,7 +106,7 @@ class RecyclerBuilder {
             data = mutableData,
             clicks = clicks,
             longClicks = longClicks,
-            differ = if (differ != null) Differ<I>().also(differ) else null,
+            diffCallback = diffCallback,
             span = span,
             extraViewTypes = extraViewTypes,
         )
@@ -121,7 +120,7 @@ class RecyclerBuilder {
         mutableData: MutableValue<*>? = null,
         clicks: ((itemView: View, item: I) -> Unit)? = null,
         longClicks: ((itemView: View, item: I) -> Boolean)? = null,
-        differ: (Differ<I>.() -> Unit)? = null,
+        diffCallback: DiffUtil.ItemCallback<I>? = null,
         span: ((position: Int) -> Int)? = null,
         extraViewTypes: List<ViewType<I>>? = null,
     ) {
@@ -133,7 +132,7 @@ class RecyclerBuilder {
             data = mutableData,
             clicks = clicks,
             longClicks = longClicks,
-            differ = if (differ != null) Differ<I>().also(differ) else null,
+            diffCallback = diffCallback,
             span = span,
             extraViewTypes = extraViewTypes,
         )

@@ -1,6 +1,7 @@
 package com.dokar.lazyrecycler
 
 import android.view.View
+import androidx.recyclerview.widget.DiffUtil
 import com.dokar.lazyrecycler.viewbinder.ItemBinder
 import com.dokar.lazyrecycler.viewcreator.ViewHolderCreator
 
@@ -10,7 +11,7 @@ class Template<I : Any>(
     itemBinder: ItemBinder<out Any, I>,
     clicks: ((View, I) -> Unit)? = null,
     longClicks: ((View, I) -> Boolean)? = null,
-    differ: Differ<I>? = null,
+    diffCallback: DiffUtil.ItemCallback<I>? = null,
     span: ((Int) -> Int)? = null,
 ) : Section<Any, I>(
     id = -1,
@@ -19,6 +20,6 @@ class Template<I : Any>(
     items = emptyList(),
     clicks = clicks,
     longClicks = longClicks,
-    differ = differ,
+    diffCallback = diffCallback,
     span = span,
 )

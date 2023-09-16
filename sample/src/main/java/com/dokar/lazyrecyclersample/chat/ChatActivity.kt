@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import com.dokar.lazyrecycler.ViewType
+import com.dokar.lazyrecycler.differCallback
 import com.dokar.lazyrecycler.flow.toMutableValue
 import com.dokar.lazyrecycler.items
 import com.dokar.lazyrecycler.lazyRecycler
@@ -19,13 +20,13 @@ import com.dokar.lazyrecyclersample.databinding.ItemMsgFriendBinding
 import com.dokar.lazyrecyclersample.databinding.ItemMsgMeBinding
 import com.dokar.lazyrecyclersample.isSameMinute
 import com.dokar.lazyrecyclersample.isToday
+import java.text.SimpleDateFormat
+import java.util.Locale
+import kotlin.random.Random
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.text.SimpleDateFormat
-import java.util.Locale
-import kotlin.random.Random
 
 class ChatActivity : AppCompatActivity() {
     private lateinit var binding: ActivityChatBinding
@@ -77,7 +78,7 @@ class ChatActivity : AppCompatActivity() {
             items(
                 data = messages.toMutableValue(lifecycleScope),
                 template = fromFriend,
-                differ = {
+                diffCallback = differCallback {
                     areItemsTheSame { oldItem, newItem ->
                         if (oldItem::class != newItem::class) {
                             false
