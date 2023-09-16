@@ -1,6 +1,7 @@
 package com.dokar.lazyrecycler
 
 import android.view.View
+import androidx.recyclerview.widget.DiffUtil
 import androidx.viewbinding.ViewBinding
 import com.dokar.lazyrecycler.data.MutableValue
 import com.dokar.lazyrecycler.viewcreator.ViewBindingInflate
@@ -37,7 +38,7 @@ fun <V : ViewBinding> RecyclerBuilder.item(
         } else {
             null
         },
-        differ = {
+        diffCallback = differCallback {
             areItemsTheSame { oldItem, newItem -> oldItem == newItem }
             areContentsTheSame { oldItem, newItem -> oldItem == newItem }
         },
@@ -67,7 +68,7 @@ fun <V : ViewBinding, I : Any> RecyclerBuilder.item(
     id: Int = 0,
     clicks: ((itemView: View, item: I) -> Unit)? = null,
     longClicks: ((itemView: View, item: I) -> Boolean)? = null,
-    differ: (Differ<I>.() -> Unit)? = null,
+    diffCallback: DiffUtil.ItemCallback<I>? = null,
     span: Int = 0,
     bind: (binding: V, item: I) -> Unit
 ) {
@@ -78,7 +79,7 @@ fun <V : ViewBinding, I : Any> RecyclerBuilder.item(
         mutableData = data,
         clicks = clicks,
         longClicks = longClicks,
-        differ = differ,
+        diffCallback = diffCallback,
         span = if (span != 0) ({ span }) else null,
         bind = bind,
         indexedBind = null,
@@ -104,7 +105,7 @@ fun <V : ViewBinding, I : Any> RecyclerBuilder.items(
     id: Int = 0,
     clicks: ((itemView: View, item: I) -> Unit)? = null,
     longClicks: ((itemView: View, item: I) -> Boolean)? = null,
-    differ: (Differ<I>.() -> Unit)? = null,
+    diffCallback: DiffUtil.ItemCallback<I>? = null,
     span: ((position: Int) -> Int)? = null,
     extraViewTypes: List<ViewType<I>>? = null,
     bind: (binding: V, item: I) -> Unit
@@ -115,7 +116,7 @@ fun <V : ViewBinding, I : Any> RecyclerBuilder.items(
         id = id,
         clicks = clicks,
         longClicks = longClicks,
-        differ = differ,
+        diffCallback = diffCallback,
         span = span,
         extraViewTypes = extraViewTypes,
         bind = bind,
@@ -143,7 +144,7 @@ fun <V : ViewBinding, I : Any> RecyclerBuilder.items(
     id: Int = 0,
     clicks: ((itemView: View, item: I) -> Unit)? = null,
     longClicks: ((itemView: View, item: I) -> Boolean)? = null,
-    differ: (Differ<I>.() -> Unit)? = null,
+    diffCallback: DiffUtil.ItemCallback<I>? = null,
     span: ((position: Int) -> Int)? = null,
     extraViewTypes: List<ViewType<I>>? = null,
     bind: (binding: V, item: I) -> Unit
@@ -155,7 +156,7 @@ fun <V : ViewBinding, I : Any> RecyclerBuilder.items(
         mutableData = data,
         clicks = clicks,
         longClicks = longClicks,
-        differ = differ,
+        diffCallback = diffCallback,
         span = span,
         extraViewTypes = extraViewTypes,
         bind = bind,
@@ -182,7 +183,7 @@ fun <V : ViewBinding, I : Any> RecyclerBuilder.itemsIndexed(
     id: Int = 0,
     clicks: ((itemView: View, item: I) -> Unit)? = null,
     longClicks: ((itemView: View, item: I) -> Boolean)? = null,
-    differ: (Differ<I>.() -> Unit)? = null,
+    diffCallback: DiffUtil.ItemCallback<I>? = null,
     span: ((position: Int) -> Int)? = null,
     extraViewTypes: List<ViewType<I>>? = null,
     bind: (index: Int, binding: V, item: I) -> Unit
@@ -193,7 +194,7 @@ fun <V : ViewBinding, I : Any> RecyclerBuilder.itemsIndexed(
         id = id,
         clicks = clicks,
         longClicks = longClicks,
-        differ = differ,
+        diffCallback = diffCallback,
         span = span,
         extraViewTypes = extraViewTypes,
         bind = null,
@@ -221,7 +222,7 @@ fun <V : ViewBinding, I : Any> RecyclerBuilder.itemsIndexed(
     id: Int = 0,
     clicks: ((itemView: View, item: I) -> Unit)? = null,
     longClicks: ((itemView: View, item: I) -> Boolean)? = null,
-    differ: (Differ<I>.() -> Unit)? = null,
+    diffCallback: DiffUtil.ItemCallback<I>? = null,
     span: ((position: Int) -> Int)? = null,
     extraViewTypes: List<ViewType<I>>? = null,
     bind: (index: Int, binding: V, item: I) -> Unit
@@ -233,7 +234,7 @@ fun <V : ViewBinding, I : Any> RecyclerBuilder.itemsIndexed(
         mutableData = data,
         clicks = clicks,
         longClicks = longClicks,
-        differ = differ,
+        diffCallback = diffCallback,
         span = span,
         extraViewTypes = extraViewTypes,
         bind = null,

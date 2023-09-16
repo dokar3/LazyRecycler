@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.SimpleItemAnimator
+import com.dokar.lazyrecycler.differCallback
 import com.dokar.lazyrecycler.flow.toMutableValue
 import com.dokar.lazyrecycler.item
 import com.dokar.lazyrecycler.items
@@ -80,7 +81,7 @@ class TetrisActivity : AppCompatActivity() {
             items(
                 data = matrix.toMutableValue(lifecycleScope),
                 layout = ItemTetrisBlockBinding::inflate,
-                differ = {
+                diffCallback = differCallback {
                     areItemsTheSame { _, _ -> true }
                     areContentsTheSame { oldItem, newItem -> oldItem == newItem }
                 },
@@ -94,7 +95,8 @@ class TetrisActivity : AppCompatActivity() {
                 val rv = binding.rvTetris
                 recycler.attachTo(rv)
                 rv.overScrollMode = View.OVER_SCROLL_NEVER
-                (rv.itemAnimator as SimpleItemAnimator).supportsChangeAnimations = false
+                (rv.itemAnimator as SimpleItemAnimator).supportsChangeAnimations =
+                    false
                 rv.visibility = View.INVISIBLE
 
                 resizeGameCanvas {
@@ -140,18 +142,27 @@ class TetrisActivity : AppCompatActivity() {
 
     private inline fun resizeGameCanvas(crossinline onDone: () -> Unit) {
         binding.rvTetris.post {
-            val gameHeader = binding.rvTetris.findViewHolderForAdapterPosition(0)!!.itemView
+            val gameHeader =
+                binding.rvTetris.findViewHolderForAdapterPosition(0)!!.itemView
             gameHeader.post {
                 val res = resources
-                val paddingTop = res.getDimensionPixelSize(R.dimen.tetris_padding_top)
-                val paddingBottom = res.getDimensionPixelSize(R.dimen.tetris_padding_bottom)
+                val paddingTop =
+                    res.getDimensionPixelSize(R.dimen.tetris_padding_top)
+                val paddingBottom =
+                    res.getDimensionPixelSize(R.dimen.tetris_padding_bottom)
                 val rootHeight = binding.root.height
                 val rootWidth = binding.root.width
                 val headerHeight = gameHeader.height
-                val verticalRestSpace = rootHeight - headerHeight - paddingTop - paddingBottom
+                val verticalRestSpace =
+                    rootHeight - headerHeight - paddingTop - paddingBottom
                 val blockSize = verticalRestSpace / rows
                 val hPadding = max(0, (rootWidth - blockSize * cols) / 2)
-                binding.rvTetris.setPadding(hPadding, paddingTop, hPadding, paddingBottom)
+                binding.rvTetris.setPadding(
+                    hPadding,
+                    paddingTop,
+                    hPadding,
+                    paddingBottom
+                )
                 onDone()
             }
         }

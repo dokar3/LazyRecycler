@@ -10,6 +10,18 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
+/**
+ * Convert the [PagingData] flow to [PagingValue].
+ */
+fun <T : Any> Flow<PagingData<T>>.toPagingValue(
+    scope: CoroutineScope,
+    diffCallback: DiffUtil.ItemCallback<T>
+): PagingValue<T> = PagingValue(
+    scope = scope,
+    flow = this,
+    diffCallback = diffCallback,
+)
+
 class PagingValue<T : Any>(
     private val scope: CoroutineScope,
     private val flow: Flow<PagingData<T>>,
