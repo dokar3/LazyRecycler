@@ -15,6 +15,7 @@ import com.dokar.lazyrecycler.items
 import com.dokar.lazyrecycler.lazyRecycler
 import com.dokar.lazyrecycler.paging3.PagingLazyAdapter
 import com.dokar.lazyrecycler.paging3.PagingValue
+import com.dokar.lazyrecycler.paging3.toPagingValue
 import com.dokar.lazyrecyclersample.R
 import com.dokar.lazyrecyclersample.databinding.ActivityPaging3Binding
 import com.dokar.lazyrecyclersample.databinding.ItemPostBinding
@@ -58,11 +59,7 @@ class Paging3Activity : AppCompatActivity() {
             areItemsTheSame { oldItem, newItem -> oldItem.id == newItem.id }
             areContentsTheSame { oldItem, newItem -> oldItem == newItem }
         }
-        return PagingValue(
-            scope = lifecycleScope,
-            flow = flow,
-            diffCallback = diffCallback,
-        )
+        return flow.toPagingValue(lifecycleScope, diffCallback)
     }
 
     private fun setupRecyclerView(
