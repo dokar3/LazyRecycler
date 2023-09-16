@@ -22,6 +22,12 @@ fun <T : Any> Flow<PagingData<T>>.toPagingValue(
     diffCallback = diffCallback,
 )
 
+/**
+ * Mutable value class that collects [PagingData] from a flow and
+ * converts it to [List].
+ *
+ * A [AsyncPagingDataDiffer] is exposed to interact with paging data.
+ */
 class PagingValue<T : Any>(
     private val scope: CoroutineScope,
     private val flow: Flow<PagingData<T>>,

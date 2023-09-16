@@ -4,6 +4,9 @@ import com.dokar.lazyrecycler.LazyAdapter
 import com.dokar.lazyrecycler.LazyViewHolder
 import com.dokar.lazyrecycler.Section
 
+/**
+ * The adapter supports paging.
+ */
 open class PagingLazyAdapter(
     sections: List<Section<Any, Any>>,
 ) : LazyAdapter(sections = sections) {
