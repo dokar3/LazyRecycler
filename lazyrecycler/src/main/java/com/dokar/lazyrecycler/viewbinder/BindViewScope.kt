@@ -4,7 +4,7 @@ import androidx.recyclerview.widget.RecyclerView
 
 interface BindViewScope<I> {
     /**
-     * Get position. If If this function is called before ViewHolder is attached
+     * Get position. If this function is called before ViewHolder is attached
      * to RecyclerView, [RecyclerView.NO_POSITION] will be returned.
      */
     fun getPosition(): Int
@@ -16,12 +16,12 @@ interface BindViewScope<I> {
     fun getItem(): I?
 
     /**
-     * Bind item
+     * Bind item.
      */
     fun bind(bind: (item: I) -> Unit)
 
     /**
-     * Bind item
+     * Bind item but also provide the item index.
      */
     fun bindIndexed(bind: (index: Int, item: I) -> Unit)
 }

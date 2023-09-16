@@ -45,6 +45,7 @@ dependencies {
     implementation project(':flow')
     implementation project(':livedata')
     implementation project(':rxjava3')
+    implementation project(':paging3')
 
     implementation libs.kotlin_stdlib
     implementation libs.androidx_core
@@ -56,6 +57,8 @@ dependencies {
     implementation libs.rxjava
     implementation libs.sticky_layoutmanager
     implementation libs.multidex
+    implementation libs.paging3
+    implementation libs.swiperefreshlayout
 
     testImplementation libs.test_junit
     androidTestImplementation libs.test_ext_junit
