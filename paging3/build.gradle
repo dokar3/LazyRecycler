@@ -35,10 +35,17 @@ android {
 
 dependencies {
     implementation project(':lazyrecycler')
+    implementation(libs.coroutines) {
+        version {
+            strictly '1.7.3'
+        }
+    }
 
     api libs.paging3
 
     testImplementation libs.test_junit
+    androidTestImplementation libs.paging3_testing
+    androidTestImplementation libs.test_coroutines
     androidTestImplementation libs.test_ext_junit
     androidTestImplementation libs.test_espresso
 }
