@@ -199,6 +199,8 @@ implementation 'io.github.dokar3:lazyrecycler-flow:latest_version'
 implementation 'io.github.dokar3:lazyrecycler-livedata:latest_version'
 // RxJava3
 implementation 'io.github.dokar3:lazyrecycler-rxjava3:latest_version'
+// Paging 3
+implementation 'io.github.dokar3:lazyrecycler-paging3:latest_version'
 ```
 
 Latest version: [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.github.dokar3/lazyrecycler/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.github.dokar3/lazyrecycler)
@@ -234,6 +236,55 @@ items(data = source.toMutableValue(), ...) { ... }
 ```
 
 
+### Paging 3
+
+To use Paging 3 with LazyRecycler, some additional setups are required.
+
+First, create a `PagingValue` from your `PagingData` flow.
+
+```kotlin
+// Required by the AsyncPagingDataDiffer
+val diffCallback = object : DiffUtil.ItemCallback<Post>() {
+    override fun areItemsTheSame(oldItem: Post, newItem: Post): Boolean =
+        oldItem.id == newItem.id
+
+    override fun areContentsTheSame(oldItem: Post, newItem: Post): Boolean =
+        oldItem == newItem
+}
+// A PagingValue is a MutableValue so we can use it in our items() setup
+val pagingValue = PagingValue(
+    scope = lifecycleScope,
+    // The PagingData flow: Flow<PagingData<Post>>
+    flow = viewModel.postFlow,
+    diffCallback = diffCallback,
+)
+```
+
+Second, setup `PagingLazyAdapter` to trigger loads when the list scrolls to the end.
+
+```kotlin
+lazyRecycler(
+    recyclerView = recyclerView,
+    adapterCreator = ::PagingLazyAdapter,
+) { ... }
+```
+
+Finally, setup `items` to use the paging value.
+
+```kotlin
+items(
+    data = pagingValue,
+    layout = ItemPostBinding::inflate,
+    differ = {
+        areItemsTheSame(pagingValue.diffCallback::areItemsTheSame)
+        areContentsTheSame(pagingValue.diffCallback::areContentsTheSame)
+    },
+) {
+    // binding
+}
+```
+
+
 ### Observe/stop observing data sources:
 
 LazyRecycler will observe the data sources automatically after attaching to the RecyclerView, so it's no necessary to call it manually. But there is a function call if really needed:
@@ -247,7 +298,6 @@ When using a RxJava data source or a Flow data source which was not created by t
 ```kotlin
 recycler.stopObserving()
 ```
-
 
 
 # Advanced

@@ -24,6 +24,7 @@
         <activity android:name=".chat.ChatActivity" />
         <activity android:name=".tetris.TetrisActivity" />
         <activity android:name=".sticky.StickyHeaderActivity" />
+        <activity android:name=".paging3.Paging3Activity" />
     </application>
 
 </manifest>

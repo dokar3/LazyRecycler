@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.dokar.lazyrecyclersample.chat.ChatActivity
 import com.dokar.lazyrecyclersample.databinding.ActivityMainBinding
 import com.dokar.lazyrecyclersample.gallery.GalleryActivity
+import com.dokar.lazyrecyclersample.paging3.Paging3Activity
 import com.dokar.lazyrecyclersample.sticky.StickyHeaderActivity
 import com.dokar.lazyrecyclersample.tetris.TetrisActivity
 
@@ -29,6 +30,9 @@ class MainActivity : AppCompatActivity() {
         }
         binding.btnStickyHeaderDemo.setOnClickListener {
             go(StickyHeaderActivity::class.java)
+        }
+        binding.btnPaging3Demo.setOnClickListener {
+            go(Paging3Activity::class.java)
         }
     }
 

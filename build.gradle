@@ -3,8 +3,8 @@ buildscript {
     ext {
         kotlin_version = '1.9.10'
 
-        COMPILE_SDK_VERSION = 33
-        TARGET_SDK_VERSION = 33
+        COMPILE_SDK_VERSION = 34
+        TARGET_SDK_VERSION = 34
     }
 
     ext.libs = [
@@ -17,6 +17,9 @@ buildscript {
             lifecycle_livedata  : 'androidx.lifecycle:lifecycle-livedata-ktx:2.6.2',
 
             multidex            : 'androidx.multidex:multidex:2.0.1',
+
+            paging3             : 'androidx.paging:paging-runtime:3.2.1',
+            paging3_testing     : 'androidx.paging:paging-testing:3.2.1',
 
             rxjava              : 'io.reactivex.rxjava3:rxjava:3.1.7',
 
@@ -36,6 +39,8 @@ buildscript {
             coil                : 'io.coil-kt:coil:1.4.0',
 
             sticky_layoutmanager: 'com.github.qiujayen:sticky-layoutmanager:1.0.1',
+
+            swiperefreshlayout  : 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0',
     ]
 
     repositories {

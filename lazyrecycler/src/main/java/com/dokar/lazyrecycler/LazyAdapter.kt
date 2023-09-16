@@ -59,8 +59,8 @@ open class LazyAdapter(
     }
 
     override fun onBindViewHolder(holder: LazyViewHolder<Any>, position: Int) {
-        val itemAndOffset = getItemAndOffset(position)
-        holder.bind(itemAndOffset.first, position - itemAndOffset.second)
+        val itemData = getItemData(position)
+        holder.bind(itemData.item, position - itemData.adapterPositionOffset)
     }
 
     override fun getItemCount(): Int {
@@ -103,12 +103,12 @@ open class LazyAdapter(
 
     override fun getItem(adapterPosition: Int): Any? {
         if (adapterPosition < 0) return null
-        return getItemAndOffset(adapterPosition).first
+        return getItemData(adapterPosition).item
     }
 
     override fun getPositionInSection(adapterPosition: Int): Int {
         if (adapterPosition == -1) return adapterPosition
-        return adapterPosition - getItemAndOffset(adapterPosition).second
+        return adapterPosition - getItemData(adapterPosition).adapterPositionOffset
     }
 
     internal fun sections(): List<Section<Any, Any>> {
@@ -225,7 +225,7 @@ open class LazyAdapter(
         return null
     }
 
-    private fun getItemAndOffset(position: Int): Pair<Any?, Int> {
+    protected fun getItemData(position: Int): ItemData {
         var offset = 0
         var index = 0
         while (index < sections.size) {
@@ -237,6 +237,16 @@ open class LazyAdapter(
             offset += size
             index++
         }
-        return sections[index].items[position - offset] to offset
+        return ItemData(
+            section = sections[index],
+            item = sections[index].items[position - offset],
+            adapterPositionOffset = offset,
+        )
     }
+
+    protected class ItemData(
+        val section: Section<Any, Any>,
+        val item: Any,
+        val adapterPositionOffset: Int,
+    )
 }

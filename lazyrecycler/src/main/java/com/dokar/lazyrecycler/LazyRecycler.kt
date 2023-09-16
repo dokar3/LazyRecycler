@@ -108,8 +108,8 @@ class LazyRecycler(
      * Insert new sections at specific position.
      *
      * @param index Insert position
-     * @param observeChanges Observe section changes, set to false if new sections do not
-     * contain any [MutableValue] to prevent additional check.
+     * @param observeChanges Observe section changes, set to false to prevent additional check
+     * if new sections do not contain any [MutableValue].
      * @param body Builder body.
      */
     fun newSections(
