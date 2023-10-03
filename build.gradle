@@ -21,7 +21,7 @@ buildscript {
             paging3             : 'androidx.paging:paging-runtime:3.2.1',
             paging3_testing     : 'androidx.paging:paging-testing:3.2.1',
 
-            rxjava              : 'io.reactivex.rxjava3:rxjava:3.1.7',
+            rxjava              : 'io.reactivex.rxjava3:rxjava:3.1.8',
 
             test_junit          : 'junit:junit:4.13.2',
             test_benchmark      : 'androidx.benchmark:benchmark-junit4:1.1.1',
