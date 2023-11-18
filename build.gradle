@@ -24,7 +24,7 @@ buildscript {
             rxjava              : 'io.reactivex.rxjava3:rxjava:3.1.8',
 
             test_junit          : 'junit:junit:4.13.2',
-            test_benchmark      : 'androidx.benchmark:benchmark-junit4:1.2.0',
+            test_benchmark      : 'androidx.benchmark:benchmark-junit4:1.2.1',
             test_runner         : 'androidx.test:runner:1.5.2',
             test_ext_junit      : 'androidx.test.ext:junit:1.1.5',
             test_espresso       : 'androidx.test.espresso:espresso-core:3.5.1',
