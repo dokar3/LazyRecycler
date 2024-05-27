@@ -19,7 +19,7 @@ buildscript {
             multidex            : 'androidx.multidex:multidex:2.0.1',
 
             paging3             : 'androidx.paging:paging-runtime:3.2.1',
-            paging3_testing     : 'androidx.paging:paging-testing:3.2.1',
+            paging3_testing     : 'androidx.paging:paging-testing:3.3.0',
 
             rxjava              : 'io.reactivex.rxjava3:rxjava:3.1.8',
 
